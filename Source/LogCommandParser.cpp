@@ -97,10 +97,8 @@ void        LogCommandParser::SendHelp(TransportInterface* transport, const Syst
     PrintChannels(systemAddress, transport);
 }
 void LogCommandParser::AddChannel(const char* channelName) {
-    unsigned channelIndex = 0;
-    channelIndex          = GetChannelIndexFromName(channelName);
     // Each channel can only be added once.
-    RakAssert(channelIndex == (unsigned)-1);
+    RakAssert(GetChannelIndexFromName(channelName) == (unsigned)-1);
 
     unsigned i;
     for (i = 0; i < 32; i++) {
@@ -127,7 +125,7 @@ void LogCommandParser::WriteLog(const char* channelName, const char* format, ...
     char    text[REMOTE_MAX_TEXT_INPUT];
     va_list ap;
     va_start(ap, format);
-    _vsnprintf(text, REMOTE_MAX_TEXT_INPUT, format, ap);
+    vsnprintf(text, REMOTE_MAX_TEXT_INPUT, format, ap);
     va_end(ap);
     text[REMOTE_MAX_TEXT_INPUT - 1] = 0;
 
@@ -138,7 +136,11 @@ void LogCommandParser::WriteLog(const char* channelName, const char* format, ...
     if (text[textLen - 1] == '\n') {
         text[textLen - 1] = 0;
     }
-    if (textLen < REMOTE_MAX_TEXT_INPUT - 4) strcat(text, "\r\n");
+    if (textLen < REMOTE_MAX_TEXT_INPUT - 4) {
+        text[textLen++] = '\r';
+        text[textLen++] = '\n';
+        text[textLen]   = 0;
+    }
     else {
         text[textLen - 3] = '\r';
         text[textLen - 2] = '\n';

@@ -117,7 +117,7 @@ OutputStreamAndDataWriter ^ ListenerContext::GetOutputStreamAndDataWriter(uint64
     // addr = ntohl(addr);
     char           buf[64];
     unsigned char* ucp = (unsigned char*)&addr;
-    sprintf(buf, "%d.%d.%d.%d", ucp[0] & 0xff, ucp[1] & 0xff, ucp[2] & 0xff, ucp[3] & 0xff);
+    snprintf(buf, sizeof(buf), "%d.%d.%d.%d", ucp[0] & 0xff, ucp[1] & 0xff, ucp[2] & 0xff, ucp[3] & 0xff);
     char portStr[32];
     _itoa(port, portStr, 10);
 
@@ -175,11 +175,11 @@ void ListenerContext::OnMessage(
     char      ip[64];
     RakString rs2;
     rs2.FromWideChar(eventArguments->RemoteAddress->DisplayName->Data());
-    strcpy(ip, rs2.C_String());
+    snprintf(ip, sizeof(ip), "%s", rs2.C_String());
     recvFromStruct->systemAddress.address.addr4.sin_addr.s_addr = RNS2_WindowsStore8::WinRTInet_Addr(ip);
     char portStr[64];
     rs2.FromWideChar(eventArguments->RemotePort->Data());
-    strcpy(portStr, rs2.C_String());
+    snprintf(portStr, sizeof(portStr), "%s", rs2.C_String());
     recvFromStruct->systemAddress.SetPortHostOrder(atoi(portStr));
     recvFromStruct->timeRead = RakNet::GetTimeUS();
     recvFromStruct->socket   = rns2;
@@ -354,7 +354,7 @@ void RNS2_WindowsStore8::DomainNameToIP(const char* domainName, char ip[65]) {
                 Platform::String ^ name = result2->GetAt(0)->RemoteHostName->DisplayName;
                 RakString rs2;
                 rs2.FromWideChar(name->Data());
-                strcpy(ip, rs2.C_String());
+                snprintf(ip, 65, "%s", rs2.C_String());
             } else {
                 ip[0] = 0;
             }
@@ -392,7 +392,7 @@ void RNS2_WindowsStore8::DomainNameToIP(const char* domainName, char ip[65]) {
             Platform::String ^name = view->GetAt(0)->RemoteHostName->DisplayName;
             RakString rs2;
             rs2.FromWideChar(name->Data());
-            strcpy(ip, rs2.C_String());
+            // legacy copy omitted in archived code path
     }
     else
     {

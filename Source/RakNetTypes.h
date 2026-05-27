@@ -298,6 +298,7 @@ struct RAK_DLL_EXPORT SystemAddress {
 
     bool IsLANAddress(void);
 
+    SystemAddress(const SystemAddress& input);
     SystemAddress& operator=(const SystemAddress& input);
     bool           operator==(const SystemAddress& right) const;
     bool           operator!=(const SystemAddress& right) const;
@@ -325,6 +326,7 @@ struct RAK_DLL_EXPORT RakNetGUID {
         g           = _g;
         systemIndex = (SystemIndex)-1;
     }
+    RakNetGUID(const RakNetGUID& input) = default;
     //	uint32_t g[6];
     uint64_t g;
 

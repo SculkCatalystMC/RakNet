@@ -45,7 +45,7 @@ bool WriteFileWithDirectories(const char* path, char* data, unsigned dataLength)
 
     if (path == 0 || path[0] == 0) return false;
 
-    strcpy(pathCopy, path);
+    snprintf(pathCopy, sizeof(pathCopy), "%s", path);
 
     // Ignore first / if there is one
     if (pathCopy[0]) {
@@ -113,9 +113,12 @@ bool DirectoryExists(const char* directory) {
     _finddata_t fileInfo;
     intptr_t    dir;
     char        baseDirWithStars[560];
-    strcpy(baseDirWithStars, directory);
+    snprintf(baseDirWithStars, sizeof(baseDirWithStars), "%s", directory);
     AddSlash(baseDirWithStars);
-    strcat(baseDirWithStars, "*.*");
+    size_t baseLen = strlen(baseDirWithStars);
+    if (baseLen + 3 < sizeof(baseDirWithStars)) {
+        memcpy(baseDirWithStars + baseLen, "*.*", 4);
+    }
     dir = _findfirst(baseDirWithStars, &fileInfo);
     if (dir == -1) return false;
     _findclose(dir);

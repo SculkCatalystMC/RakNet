@@ -65,7 +65,7 @@ RNS2_NativeClient::Bind(NativeClientBindParameters* bindParameters, const char* 
             NetAddressPrivate::ReplacePort(client_addr, bindParameters->port, &client_addr);
         }
 
-        bindState = BS_IN_PROGRESS;
+        bindState = BindState::InProgress;
 
         RAKNET_DEBUG_PRINTF("attempting to bind to %s\n", NetAddressPrivate::Describe(client_addr, true).c_str());
         PP_CompletionCallback cc = PP_MakeCompletionCallback(RNS2_NativeClient::onSocketBound, this);

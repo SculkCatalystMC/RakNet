@@ -94,7 +94,12 @@ uint32_t SuperFastHashIncremental(const char* data, int len, unsigned int lastHa
 }
 
 uint32_t SuperFastHashFile(const char* filename) {
-    FILE* fp = fopen(filename, "rb");
+    FILE* fp = 0;
+#if defined(_WIN32)
+    fopen_s(&fp, filename, "rb");
+#else
+    fp = fopen(filename, "rb");
+#endif
     if (fp == 0) return 0;
     uint32_t hash = SuperFastHashFilePtr(fp);
     fclose(fp);

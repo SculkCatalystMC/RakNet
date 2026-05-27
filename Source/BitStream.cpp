@@ -799,7 +799,8 @@ int BitStream::NumberOfLeadingZeroes(uint64_t x) {
 void BitStream::AssertStreamEmpty(void) { RakAssert(readOffset == numberOfBitsUsed); }
 void BitStream::PrintBits(char* out) const {
     if (numberOfBitsUsed <= 0) {
-        strcpy(out, "No bits\n");
+        const char* noBits = "No bits\n";
+        memcpy(out, noBits, strlen(noBits) + 1);
         return;
     }
 
@@ -830,10 +831,15 @@ void BitStream::PrintBits(void) const {
     RAKNET_DEBUG_PRINTF("%s", out);
 }
 void BitStream::PrintHex(char* out) const {
+    static const char hexDigits[] = "0123456789abcdef";
     BitSize_t i;
     for (i = 0; i < GetNumberOfBytesUsed(); i++) {
-        sprintf(out + i * 3, "%02x ", data[i]);
+        const unsigned char value = data[i];
+        out[i * 3]                = hexDigits[(value >> 4) & 0x0F];
+        out[i * 3 + 1]            = hexDigits[value & 0x0F];
+        out[i * 3 + 2]            = ' ';
     }
+    out[i * 3] = 0;
 }
 void BitStream::PrintHex(void) const {
     char out[2048];

@@ -14,7 +14,7 @@
 #include "RakNetStatistics.h"
 #include "GetTime.h"
 #include "RakString.h"
-#include <stdio.h> // sprintf
+#include <string.h>
 
 using namespace RakNet;
 
@@ -22,14 +22,15 @@ using namespace RakNet;
 // Buffer must be hold enough to hold the output string.  See the source to get
 // an idea of how many bytes will be output
 void RAK_DLL_EXPORT RakNet::StatisticsToString(RakNetStatistics* s, char* buffer, int verbosityLevel) {
+    RakString output;
     if (s == 0) {
-        sprintf(buffer, "stats is a NULL pointer in statsToString\n");
+        output = "stats is a NULL pointer in statsToString\n";
+        memcpy(buffer, output.C_String(), output.GetLength() + 1);
         return;
     }
 
     if (verbosityLevel == 0) {
-        sprintf(
-            buffer,
+        output = RakString(
             "Bytes per second sent     %" PRINTF_64_BIT_MODIFIER "u\n"
             "Bytes per second received %" PRINTF_64_BIT_MODIFIER "u\n"
             "Current packetloss        %.1f%%\n",
@@ -38,8 +39,7 @@ void RAK_DLL_EXPORT RakNet::StatisticsToString(RakNetStatistics* s, char* buffer
             s->packetlossLastSecond * 100.0f
         );
     } else if (verbosityLevel == 1) {
-        sprintf(
-            buffer,
+        output = RakString(
             "Actual bytes per second sent       %" PRINTF_64_BIT_MODIFIER "u\n"
             "Actual bytes per second received   %" PRINTF_64_BIT_MODIFIER "u\n"
             "Message bytes per second pushed    %" PRINTF_64_BIT_MODIFIER "u\n"
@@ -61,28 +61,21 @@ void RAK_DLL_EXPORT RakNet::StatisticsToString(RakNetStatistics* s, char* buffer
         );
 
         if (s->BPSLimitByCongestionControl != 0) {
-            char buff2[128];
-            sprintf(
-                buff2,
+            output += RakString(
                 "Send capacity                    %" PRINTF_64_BIT_MODIFIER "u bytes per second (%.0f%%)\n",
                 (long long unsigned int)s->BPSLimitByCongestionControl,
                 100.0f * s->valueOverLastSecond[ACTUAL_BYTES_SENT] / s->BPSLimitByCongestionControl
             );
-            strcat(buffer, buff2);
         }
         if (s->BPSLimitByOutgoingBandwidthLimit != 0) {
-            char buff2[128];
-            sprintf(
-                buff2,
+            output += RakString(
                 "Send limit                       %" PRINTF_64_BIT_MODIFIER "u (%.0f%%)\n",
                 (long long unsigned int)s->BPSLimitByOutgoingBandwidthLimit,
                 100.0f * s->valueOverLastSecond[ACTUAL_BYTES_SENT] / s->BPSLimitByOutgoingBandwidthLimit
             );
-            strcat(buffer, buff2);
         }
     } else {
-        sprintf(
-            buffer,
+        output = RakString(
             "Actual bytes per second sent         %" PRINTF_64_BIT_MODIFIER "u\n"
             "Actual bytes per second received     %" PRINTF_64_BIT_MODIFIER "u\n"
             "Message bytes per second sent        %" PRINTF_64_BIT_MODIFIER "u\n"
@@ -134,24 +127,20 @@ void RAK_DLL_EXPORT RakNet::StatisticsToString(RakNetStatistics* s, char* buffer
         );
 
         if (s->BPSLimitByCongestionControl != 0) {
-            char buff2[128];
-            sprintf(
-                buff2,
+            output += RakString(
                 "Send capacity                    %" PRINTF_64_BIT_MODIFIER "u bytes per second (%.0f%%)\n",
                 (long long unsigned int)s->BPSLimitByCongestionControl,
                 100.0f * s->valueOverLastSecond[ACTUAL_BYTES_SENT] / s->BPSLimitByCongestionControl
             );
-            strcat(buffer, buff2);
         }
         if (s->BPSLimitByOutgoingBandwidthLimit != 0) {
-            char buff2[128];
-            sprintf(
-                buff2,
+            output += RakString(
                 "Send limit                       %" PRINTF_64_BIT_MODIFIER "u (%.0f%%)\n",
                 (long long unsigned int)s->BPSLimitByOutgoingBandwidthLimit,
                 100.0f * s->valueOverLastSecond[ACTUAL_BYTES_SENT] / s->BPSLimitByOutgoingBandwidthLimit
             );
-            strcat(buffer, buff2);
         }
     }
+
+    memcpy(buffer, output.C_String(), output.GetLength() + 1);
 }

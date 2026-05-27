@@ -21,7 +21,7 @@ char* FormatString(const char* format, ...) {
     va_start(ap, format);
 
     if (++textIndex == 4) textIndex = 0;
-    _vsnprintf(text[textIndex], 8096, format, ap);
+    vsnprintf(text[textIndex], 8096, format, ap);
     va_end(ap);
     text[textIndex][8096 - 1] = 0;
 
@@ -31,7 +31,8 @@ char* FormatString(const char* format, ...) {
 char* FormatStringTS(char* output, const char* format, ...) {
     va_list ap;
     va_start(ap, format);
-    _vsnprintf(output, 512, format, ap);
+    vsnprintf(output, 512, format, ap);
     va_end(ap);
+    output[512 - 1] = 0;
     return output;
 }

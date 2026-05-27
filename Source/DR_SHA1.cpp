@@ -62,9 +62,11 @@
         w  = ROL32(w, 30);                                                                                             \
     }
 
+#ifdef _MSC_VER
 #pragma warning(push)
 // Disable compiler warning 'Conditional expression is constant'
 #pragma warning(disable : 4127)
+#endif
 
 CSHA1::CSHA1() {
     m_block = (SHA1_WORKSPACE_BLOCK*)m_workspace;
@@ -267,27 +269,42 @@ void CSHA1::Final() {
 }
 
 #ifdef SHA1_UTILITY_FUNCTIONS
-bool CSHA1::ReportHash(TCHAR* tszReport, REPORT_TYPE rtReportType) const {
+bool CSHA1::ReportHash(TCHAR* tszReport, ReportType rtReportType) const {
     if (tszReport == NULL) return false;
 
+    static const size_t REPORT_BUFFER_CAPACITY = 84;
     TCHAR tszTemp[16];
+    size_t outLen = 0;
+    tszReport[0]  = 0;
 
-    if ((rtReportType == REPORT_HEX) || (rtReportType == REPORT_HEX_SHORT)) {
+    if ((rtReportType == ReportType::Hex) || (rtReportType == ReportType::HexShort)) {
         _sntprintf(tszTemp, 15, _T("%02X"), m_digest[0]);
-        _tcscpy(tszReport, tszTemp);
+        size_t tempLen = _tcslen(tszTemp);
+        if (tempLen + 1 > REPORT_BUFFER_CAPACITY) return false;
+        memcpy(tszReport, tszTemp, (tempLen + 1) * sizeof(TCHAR));
+        outLen = tempLen;
 
-        const TCHAR* lpFmt = ((rtReportType == REPORT_HEX) ? _T(" %02X") : _T("%02X"));
+        const TCHAR* lpFmt = ((rtReportType == ReportType::Hex) ? _T(" %02X") : _T("%02X"));
         for (size_t i = 1; i < 20; ++i) {
             _sntprintf(tszTemp, 15, lpFmt, m_digest[i]);
-            _tcscat(tszReport, tszTemp);
+            tempLen = _tcslen(tszTemp);
+            if (outLen + tempLen + 1 > REPORT_BUFFER_CAPACITY) return false;
+            memcpy(tszReport + outLen, tszTemp, (tempLen + 1) * sizeof(TCHAR));
+            outLen += tempLen;
         }
-    } else if (rtReportType == REPORT_DIGIT) {
+    } else if (rtReportType == ReportType::Digit) {
         _sntprintf(tszTemp, 15, _T("%u"), m_digest[0]);
-        _tcscpy(tszReport, tszTemp);
+        size_t tempLen = _tcslen(tszTemp);
+        if (tempLen + 1 > REPORT_BUFFER_CAPACITY) return false;
+        memcpy(tszReport, tszTemp, (tempLen + 1) * sizeof(TCHAR));
+        outLen = tempLen;
 
         for (size_t i = 1; i < 20; ++i) {
             _sntprintf(tszTemp, 15, _T(" %u"), m_digest[i]);
-            _tcscat(tszReport, tszTemp);
+            tempLen = _tcslen(tszTemp);
+            if (outLen + tempLen + 1 > REPORT_BUFFER_CAPACITY) return false;
+            memcpy(tszReport + outLen, tszTemp, (tempLen + 1) * sizeof(TCHAR));
+            outLen += tempLen;
         }
     } else return false;
 
@@ -296,7 +313,7 @@ bool CSHA1::ReportHash(TCHAR* tszReport, REPORT_TYPE rtReportType) const {
 #endif
 
 #ifdef SHA1_STL_FUNCTIONS
-bool CSHA1::ReportHashStl(std::basic_string<TCHAR>& strOut, REPORT_TYPE rtReportType) const {
+bool CSHA1::ReportHashStl(std::basic_string<TCHAR>& strOut, ReportType rtReportType) const {
     TCHAR      tszOut[84];
     const bool bResult = ReportHash(tszOut, rtReportType);
     if (bResult) strOut = tszOut;
@@ -369,4 +386,6 @@ void CSHA1::HMAC(
     // 	secondHash.ReportHash( report, 0 );
 }
 
+#ifdef _MSC_VER
 #pragma warning(pop)
+#endif

@@ -52,8 +52,9 @@ void StringTable::AddString(const char* str, bool copyString) {
     StrAndBool sab;
     sab.b = copyString;
     if (copyString) {
-        sab.str = (char*)rakMalloc_Ex(strlen(str) + 1, _FILE_AND_LINE_);
-        strcpy(sab.str, str);
+        size_t strLen = strlen(str) + 1;
+        sab.str       = (char*)rakMalloc_Ex(strLen, _FILE_AND_LINE_);
+        memcpy(sab.str, str, strLen);
     } else {
         sab.str = (char*)str;
     }
@@ -101,8 +102,10 @@ bool StringTable::DecodeString(char* output, int maxCharsToWrite, RakNet::BitStr
             return false;
         }
 
-        strncpy(output, orderedStringList[index].str, maxCharsToWrite);
-        output[maxCharsToWrite - 1] = 0;
+        size_t copyLen = strlen(orderedStringList[index].str);
+        if (copyLen >= (size_t)maxCharsToWrite) copyLen = (size_t)maxCharsToWrite - 1;
+        memcpy(output, orderedStringList[index].str, copyLen);
+        output[copyLen] = 0;
     }
 
     return true;

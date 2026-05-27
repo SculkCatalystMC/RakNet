@@ -45,7 +45,6 @@ void DataCompressor::Compress(unsigned char* userData, unsigned sizeInBytes, Rak
 unsigned DataCompressor::DecompressAndAllocate(RakNet::BitStream* input, unsigned char** output) {
     HuffmanEncodingTree tree;
     unsigned int        bitsUsed, destinationSizeInBytes;
-    unsigned int        decompressedBytes;
     unsigned int        frequencyTable[256];
     unsigned            i;
 
@@ -61,7 +60,6 @@ unsigned DataCompressor::DecompressAndAllocate(RakNet::BitStream* input, unsigne
     }
     *output = (unsigned char*)rakMalloc_Ex(destinationSizeInBytes, _FILE_AND_LINE_);
     tree.GenerateFromFrequencyTable(frequencyTable);
-    decompressedBytes = tree.DecodeArray(input, bitsUsed, destinationSizeInBytes, *output);
-    RakAssert(decompressedBytes == destinationSizeInBytes);
+    RakAssert(tree.DecodeArray(input, bitsUsed, destinationSizeInBytes, *output) == destinationSizeInBytes);
     return destinationSizeInBytes;
 }

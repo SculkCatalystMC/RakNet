@@ -21,7 +21,12 @@ unsigned int IncrementalReadInterface::GetFilePart(
     FileListNodeContext context
 ) {
     static_cast<void>(context);
-    FILE* fp = fopen(filename, "rb");
+    FILE* fp = 0;
+#if defined(_WIN32)
+    fopen_s(&fp, filename, "rb");
+#else
+    fp = fopen(filename, "rb");
+#endif
     if (fp == 0) return 0;
     fseek(fp, startReadBytes, SEEK_SET);
     unsigned int numRead = (unsigned int)fread(preallocatedDestination, 1, numBytesToRead, fp);

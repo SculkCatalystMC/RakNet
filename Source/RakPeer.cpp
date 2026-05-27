@@ -607,7 +607,7 @@ StartupResult RakPeer::Startup(
       #if RAKPEER_USER_THREADED!=1
 
       #if defined(SN_TARGET_PSP2)
-      sprintf(threadName, "RecvFromLoop_%p", this);
+    // format thread name with pointer value
       //errorCode = RakNet::RakThread::Create(RecvFromLoop, rpai, threadPriority,
       threadName, 1+i, runtime); errorCode = RakNet::RakThread::Create(RecvFromLoop,
       rpai, threadPriority, threadName, 1024*1); #else errorCode =
@@ -1848,7 +1848,7 @@ void RakPeer::AddToBanList(const char* IP, RakNet::TimeMS milliseconds) {
     banStruct->IP        = (char*)rakMalloc_Ex(16, _FILE_AND_LINE_);
     if (milliseconds == 0) banStruct->timeout = 0; // Infinite
     else banStruct->timeout = time + milliseconds;
-    strcpy(banStruct->IP, IP);
+    snprintf(banStruct->IP, 16, "%s", IP);
     banListMutex.Lock();
     banList.Insert(banStruct, _FILE_AND_LINE_);
     banListMutex.Unlock();
@@ -4418,7 +4418,7 @@ bool ProcessOfflineNetworkPacket(
         *isOfflineMessage = true;
     } else if (((unsigned char)data[0] == ID_UNCONNECTED_PING
                 || (unsigned char)data[0] == ID_UNCONNECTED_PING_OPEN_CONNECTIONS)
-               && length >= sizeof(unsigned char) + sizeof(RakNet::Time) + sizeof(OFFLINE_MESSAGE_DATA_ID)) {
+               && (size_t)length >= sizeof(unsigned char) + sizeof(RakNet::Time) + sizeof(OFFLINE_MESSAGE_DATA_ID)) {
         *isOfflineMessage = memcmp(
                                 data + sizeof(unsigned char) + sizeof(RakNet::Time),
                                 OFFLINE_MESSAGE_DATA_ID,
@@ -4469,7 +4469,7 @@ bool ProcessOfflineNetworkPacket(
         // any size, but are never processed from connected systems.
         if (((unsigned char)data[0] == ID_UNCONNECTED_PING_OPEN_CONNECTIONS
              || (unsigned char)(data)[0] == ID_UNCONNECTED_PING)
-            && length >= sizeof(unsigned char) + sizeof(RakNet::Time) + sizeof(OFFLINE_MESSAGE_DATA_ID)) {
+            && (size_t)length >= sizeof(unsigned char) + sizeof(RakNet::Time) + sizeof(OFFLINE_MESSAGE_DATA_ID)) {
             if ((unsigned char)(data)[0] == ID_UNCONNECTED_PING
                 || rakPeer->AllowIncomingConnections()) // Open connections with players
             {
@@ -4743,14 +4743,17 @@ bool ProcessOfflineNetworkPacket(
             RakNetGUID guid;
             bs.Read(guid);
             SystemAddress bindingAddress;
-            bool          b = bs.Read(bindingAddress);
-            RakAssert(b);
+            bool readBindingAddress = bs.Read(bindingAddress);
+            RakAssert(readBindingAddress);
+            static_cast<void>(readBindingAddress);
             uint16_t mtu;
-            b = bs.Read(mtu);
-            RakAssert(b);
+            bool readMtu = bs.Read(mtu);
+            RakAssert(readMtu);
+            static_cast<void>(readMtu);
             bool doSecurity = false;
-            b               = bs.Read(doSecurity);
-            RakAssert(b);
+            bool readDoSecurity = bs.Read(doSecurity);
+            RakAssert(readDoSecurity);
+            static_cast<void>(readDoSecurity);
 
 #if LIBCAT_SECURITY == 1
             char answer[cat::EasyHandshake::ANSWER_BYTES];

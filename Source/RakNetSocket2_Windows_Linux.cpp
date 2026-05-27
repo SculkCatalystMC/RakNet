@@ -67,17 +67,24 @@ void GetMyIP_Windows_Linux_IPV4(SystemAddress addresses[MAXIMUM_NUMBER_OF_INTERN
     (void)err;
     RakAssert(err != -1);
 
-    struct hostent* phe = gethostbyname(ac);
+    struct addrinfo  hints;
+    struct addrinfo* servinfo = 0;
+    struct addrinfo* aip;
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family   = AF_INET;
+    hints.ai_socktype = SOCK_DGRAM;
 
-    if (phe == 0) {
-        RakAssert(phe != 0);
+    if (getaddrinfo(ac, "", &hints, &servinfo) != 0 || servinfo == 0) {
+        RakAssert(servinfo != 0);
         return;
     }
-    for (idx = 0; idx < MAXIMUM_NUMBER_OF_INTERNAL_IDS; ++idx) {
-        if (phe->h_addr_list[idx] == 0) break;
 
-        memcpy(&addresses[idx].address.addr4.sin_addr, phe->h_addr_list[idx], sizeof(struct in_addr));
+    for (idx = 0, aip = servinfo; aip != NULL && idx < MAXIMUM_NUMBER_OF_INTERNAL_IDS; aip = aip->ai_next, ++idx) {
+        struct sockaddr_in* ipv4 = reinterpret_cast<struct sockaddr_in*>(aip->ai_addr);
+        memcpy(&addresses[idx].address.addr4, ipv4, sizeof(sockaddr_in));
     }
+
+    freeaddrinfo(servinfo);
 
     while (idx < MAXIMUM_NUMBER_OF_INTERNAL_IDS) {
         addresses[idx] = UNASSIGNED_SYSTEM_ADDRESS;

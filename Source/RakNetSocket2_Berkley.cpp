@@ -21,6 +21,12 @@
 
 #include "Itoa.h"
 
+namespace {
+bool ParseIpv4Address(const char* text, in_addr* outAddress) {
+    return inet_pton(AF_INET, text, outAddress) == 1;
+}
+}
+
 void RNS2_Berkley::SetSocketOptions(void) {
     int r;
     // This doubles the max throughput rate
@@ -40,6 +46,7 @@ void RNS2_Berkley::SetSocketOptions(void) {
     sock_opt = 1024 * 16;
     r        = setsockopt__(rns2Socket, SOL_SOCKET, SO_SNDBUF, (char*)&sock_opt, sizeof(sock_opt));
     RakAssert(r == 0);
+    static_cast<void>(r);
 }
 
 void RNS2_Berkley::SetNonBlockingSocket(unsigned long nonblocking) {
@@ -60,6 +67,7 @@ void RNS2_Berkley::SetIPHdrIncl(int ipHdrIncl) {
     setsockopt__(rns2Socket, IPPROTO_IP, IP_HDRINCL, (char*)&ipHdrIncl, sizeof(ipHdrIncl));
 }
 void RNS2_Berkley::SetDoNotFragment(int opt) {
+    static_cast<void>(opt);
 #if defined(IP_DONTFRAGMENT)
 #if defined(_WIN32) && !defined(_DEBUG)
     // If this assert hit you improperly linked against WSock32.h
@@ -79,8 +87,7 @@ void RNS2_Berkley::GetSystemAddressIPV4(RNS2Socket rns2Socket, SystemAddress* sy
     systemAddressOut->address.addr4.sin_addr.s_addr = sa.sin_addr.s_addr;
 
     if (systemAddressOut->address.addr4.sin_addr.s_addr == INADDR_ANY) {
-
-        systemAddressOut->address.addr4.sin_addr.s_addr = inet_addr__("127.0.0.1");
+        systemAddressOut->address.addr4.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
     }
 }
 void RNS2_Berkley::GetSystemAddressIPV4And6(RNS2Socket rns2Socket, SystemAddress* systemAddressOut) {
@@ -164,8 +171,10 @@ RNS2_Berkley::BindSharedIPV4(RNS2_BerkleyBindParameters* bindParameters, const c
     boundAddress.address.addr4.sin_family = AF_INET;
 
     if (bindParameters->hostAddress && bindParameters->hostAddress[0]) {
-
-        boundAddress.address.addr4.sin_addr.s_addr = inet_addr__(bindParameters->hostAddress);
+        if (!ParseIpv4Address(bindParameters->hostAddress, &boundAddress.address.addr4.sin_addr)) {
+            closesocket__(rns2Socket);
+            return BR_FAILED_TO_BIND_SOCKET;
+        }
 
     } else {
         //		RAKNET_DEBUG_PRINTF("Binding any on port %i\n", port);

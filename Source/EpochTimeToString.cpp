@@ -23,10 +23,17 @@ char* EpochTimeToString(long long time) {
 
     if (++textIndex == 4) textIndex = 0;
 
-    struct tm* timeinfo;
-    time_t     t = time;
-    timeinfo     = localtime(&t);
-    strftime(text[textIndex], 64, "%c.", timeinfo);
+    time_t t = time;
+#if defined(_WIN32)
+    struct tm timeinfo;
+    localtime_s(&timeinfo, &t);
+    strftime(text[textIndex], 64, "%c.", &timeinfo);
+#else
+    struct tm  timeinfo;
+    struct tm* timeinfoPtr = localtime_r(&t, &timeinfo);
+    if (timeinfoPtr) strftime(text[textIndex], 64, "%c.", timeinfoPtr);
+    else text[textIndex][0] = 0;
+#endif
 
     /*
     time_t

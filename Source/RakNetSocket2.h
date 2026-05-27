@@ -231,7 +231,7 @@ protected:
     bool                       sendInProgress;
     SimpleMutex                sendInProgressMutex;
 
-    enum BindState { BS_UNBOUND, BS_IN_PROGRESS, BS_BOUND, BS_FAILED } bindState;
+    enum class BindState : unsigned char { Unbound, InProgress, Bound, Failed } bindState;
     DataStructures::Queue<RNS2_SendParameters_NativeClient*> bufferedSends;
     SimpleMutex                                              bufferedSendsMutex;
 };

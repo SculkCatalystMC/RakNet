@@ -52,6 +52,7 @@ void RakSleep(unsigned int ms) {
 
     pthread_mutex_lock(&fakeMutex);
     rt = pthread_cond_timedwait(&fakeCond, &fakeMutex, &timeToWait);
+    static_cast<void>(rt);
     pthread_mutex_unlock(&fakeMutex);
 #endif
 }

@@ -12,6 +12,7 @@
 #include "DS_OrderedList.h"
 #include "Itoa.h"
 #include "RakAssert.h"
+#include <stdio.h>
 #include <string.h>
 
 using namespace DataStructures;
@@ -55,8 +56,8 @@ Table::Cell::Cell(const Table::Cell& input) {
     isEmpty = input.isEmpty;
     i       = input.i;
     ptr     = input.ptr;
+    c       = 0;
     if (input.c) {
-        if (c) rakFree_Ex(c, _FILE_AND_LINE_);
         c = (char*)rakMalloc_Ex((int)i, _FILE_AND_LINE_);
         memcpy(c, input.c, (int)i);
     }
@@ -83,7 +84,7 @@ void Table::Cell::Set(const char* input) {
     if (input) {
         i = (int)strlen(input) + 1;
         c = (char*)rakMalloc_Ex((int)i, _FILE_AND_LINE_);
-        strcpy(c, input);
+        memcpy(c, input, (size_t)i);
     } else {
         c = 0;
         i = 0;
@@ -121,7 +122,7 @@ void Table::Cell::Get(double* output) {
 }
 void Table::Cell::Get(char* output) {
     RakAssert(isEmpty == false);
-    strcpy(output, c);
+    memcpy(output, c, (size_t)i);
 }
 void Table::Cell::Get(char* output, int* outputLength) {
     RakAssert(isEmpty == false);
@@ -180,7 +181,10 @@ Table::ColumnDescriptor::ColumnDescriptor() {}
 Table::ColumnDescriptor::~ColumnDescriptor() {}
 Table::ColumnDescriptor::ColumnDescriptor(const char cn[_TABLE_MAX_COLUMN_NAME_LENGTH], ColumnType ct) {
     columnType = ct;
-    strcpy(columnName, cn);
+    size_t copyLen = strlen(cn);
+    if (copyLen >= _TABLE_MAX_COLUMN_NAME_LENGTH) copyLen = _TABLE_MAX_COLUMN_NAME_LENGTH - 1;
+    memcpy(columnName, cn, copyLen);
+    columnName[copyLen] = 0;
 }
 void Table::Row::UpdateCell(unsigned columnIndex, double value) {
     cells[columnIndex]->Clear();
@@ -779,13 +783,18 @@ void Table::PrintColumnHeaders(char* out, int outLength, char columnDelineator) 
     for (i = 0; i < columns.Size(); i++) {
         if (i != 0) {
             len = (int)strlen(out);
-            if (len < outLength - 1) sprintf(out + len, "%c", columnDelineator);
+            if (len < outLength - 1) {
+                out[len]     = columnDelineator;
+                out[len + 1] = 0;
+            }
             else return;
         }
 
         len = (int)strlen(out);
-        if (len < outLength - (int)strlen(columns[i].columnName)) sprintf(out + len, "%s", columns[i].columnName);
-        else return;
+        size_t colNameLen = strlen(columns[i].columnName);
+        if (len < outLength - (int)colNameLen) {
+            memcpy(out + len, columns[i].columnName, colNameLen + 1);
+        } else return;
     }
 }
 void Table::PrintRow(
@@ -802,7 +811,11 @@ void Table::PrintRow(
     }
 
     if (inputRow->cells.Size() != columns.Size()) {
-        strncpy(out, "Cell width does not match column width.\n", outLength);
+        const char* errorMessage = "Cell width does not match column width.\n";
+        size_t      copyLen      = strlen(errorMessage);
+        if (copyLen >= (size_t)outLength) copyLen = (size_t)outLength - 1;
+        memcpy(out, errorMessage, copyLen);
+        out[copyLen] = 0;
         out[outLength - 1] = 0;
         return;
     }
@@ -814,22 +827,24 @@ void Table::PrintRow(
     for (i = 0; i < columns.Size(); i++) {
         if (columns[i].columnType == NUMERIC) {
             if (inputRow->cells[i]->isEmpty == false) {
-                sprintf(buff, "%f", inputRow->cells[i]->i);
+                snprintf(buff, sizeof(buff), "%f", inputRow->cells[i]->i);
                 len = (int)strlen(buff);
             } else len = 0;
             if (i + 1 != columns.Size()) buff[len++] = columnDelineator;
             buff[len] = 0;
         } else if (columns[i].columnType == STRING) {
             if (inputRow->cells[i]->isEmpty == false && inputRow->cells[i]->c) {
-                strncpy(buff, inputRow->cells[i]->c, 512 - 2);
-                buff[512 - 2] = 0;
+                size_t copyLen = strlen(inputRow->cells[i]->c);
+                if (copyLen >= sizeof(buff) - 1) copyLen = sizeof(buff) - 2;
+                memcpy(buff, inputRow->cells[i]->c, copyLen);
+                buff[copyLen] = 0;
                 len           = (int)strlen(buff);
             } else len = 0;
             if (i + 1 != columns.Size()) buff[len++] = columnDelineator;
             buff[len] = 0;
         } else if (columns[i].columnType == POINTER) {
             if (inputRow->cells[i]->isEmpty == false && inputRow->cells[i]->ptr) {
-                sprintf(buff, "%p", inputRow->cells[i]->ptr);
+                snprintf(buff, sizeof(buff), "%p", inputRow->cells[i]->ptr);
                 len = (int)strlen(buff);
             } else len = 0;
             if (i + 1 != columns.Size()) buff[len++] = columnDelineator;
@@ -843,7 +858,10 @@ void Table::PrintRow(
 
         len = (int)strlen(out);
         if (outLength == len + 1) break;
-        strncpy(out + len, buff, outLength - len);
+        size_t copyLen = strlen(buff);
+        if (copyLen >= (size_t)(outLength - len)) copyLen = (size_t)(outLength - len - 1);
+        memcpy(out + len, buff, copyLen);
+        out[len + copyLen] = 0;
         out[outLength - 1] = 0;
     }
 }

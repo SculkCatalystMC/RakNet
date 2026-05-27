@@ -369,10 +369,12 @@ RakNet::TimeMS ReliabilityLayer::GetTimeoutTime(void) { return timeoutTime; }
 // Initialize the variables
 //-------------------------------------------------------------------------------------------------------
 void ReliabilityLayer::InitializeVariables(void) {
-    memset(orderedWriteIndex, 0, NUMBER_OF_ORDERED_STREAMS * sizeof(OrderingIndexType));
-    memset(sequencedWriteIndex, 0, NUMBER_OF_ORDERED_STREAMS * sizeof(OrderingIndexType));
-    memset(orderedReadIndex, 0, NUMBER_OF_ORDERED_STREAMS * sizeof(OrderingIndexType));
-    memset(highestSequencedReadIndex, 0, NUMBER_OF_ORDERED_STREAMS * sizeof(OrderingIndexType));
+    for (unsigned i = 0; i < NUMBER_OF_ORDERED_STREAMS; ++i) {
+        orderedWriteIndex[i]          = 0;
+        sequencedWriteIndex[i]        = 0;
+        orderedReadIndex[i]           = 0;
+        highestSequencedReadIndex[i]  = 0;
+    }
     memset(&statistics, 0, sizeof(statistics));
     memset(&heapIndexOffsets, 0, sizeof(heapIndexOffsets));
 
@@ -991,7 +993,7 @@ bool ReliabilityLayer::HandleSocketReceiveFromConnectedPlayer(
                     // overflow is intentional
                     holeCount =
                         (DatagramSequenceNumberType)(internalPacket->reliableMessageNumber - receivedPacketsBaseIndex);
-                    const DatagramSequenceNumberType typeRange = (DatagramSequenceNumberType)(const uint32_t)-1;
+                    const DatagramSequenceNumberType typeRange = static_cast<DatagramSequenceNumberType>(0xFFFFFFFFu);
 
                     // TESTING1
                     // 					printf("waiting on
@@ -1908,6 +1910,7 @@ void ReliabilityLayer::Update(
 #else
     timeMs = (RakNet::TimeMS)(time / (CCTimeType)1000);
 #endif
+    static_cast<void>(timeMs);
 
 #ifdef _DEBUG
     while (delayList.Size()) {
@@ -2954,7 +2957,7 @@ InternalPacket* ReliabilityLayer::CreateInternalPacketFromBitStream(RakNet::BitS
     // (Incoming data may be all zeros due to padding)
     bitStream->AlignReadToByteBoundary(); // Potentially unaligned
     bitStream->ReadBits((unsigned char*)(&(tempChar)), 3);
-    internalPacket->reliability = (const PacketReliability)tempChar;
+    internalPacket->reliability = static_cast<PacketReliability>(tempChar);
     readSuccess                 = bitStream->Read(hasSplitPacket); // Read 1 bit to indicate if splitPacketCount>0
     bitStream->AlignReadToByteBoundary();
     unsigned short s;
@@ -2972,7 +2975,7 @@ InternalPacket* ReliabilityLayer::CreateInternalPacketFromBitStream(RakNet::BitS
         // RELIABLE_ORDERED_WITH_ACK_RECEIPT
     )
         bitStream->Read(internalPacket->reliableMessageNumber); // Message sequence number
-    else internalPacket->reliableMessageNumber = (MessageNumberType)(const uint32_t)-1;
+    else internalPacket->reliableMessageNumber = static_cast<MessageNumberType>(0xFFFFFFFFu);
     bitStream->AlignReadToByteBoundary(); // Potentially nothing else to Read
 
     if (internalPacket->reliability == UNRELIABLE_SEQUENCED || internalPacket->reliability == RELIABLE_SEQUENCED) {
@@ -3161,7 +3164,7 @@ bool ReliabilityLayer::IsOlderOrderedPacket(
     OrderingIndexType newPacketOrderingIndex,
     OrderingIndexType waitingForPacketOrderingIndex
 ) {
-    OrderingIndexType maxRange = (OrderingIndexType)(const uint32_t)-1;
+    OrderingIndexType maxRange = static_cast<OrderingIndexType>(0xFFFFFFFFu);
 
     if (waitingForPacketOrderingIndex > maxRange / (OrderingIndexType)2) {
         if (newPacketOrderingIndex
@@ -3958,7 +3961,7 @@ datagramMessageIDPool.Release(d);
 //-------------------------------------------------------------------------------------------------------
 InternalPacket* ReliabilityLayer::AllocateFromInternalPacketPool(void) {
     InternalPacket* ip        = internalPacketPool.Allocate(_FILE_AND_LINE_);
-    ip->reliableMessageNumber = (MessageNumberType)(const uint32_t)-1;
+    ip->reliableMessageNumber = static_cast<MessageNumberType>(0xFFFFFFFFu);
     ip->messageNumberAssigned = false;
     ip->nextActionTime        = 0;
     ip->splitPacketCount      = 0;

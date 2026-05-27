@@ -143,11 +143,11 @@ RakNet::TimeUS RakNet::GetTimeUS(void) {
 }
 bool RakNet::GreaterThan(RakNet::Time a, RakNet::Time b) {
     // a > b?
-    const RakNet::Time halfSpan = (RakNet::Time)(((RakNet::Time)(const RakNet::Time)-1) / (RakNet::Time)2);
+    const RakNet::Time halfSpan = static_cast<RakNet::Time>(-1) / static_cast<RakNet::Time>(2);
     return b != a && b - a > halfSpan;
 }
 bool RakNet::LessThan(RakNet::Time a, RakNet::Time b) {
     // a < b?
-    const RakNet::Time halfSpan = ((RakNet::Time)(const RakNet::Time)-1) / (RakNet::Time)2;
+    const RakNet::Time halfSpan = static_cast<RakNet::Time>(-1) / static_cast<RakNet::Time>(2);
     return b != a && b - a < halfSpan;
 }

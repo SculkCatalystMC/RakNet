@@ -10,6 +10,7 @@ x64/
 
 # Xcode and OS X 
 build/
+build-gcc/
 *.pbxuser
 !default.pbxuser
 *.mode1v3

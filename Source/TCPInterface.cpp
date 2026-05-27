@@ -50,6 +50,12 @@ namespace RakNet {
 RAK_THREAD_DECLARATION(UpdateTCPInterfaceLoop);
 RAK_THREAD_DECLARATION(ConnectionAttemptLoop);
 } // namespace RakNet
+
+namespace {
+bool ParseIpv4Address(const char* text, in_addr* outAddress) {
+    return inet_pton(AF_INET, text, outAddress) == 1;
+}
+}
 #ifdef _MSC_VER
 #pragma warning(push)
 #endif
@@ -105,8 +111,7 @@ bool TCPInterface::CreateListenSocket(
     memset(&serverAddress, 0, sizeof(sockaddr_in));
     serverAddress.sin_family = AF_INET;
     if (bindAddress && bindAddress[0]) {
-
-        serverAddress.sin_addr.s_addr = inet_addr__(bindAddress);
+        if (!ParseIpv4Address(bindAddress, &serverAddress.sin_addr)) return false;
 
     } else serverAddress.sin_addr.s_addr = INADDR_ANY;
 
@@ -354,7 +359,9 @@ SystemAddress TCPInterface::Connect(
         ThisPtrPlusSysAddr* s = RakNet::OP_NEW<ThisPtrPlusSysAddr>(_FILE_AND_LINE_);
         s->systemAddress.FromStringExplicitPort(host, remotePort);
         s->systemAddress.systemIndex = (SystemIndex)newRemoteClientIndex;
-        if (bindAddress) strcpy(s->bindAddress, bindAddress);
+        if (bindAddress) {
+            snprintf(s->bindAddress, sizeof(s->bindAddress), "%s", bindAddress);
+        }
         else s->bindAddress[0] = 0;
         s->tcpInterface = this;
         s->socketFamily = socketFamily;
@@ -667,10 +674,12 @@ __TCPSOCKET__ TCPInterface::SocketConnect(
 
 #if RAKNET_SUPPORT_IPV6 != 1
     sockaddr_in serverAddress;
-
-    struct hostent* server;
-    server = gethostbyname(host);
-    if (server == NULL) return 0;
+    struct addrinfo  hints;
+    struct addrinfo* result = 0;
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family   = AF_INET;
+    hints.ai_socktype = SOCK_STREAM;
+    if (getaddrinfo(host, NULL, &hints, &result) != 0 || result == 0 || result->ai_addr == 0) return 0;
 
 #if defined(WINDOWS_STORE_RT)
     __TCPSOCKET__ sockfd = WinRTCreateStreamSocket(AF_INET, SOCK_STREAM, 0);
@@ -684,15 +693,19 @@ __TCPSOCKET__ TCPInterface::SocketConnect(
     serverAddress.sin_port   = htons(remotePort);
 
     if (bindAddress && bindAddress[0]) {
-
-        serverAddress.sin_addr.s_addr = inet_addr__(bindAddress);
+        if (!ParseIpv4Address(bindAddress, &serverAddress.sin_addr)) {
+            closesocket__(sockfd);
+            return 0;
+        }
 
     } else serverAddress.sin_addr.s_addr = INADDR_ANY;
 
     int sock_opt = 1024 * 256;
     setsockopt__(sockfd, SOL_SOCKET, SO_RCVBUF, (char*)&sock_opt, sizeof(sock_opt));
 
-    memcpy((char*)&serverAddress.sin_addr.s_addr, (char*)server->h_addr, server->h_length);
+    const sockaddr_in* resolvedAddress = reinterpret_cast<const sockaddr_in*>(result->ai_addr);
+    memcpy(&serverAddress.sin_addr, &resolvedAddress->sin_addr, sizeof(serverAddress.sin_addr));
+    freeaddrinfo(result);
 
     blockingSocketListMutex.Lock();
     blockingSocketList.Insert(sockfd, _FILE_AND_LINE_);
@@ -965,8 +978,8 @@ RAK_THREAD_DECLARATION(RakNet::UpdateTCPInterfaceLoop) {
                         // &errlen);
                         // in_addr in;
                         // in.s_addr = sts->remoteClients[i].systemAddress.binaryAddress;
-                        // 							RAKNET_DEBUG_PRINTF("Socket
-                        // error %i on %s:%i\n", err,inet_ntoa( in ),
+						// 							RAKNET_DEBUG_PRINTF("Socket
+                        // error %i on <peer>:%i\n", err,
                         // sts->remoteClients[i].systemAddress.GetPort() );
                         // 						}
                         //

@@ -19,6 +19,10 @@
 // sockets
 #if !defined(WINDOWS_STORE_RT)
 
+#if !defined(_WIN32)
+#include <netdb.h>
+#endif
+
 #include "Itoa.h"
 
 // Shared on most platforms, but excluded from the listed
@@ -37,26 +41,21 @@ void DomainNameToIP_Berkley_IPV4And6(const char* domainName, char ip[65]) {
     }
 
     p = res;
-    // 	for(p = res;p != NULL; p = p->ai_next) {
-    void* addr;
-    //		char *ipver;
-
     // get the pointer to the address itself,
     // different fields in IPv4 and IPv6:
     if (p->ai_family == AF_INET) {
         struct sockaddr_in* ipv4 = (struct sockaddr_in*)p->ai_addr;
-        addr                     = &(ipv4->sin_addr);
-        strcpy(ip, inet_ntoa(ipv4->sin_addr));
+        if (inet_ntop(AF_INET, &(ipv4->sin_addr), ip, 65) == 0) {
+            memset(ip, 0, 65 * sizeof(char));
+        }
     } else {
         // TODO - test
         struct sockaddr_in6* ipv6 = (struct sockaddr_in6*)p->ai_addr;
-        addr                      = &(ipv6->sin6_addr);
-        // inet_ntop function does not exist on windows
-        // http://www.mail-archive.com/users@ipv6.org/msg02107.html
-        getnameinfo((struct sockaddr*)ipv6, sizeof(struct sockaddr_in6), ip, 1, NULL, 0, NI_NUMERICHOST);
+        if (inet_ntop(AF_INET6, &(ipv6->sin6_addr), ip, 65) == 0) {
+            memset(ip, 0, 65 * sizeof(char));
+        }
     }
     freeaddrinfo(res); // free the linked list
-//	}
 #else
     (void)domainName;
     (void)ip;
@@ -64,25 +63,21 @@ void DomainNameToIP_Berkley_IPV4And6(const char* domainName, char ip[65]) {
 }
 
 void DomainNameToIP_Berkley_IPV4(const char* domainName, char ip[65]) {
-    static struct in_addr addr;
-    memset(&addr, 0, sizeof(in_addr));
+    struct addrinfo hints, *res = 0;
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family   = AF_INET;
+    hints.ai_socktype = SOCK_DGRAM;
 
-    // Use inet_addr instead? What is the difference?
-    struct hostent* phe = gethostbyname(domainName);
-
-    if (phe == 0 || phe->h_addr_list[0] == 0) {
-        // cerr << "Yow! Bad host lookup." << endl;
+    if (getaddrinfo(domainName, NULL, &hints, &res) != 0 || res == 0 || res->ai_addr == 0) {
         memset(ip, 0, 65 * sizeof(char));
         return;
     }
 
-    if (phe->h_addr_list[0] == 0) {
+    const struct sockaddr_in* ipv4 = reinterpret_cast<const struct sockaddr_in*>(res->ai_addr);
+    if (inet_ntop(AF_INET, &(ipv4->sin_addr), ip, 65) == 0) {
         memset(ip, 0, 65 * sizeof(char));
-        return;
     }
-
-    memcpy(&addr, phe->h_addr_list[0], sizeof(struct in_addr));
-    strcpy(ip, inet_ntoa(addr));
+    freeaddrinfo(res);
 }
 
 void DomainNameToIP_Berkley(const char* domainName, char ip[65]) {

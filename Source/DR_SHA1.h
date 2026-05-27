@@ -233,7 +233,7 @@ class RAK_DLL_EXPORT CSHA1 {
 public:
 #ifdef SHA1_UTILITY_FUNCTIONS
     // Different formats for ReportHash(Stl)
-    enum REPORT_TYPE { REPORT_HEX = 0, REPORT_DIGIT = 1, REPORT_HEX_SHORT = 2 };
+  enum class ReportType : unsigned char { Hex = 0, Digit = 1, HexShort = 2 };
 #endif
 
     // Constructor and destructor
@@ -257,11 +257,11 @@ public:
     void Final();
 
 #ifdef SHA1_UTILITY_FUNCTIONS
-    bool ReportHash(TCHAR* tszReport, REPORT_TYPE rtReportType = REPORT_HEX) const;
+  bool ReportHash(TCHAR* tszReport, ReportType rtReportType = ReportType::Hex) const;
 #endif
 
 #ifdef SHA1_STL_FUNCTIONS
-    bool ReportHashStl(std::basic_string<TCHAR>& strOut, REPORT_TYPE rtReportType = REPORT_HEX) const;
+  bool ReportHashStl(std::basic_string<TCHAR>& strOut, ReportType rtReportType = ReportType::Hex) const;
 #endif
 
     // Get the raw message digest (20 bytes)

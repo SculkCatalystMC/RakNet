@@ -16,6 +16,7 @@
 #include "RakMemoryOverride.h"
 #include "SimpleMutex.h"
 #include "StringCompressor.h"
+#include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
@@ -23,7 +24,7 @@
 using namespace RakNet;
 
 // DataStructures::MemoryPool<RakString::SharedString> RakString::pool;
-RakString::SharedString RakString::emptyString = {0, 0, 0, (char*)"", (char*)""};
+RakString::SharedString RakString::emptyString = {0, 0, 0, (char*)"", (char*)"", {0}};
 // RakString::SharedString *RakString::sharedStringFreeList=0;
 // unsigned int RakString::sharedStringFreeListAllocationCount=0;
 DataStructures::List<RakString::SharedString*> RakString::freeList;
@@ -120,7 +121,8 @@ void RakString::Realloc(SharedString* sharedStr, size_t bytes) {
     newBytes                     = GetSizeToAllocate(bytes);
     if (oldBytes <= (size_t)smallStringSize && newBytes > (size_t)smallStringSize) {
         sharedStr->bigString = (char*)rakMalloc_Ex(newBytes, _FILE_AND_LINE_);
-        strcpy(sharedStr->bigString, sharedStr->smallString);
+        size_t copyLen = strlen(sharedStr->smallString) + 1;
+        memcpy(sharedStr->bigString, sharedStr->smallString, copyLen);
         sharedStr->c_str = sharedStr->bigString;
     } else if (oldBytes > smallStringSize) {
         sharedStr->bigString = (char*)rakRealloc_Ex(sharedStr->bigString, newBytes, _FILE_AND_LINE_);
@@ -137,7 +139,9 @@ RakString& RakString::operator+=(const RakString& rhs) {
         Clone();
         size_t strLen = rhs.GetLength() + GetLength() + 1;
         Realloc(sharedString, strLen + GetLength());
-        strcat(sharedString->c_str, rhs.C_String());
+        size_t dstLen = GetLength();
+        size_t rhsLen = rhs.GetLength() + 1;
+        memcpy(sharedString->c_str + dstLen, rhs.C_String(), rhsLen);
     }
     return *this;
 }
@@ -150,7 +154,9 @@ RakString& RakString::operator+=(const char* str) {
         Clone();
         size_t strLen = strlen(str) + GetLength() + 1;
         Realloc(sharedString, strLen);
-        strcat(sharedString->c_str, str);
+        size_t dstLen = GetLength();
+        size_t srcLen = strlen(str) + 1;
+        memcpy(sharedString->c_str + dstLen, str, srcLen);
     }
     return *this;
 }
@@ -243,8 +249,10 @@ const RakNet::RakString operator+(const RakNet::RakString& lhs, const RakNet::Ra
         sharedString->c_str     = sharedString->bigString;
     }
 
-    strcpy(sharedString->c_str, lhs);
-    strcat(sharedString->c_str, rhs);
+    size_t lhsLen = strlen(lhs);
+    size_t rhsLen = strlen(rhs);
+    memcpy(sharedString->c_str, lhs, lhsLen);
+    memcpy(sharedString->c_str + lhsLen, rhs, rhsLen + 1);
 
     return RakString(sharedString);
 }
@@ -723,7 +731,7 @@ void RakString::SplitURI(RakNet::RakString& header, RakNet::RakString& domain, R
 
     if (i != 0) {
         header.Allocate(i + 1);
-        strncpy(header.sharedString->c_str, sharedString->c_str, i);
+        memcpy(header.sharedString->c_str, sharedString->c_str, i);
         header.sharedString->c_str[i] = 0;
     }
 
@@ -956,7 +964,7 @@ void RakString::Serialize(BitStream* bs) const { Serialize(sharedString->c_str, 
 void RakString::Serialize(const char* str, BitStream* bs) {
     unsigned short l = (unsigned short)strlen(str);
     bs->Write(l);
-    bs->WriteAlignedBytes((const unsigned char*)str, (const unsigned int)l);
+    bs->WriteAlignedBytes((const unsigned char*)str, static_cast<unsigned int>(l));
 }
 void RakString::SerializeCompressed(BitStream* bs, uint8_t languageId, bool writeLanguageId) const {
     SerializeCompressed(C_String(), bs, languageId, writeLanguageId);
@@ -1006,9 +1014,9 @@ const char* RakString::ToString(int64_t i) {
     static int  index = 0;
     static char buff[64][64];
 #if defined(_WIN32)
-    sprintf(buff[index], "%I64d", i);
+    snprintf(buff[index], sizeof(buff[index]), "%I64d", i);
 #else
-    sprintf(buff[index], "%lld", (long long unsigned int)i);
+    snprintf(buff[index], sizeof(buff[index]), "%lld", (long long unsigned int)i);
 #endif
     int lastIndex = index;
     if (++index == 64) index = 0;
@@ -1018,9 +1026,9 @@ const char* RakString::ToString(uint64_t i) {
     static int  index = 0;
     static char buff[64][64];
 #if defined(_WIN32)
-    sprintf(buff[index], "%I64u", i);
+    snprintf(buff[index], sizeof(buff[index]), "%I64u", i);
 #else
-    sprintf(buff[index], "%llu", (long long unsigned int)i);
+    snprintf(buff[index], sizeof(buff[index]), "%llu", (long long unsigned int)i);
 #endif
     int lastIndex = index;
     if (++index == 64) index = 0;
@@ -1078,15 +1086,12 @@ void RakString::Assign(const char* str, va_list ap) {
         return;
     }
 
-    char stackBuff[512];
-    if (
-        _vsnprintf(stackBuff, 512, str, ap) != -1
-#ifndef _WIN32
-        // Here Windows will return -1 if the string is too long; Linux just
-        // truncates the string.
-        && strlen(str) < 511
-#endif
-    ) {
+    char    stackBuff[512];
+    va_list stackAp;
+    va_copy(stackAp, ap);
+    const int stackWriteResult = vsnprintf(stackBuff, sizeof(stackBuff), str, stackAp);
+    va_end(stackAp);
+    if (stackWriteResult >= 0 && stackWriteResult < (int)sizeof(stackBuff)) {
         Assign(stackBuff);
         return;
     }
@@ -1105,7 +1110,11 @@ void RakString::Assign(const char* str, va_list ap) {
             return;
         }
         buff = newBuff;
-        if (_vsnprintf(buff, buffSize, str, ap) != -1) {
+        va_list loopAp;
+        va_copy(loopAp, ap);
+        const int writeResult = vsnprintf(buff, buffSize, str, loopAp);
+        va_end(loopAp);
+        if (writeResult >= 0 && (size_t)writeResult < buffSize) {
             Assign(buff);
             rakFree_Ex(buff, __FILE__, __LINE__);
             return;
@@ -1281,7 +1290,7 @@ afterStdString;
                 for (i=0; i < repeatCount; i++)
                 {
                         c = RakNet::OP_NEW_ARRAY<char >(56,_FILE_AND_LINE_ );
-                        strcpy(c, "Aalsdkj alsdjf laksdjf ;lasdfj ;lasjfd");
+                        memcpy(c, "Aalsdkj alsdjf laksdjf ;lasdfj ;lasjfd", 42);
                         referenceStringList.Insert(c);
                 }
                 beforeRakString=RakNet::GetTimeMS();
@@ -1316,7 +1325,7 @@ afterStdString-beforeStdString);
                 for (i=0; i < repeatCount; i++)
                 {
                         c = RakNet::OP_NEW_ARRAY<char >(56, _FILE_AND_LINE_ );
-                        strcpy(c, "Aalsdkj alsdjf laksdjf ;lasdfj ;lasjfd");
+                        memcpy(c, "Aalsdkj alsdjf laksdjf ;lasdfj ;lasjfd", 42);
                         referenceStringList.Insert(0);
                 }
                 beforeRakString=RakNet::GetTimeMS();

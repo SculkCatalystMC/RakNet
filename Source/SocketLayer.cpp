@@ -87,6 +87,12 @@ extern void ProcessNetworkPacket(
 // RakNet::TimeUS timeRead );
 } // namespace RakNet
 
+namespace {
+bool FormatIpv4AddressString(const in_addr& address, char output[INET_ADDRSTRLEN]) {
+    return inet_ntop(AF_INET, &address, output, INET_ADDRSTRLEN) != 0;
+}
+}
+
 #ifdef _DEBUG
 #include <stdio.h>
 #endif
@@ -169,6 +175,7 @@ void SocketLayer::SetSocketOptions(__UDPSOCKET__ listenSocket, bool blockingSock
 RakNet::RakString SocketLayer::GetSubNetForSocketAndIp(__UDPSOCKET__ inSock, RakNet::RakString inIpString) {
     RakNet::RakString netMaskString;
     RakNet::RakString ipString;
+    static_cast<void>(inSock);
 
 #if defined(WINDOWS_STORE_RT)
     RakAssert("Not yet supported" && 0);
@@ -186,11 +193,18 @@ RakNet::RakString SocketLayer::GetSubNetForSocketAndIp(__UDPSOCKET__ inSock, Rak
     for (int i = 0; i < nNumInterfaces; ++i) {
         sockaddr_in* pAddress;
         pAddress = (sockaddr_in*)&(InterfaceList[i].iiAddress);
-        ipString = inet_ntoa(pAddress->sin_addr);
+        char ipBuffer[INET_ADDRSTRLEN];
+        if (!FormatIpv4AddressString(pAddress->sin_addr, ipBuffer)) {
+            continue;
+        }
+        ipString = ipBuffer;
 
         if (inIpString == ipString) {
             pAddress      = (sockaddr_in*)&(InterfaceList[i].iiNetmask);
-            netMaskString = inet_ntoa(pAddress->sin_addr);
+            char netmaskBuffer[INET_ADDRSTRLEN];
+            if (FormatIpv4AddressString(pAddress->sin_addr, netmaskBuffer)) {
+                netMaskString = netmaskBuffer;
+            }
             return netMaskString;
         }
     }
@@ -216,7 +230,11 @@ RakNet::RakString SocketLayer::GetSubNetForSocketAndIp(__UDPSOCKET__ inSock, Rak
     ifr        = ifc.ifc_req;
     int intNum = ifc.ifc_len / sizeof(struct ifreq);
     for (int i = 0; i < intNum; i++) {
-        ipString = inet_ntoa(((struct sockaddr_in*)&ifr[i].ifr_addr)->sin_addr);
+        char ipBuffer[INET_ADDRSTRLEN];
+        if (!FormatIpv4AddressString(((struct sockaddr_in*)&ifr[i].ifr_addr)->sin_addr, ipBuffer)) {
+            continue;
+        }
+        ipString = ipBuffer;
 
         if (inIpString == ipString) {
             struct ifreq ifr2;
@@ -232,7 +250,10 @@ RakNet::RakString SocketLayer::GetSubNetForSocketAndIp(__UDPSOCKET__ inSock, Rak
 
             close(fd);
             close(fd2);
-            netMaskString = inet_ntoa(((struct sockaddr_in*)&ifr2.ifr_addr)->sin_addr);
+            char netmaskBuffer[INET_ADDRSTRLEN];
+            if (FormatIpv4AddressString(((struct sockaddr_in*)&ifr2.ifr_addr)->sin_addr, netmaskBuffer)) {
+                netMaskString = netmaskBuffer;
+            }
 
             return netMaskString;
         }
@@ -298,9 +319,14 @@ void GetMyIP_Win32(SystemAddress addresses[MAXIMUM_NUMBER_OF_INTERNAL_IDS]) {
 
     freeaddrinfo(servinfo); // free the linked-list
 #else
-    struct hostent* phe = gethostbyname(ac);
+    struct addrinfo  hints;
+    struct addrinfo* servinfo = 0;
+    struct addrinfo* aip;
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family   = AF_INET;
+    hints.ai_socktype = SOCK_DGRAM;
 
-    if (phe == 0) {
+    if (getaddrinfo(ac, "", &hints, &servinfo) != 0 || servinfo == 0) {
 #if defined(_WIN32) && !defined(WINDOWS_PHONE_8)
         DWORD  dwIOError = GetLastError();
         LPVOID messageBuffer;
@@ -315,7 +341,7 @@ void GetMyIP_Win32(SystemAddress addresses[MAXIMUM_NUMBER_OF_INTERNAL_IDS]) {
         );
         // something has gone wrong here...
         RAKNET_DEBUG_PRINTF(
-            "gethostbyname failed:Error code - %d\n%s",
+            "getaddrinfo failed:Error code - %d\n%s",
             dwIOError,
             reinterpret_cast<const char*>(messageBuffer)
         );
@@ -325,11 +351,11 @@ void GetMyIP_Win32(SystemAddress addresses[MAXIMUM_NUMBER_OF_INTERNAL_IDS]) {
 #endif
         return;
     }
-    for (idx = 0; idx < MAXIMUM_NUMBER_OF_INTERNAL_IDS; ++idx) {
-        if (phe->h_addr_list[idx] == 0) break;
-
-        memcpy(&addresses[idx].address.addr4.sin_addr, phe->h_addr_list[idx], sizeof(struct in_addr));
+    for (idx = 0, aip = servinfo; aip != NULL && idx < MAXIMUM_NUMBER_OF_INTERNAL_IDS; aip = aip->ai_next, ++idx) {
+        struct sockaddr_in* ipv4 = reinterpret_cast<struct sockaddr_in*>(aip->ai_addr);
+        memcpy(&addresses[idx].address.addr4, ipv4, sizeof(sockaddr_in));
     }
+    freeaddrinfo(servinfo);
 #endif // else RAKNET_SUPPORT_IPV6==1
 
     while (idx < MAXIMUM_NUMBER_OF_INTERNAL_IDS) {
