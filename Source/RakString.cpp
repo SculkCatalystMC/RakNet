@@ -457,8 +457,10 @@ WCHAR * RakString::ToWideChar(void)
 	//
 	if ( (sharedString->c_str == NULL) || (*sharedString->c_str == '\0') )
 	{
-		// Return empty string
-		return L"";
+		// Keep ownership semantics consistent with non-empty path.
+		WCHAR * emptyString = RakNet::OP_NEW_ARRAY<WCHAR>(1,__FILE__,__LINE__);
+		emptyString[0]=0;
+		return emptyString;
 	}
 
 	//

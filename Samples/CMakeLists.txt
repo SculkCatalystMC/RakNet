@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.20)
 
 option( RAKNET_SAMPLE_AutopatcherClient "" True )
 #option( RAKNET_SAMPLE_AutopatcherClientGFx3_0 "" True )
@@ -305,3 +305,4 @@ endif()
 if(RAKNET_SAMPLE_XBOX360)
 	#add_subdirectory("XBOX360")
 endif()
+

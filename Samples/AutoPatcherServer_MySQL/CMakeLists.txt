@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.20)
 project("AutoPatcherServer_MySQL")
 IF(WIN32 AND NOT UNIX)
 	FILE(GLOB AUTOSRC "${Autopatcher_SOURCE_DIR}/AutopatcherServer.cpp" "${Autopatcher_SOURCE_DIR}/MemoryCompressor.cpp" "${Autopatcher_SOURCE_DIR}/CreatePatch.cpp" "${Autopatcher_SOURCE_DIR}/AutopatcherServer.h")
@@ -16,6 +16,7 @@ ELSE(WIN32 AND NOT UNIX)
 	add_executable("AutoPatcherServer_MySQL" "AutopatcherServerTest_MySQL.cpp" readme.txt)
 	target_link_libraries("AutoPatcherServer_MySQL" ${RAKNET_COMMON_LIBS} LibAutopatcher AutoPatcherMySQLRepository LibMySQLInterface)
 ENDIF(WIN32 AND NOT UNIX)
+
 
 
 

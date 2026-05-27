@@ -1,6 +1,10 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.20)
 
-project(RakNet)
+project(RakNet LANGUAGES C CXX)
+
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 if( NOT APPLE )
 # check 64 bit
@@ -17,14 +21,14 @@ IF (WIN32 AND NOT UNIX)
 ENDIF(WIN32 AND NOT UNIX)
 
 IF (WIN32 AND NOT UNIX)
-	set(RAKNET_LIBRARY_LIBS ws2_32.lib)
+	set(RAKNET_LIBRARY_LIBS ws2_32)
 ELSE(WIN32 AND NOT UNIX)
 	set(RAKNET_LIBRARY_LIBS pthread)
 ENDIF(WIN32 AND NOT UNIX)
 
 
 # Options
-option( RAKNET_ENABLE_SAMPLES 	"Generate RakNet sample projects if true." 		TRUE  )
+option( RAKNET_ENABLE_SAMPLES 	"Generate RakNet sample projects if true." 		FALSE )
 option( RAKNET_ENABLE_DLL		"Generate the DLL project if true." 			TRUE )
 option( RAKNET_ENABLE_STATIC	"Generate the static library project if true." 	TRUE )
 option( RAKNET_GENERATE_INCLUDE_ONLY_DIR "Setup a include/RakNet/ directory in which all the headers are copied." FALSE )
@@ -41,7 +45,7 @@ if( RAKNET_GENERATE_INCLUDE_ONLY_DIR )
 	message( STATUS "DONE: Setting up the ${RAKNET_NAMED_INCLUDE_ONLY_DIR} directory." )
 endif()
 
-set( RAKNET_INCLUDE_DIRS ${RAKNETHEADERFILES} ${RAKNET_INCLUDE_ONLY_DIR} PARENT_SCOPE ) # Visible from outside
+set( RAKNET_INCLUDE_DIRS ${RAKNETHEADERFILES} ${RAKNET_INCLUDE_ONLY_DIR} ) # Visible from outside
 
 include(./CmakeIncludes/CmakeMacros.txt)
 FIXLINKOPTIONS()
@@ -53,6 +57,6 @@ add_subdirectory(Lib)
 
 set(RAKNET_COMMON_LIBS RakNetLibStatic)
 
-if( RAKNET_GENERATE_SAMPLES )
+if( RAKNET_ENABLE_SAMPLES )
 	add_subdirectory(Samples)
 endif()

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.20)
 
 
 IF(WIN32 AND NOT UNIX)
@@ -23,6 +23,7 @@ IF(WIN32 AND NOT UNIX)
 	target_link_libraries(${current_folder} ${RAKNET_COMMON_LIBS} winmm.lib ${DSOUND_LIBRARIES})
 	VSUBFOLDER(${current_folder} Samples/Voice)
 ENDIF(WIN32 AND NOT UNIX)
+
 
 
 

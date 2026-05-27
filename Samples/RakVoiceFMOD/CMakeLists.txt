@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.20)
 GETCURRENTFOLDER()
 FINDPORTAUDIO()
 FINDFMODEX()
@@ -25,6 +25,7 @@ ELSE(WIN32 AND NOT UNIX)
 	add_executable(${current_folder} ${ALL_CPP_SRCS} ${ALL_HEADER_SRCS})
 	target_link_libraries(${current_folder} ${RAKNET_COMMON_LIBS} ${PORTAUDIO_LIBRARIES} ${FMODEX_LIBRARY} LibRakVoice)
 ENDIF(WIN32 AND NOT UNIX)
+
 
 
 

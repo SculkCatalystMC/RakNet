@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.20)
 GETCURRENTFOLDER()
 FINDIRRLICHT()
 IF(WIN32 AND NOT UNIX)
@@ -22,6 +22,7 @@ ELSE(WIN32 AND NOT UNIX)
 	add_executable(${current_folder} WIN32 ${ALL_CPP_SRCS} ${ALL_HEADER_SRCS}  ${READMES})
 	target_link_libraries(${current_folder} ${RAKNET_COMMON_LIBS} ${IRRLICHT_LIBRARIES} ${IRRKLANG_LIBRARIES})
 ENDIF(WIN32 AND NOT UNIX)
+
 
 
 

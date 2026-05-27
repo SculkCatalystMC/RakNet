@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.20)
 project(AutopatcherServer)
 
 IF(WIN32 AND NOT UNIX)
@@ -17,6 +17,7 @@ ELSE(WIN32 AND NOT UNIX)
 	add_executable(AutopatcherServer_PostgreSQL "AutopatcherServerTest.cpp")
 	target_link_libraries(AutopatcherServer_PostgreSQL ${RAKNET_COMMON_LIBS} LibAutopatcher AutopatcherPostgreRepository LibPostgreSQLInterface)
 ENDIF(WIN32 AND NOT UNIX)
+
 
 
 

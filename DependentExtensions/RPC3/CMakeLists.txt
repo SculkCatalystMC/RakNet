@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.20)
 project(LibRPC3)
 IF (NOT WIN32 AND UNIX)
 	FILE(GLOB ALL_HEADER_SRCS *.h)
@@ -8,6 +8,7 @@ IF (NOT WIN32 AND UNIX)
 	add_library(LibRPC3 STATIC ${ALL_CPP_SRCS} ${ALL_HEADER_SRCS} "${Boost_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}/boost")
 	target_link_libraries(LibRPC3 ${RAKNET_COMMON_LIBS} ${Boost_LIBRARIES})
 ENDIF(NOT WIN32 AND UNIX)
+
 
 
 
