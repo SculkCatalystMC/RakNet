@@ -3,7 +3,7 @@
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
+ *  LICENSE file in the root directory of this source tree. An additional grant
  *  of patent rights can be found in the PATENTS file in the same directory.
  *
  */
@@ -17,11 +17,16 @@
 #include "WindowsIncludes.h"
 #include <mapi.h>
 
-
-class CSendFileTo
-{
+class CSendFileTo {
 public:
-	bool SendMail(HWND hWndParent, const char *strAttachmentFilePath, const char *strAttachmentFileName,const char *strSubject, const char *strBody, const char *strRecipient);
+    bool SendMail(
+        HWND        hWndParent,
+        const char* strAttachmentFilePath,
+        const char* strAttachmentFileName,
+        const char* strSubject,
+        const char* strBody,
+        const char* strRecipient
+    );
 };
 
 #endif

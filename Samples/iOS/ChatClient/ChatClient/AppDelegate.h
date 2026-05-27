@@ -3,7 +3,7 @@
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
+ *  LICENSE file in the root directory of this source tree. An additional grant
  *  of patent rights can be found in the PATENTS file in the same directory.
  *
  */
@@ -12,13 +12,12 @@
 
 @class ViewController;
 
-@interface AppDelegate : UIResponder <UIApplicationDelegate>
-{
-    // Timer used to tick the sample
-    NSTimer* mTimer;
+@interface AppDelegate : UIResponder <UIApplicationDelegate> {
+  // Timer used to tick the sample
+  NSTimer *mTimer;
 }
 
-@property (strong, nonatomic) UIWindow *window;
-@property (strong, nonatomic) ViewController *viewController;
+@property(strong, nonatomic) UIWindow *window;
+@property(strong, nonatomic) ViewController *viewController;
 
 @end
