@@ -36,7 +36,6 @@
 #include "RakNetSocket2.h"
 #include "RakNetStatistics.h"
 #include "Rand.h"
-#include "SecureHandshake.h"
 #include "SocketLayer.h"
 
 #if USE_SLIDING_WINDOW_CONGESTION_CONTROL != 1

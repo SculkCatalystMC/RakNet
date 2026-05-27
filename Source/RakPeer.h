@@ -33,7 +33,6 @@
 #include "LocklessTypes.h"
 #include "NativeFeatureIncludes.h"
 #include "RakNetSmartPtr.h"
-#include "SecureHandshake.h"
 #include "SignaledEvent.h"
 
 namespace RakNet {
