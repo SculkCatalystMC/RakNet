@@ -29,7 +29,7 @@ class RakPeerInterface;
 class BitStream;
 struct Packet;
 
-enum StartupResult {
+enum class StartupResult : unsigned char {
     RAKNET_STARTED,
     RAKNET_ALREADY_STARTED,
     INVALID_SOCKET_DESCRIPTORS,
@@ -44,7 +44,10 @@ enum StartupResult {
     STARTUP_OTHER_FAILURE
 };
 
-enum ConnectionAttemptResult {
+using enum StartupResult;
+
+
+enum class ConnectionAttemptResult : unsigned char {
     CONNECTION_ATTEMPT_STARTED,
     INVALID_PARAMETER,
     CANNOT_RESOLVE_DOMAIN_NAME,
@@ -53,8 +56,11 @@ enum ConnectionAttemptResult {
     SECURITY_INITIALIZATION_FAILED
 };
 
+using enum ConnectionAttemptResult;
+
+
 /// Returned from RakPeerInterface::GetConnectionState()
-enum ConnectionState {
+enum class ConnectionState : unsigned char {
     /// Connect() was called, but the process hasn't started yet
     IS_PENDING,
     /// Processing the connection attempt
@@ -72,6 +78,9 @@ enum ConnectionState {
     /// entry has been discarded
     IS_NOT_CONNECTED
 };
+
+using enum ConnectionState;
+
 
 /// Given a number of bits, return how many bytes are needed to represent that.
 #define BITS_TO_BYTES(x) (((x) + 7) >> 3)
@@ -96,7 +105,7 @@ typedef uint32_t BitSize_t;
 #endif
 
 /// Used with the PublicKey structure
-enum PublicKeyMode {
+enum class PublicKeyMode : unsigned char {
     /// The connection is insecure. You can also just pass 0 for the pointer to
     /// PublicKey in RakPeerInterface::Connect()
     PKM_INSECURE_CONNECTION,
@@ -119,6 +128,9 @@ enum PublicKeyMode {
     /// password should be used as well to avoid DoS attacks.
     PKM_USE_TWO_WAY_AUTHENTICATION
 };
+
+using enum PublicKeyMode;
+
 
 /// Passed to RakPeerInterface::Connect()
 struct RAK_DLL_EXPORT PublicKey {

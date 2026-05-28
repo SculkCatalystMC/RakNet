@@ -41,7 +41,7 @@ namespace DataStructures {
 /// transmit the table over the network.
 class RAK_DLL_EXPORT Table {
 public:
-    enum ColumnType {
+    enum class ColumnType : unsigned char {
         // Cell::i used
         NUMERIC,
 
@@ -54,6 +54,7 @@ public:
         // Cell::c holds data.  Not deallocated. Set manually by assigning ptr.
         POINTER,
     };
+    using enum ColumnType;
 
     /// Holds the actual data in the table
     // Note: If this structure is changed the struct in the swig files need to be
@@ -135,7 +136,7 @@ public:
     };
 
     // Operations to perform for cell comparison
-    enum FilterQueryType {
+    enum class FilterQueryType : unsigned char {
         QF_EQUAL,
         QF_NOT_EQUAL,
         QF_GREATER_THAN,
@@ -145,6 +146,7 @@ public:
         QF_IS_EMPTY,
         QF_NOT_EMPTY,
     };
+    using enum FilterQueryType;
 
     // Compare the cell value for a row at columnName to the cellValue using
     // operation. Note: If this structure is changed the struct in the swig files
@@ -162,10 +164,11 @@ public:
     };
 
     /// Increasing or decreasing sort order
-    enum SortQueryType {
+    enum class SortQueryType : unsigned char {
         QS_INCREASING_ORDER,
         QS_DECREASING_ORDER,
     };
+    using enum SortQueryType;
 
     // Sort on increasing or decreasing order for a particular column
     // Note: If this structure is changed the struct in the swig files need to be

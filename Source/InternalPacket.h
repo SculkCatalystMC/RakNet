@@ -108,7 +108,7 @@ struct InternalPacket : public InternalPacketFixedSizeTransmissionHeader {
     /// all
     unsigned char* data;
     /// How to alloc and delete the data member
-    enum AllocationScheme {
+    enum class AllocationScheme : unsigned char {
         /// Data is allocated using rakMalloc. Just free it
         NORMAL,
 
@@ -121,6 +121,7 @@ struct InternalPacket : public InternalPacketFixedSizeTransmissionHeader {
         /// deallocated in RakPeer
         STACK
     } allocationScheme;
+    using enum AllocationScheme;
     InternalPacketRefCountedData* refCountedData;
     /// How many attempts we made at sending this message
     unsigned char timesSent;

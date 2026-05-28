@@ -756,11 +756,13 @@ RAK_THREAD_DECLARATION(RakNet::ConnectionAttemptLoop) {
     TCPInterface*  tcpInterface         = s->tcpInterface;
     int            newRemoteClientIndex = systemAddress.systemIndex;
     unsigned short socketFamily         = s->socketFamily;
+    char           bindAddress[64];
+    memcpy(bindAddress, s->bindAddress, sizeof(bindAddress));
     RakNet::OP_DELETE(s, _FILE_AND_LINE_);
 
     char str1[64];
     systemAddress.ToString(false, str1);
-    __TCPSOCKET__ sockfd = tcpInterface->SocketConnect(str1, systemAddress.GetPort(), socketFamily, s->bindAddress);
+    __TCPSOCKET__ sockfd = tcpInterface->SocketConnect(str1, systemAddress.GetPort(), socketFamily, bindAddress);
     if (sockfd == 0) {
         tcpInterface->remoteClients[newRemoteClientIndex].isActiveMutex.Lock();
         tcpInterface->remoteClients[newRemoteClientIndex].SetActive(false);

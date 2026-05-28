@@ -244,7 +244,7 @@ RakNet::RakString SocketLayer::GetSubNetForSocketAndIp(__UDPSOCKET__ inSock, Rak
             }
             ifr2.ifr_addr.sa_family = AF_INET;
 
-            strncpy(ifr2.ifr_name, ifr[i].ifr_name, IFNAMSIZ - 1);
+            memcpy(ifr2.ifr_name, ifr[i].ifr_name, IFNAMSIZ);
 
             ioctl(fd, SIOCGIFNETMASK, &ifr2);
 

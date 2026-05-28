@@ -1263,7 +1263,7 @@ uint32_t RakPeer::Send(
 
         if (reliability >= UNRELIABLE_WITH_ACK_RECEIPT) {
             char buff[5];
-            buff[0] = ID_SND_RECEIPT_ACKED;
+            buff[0] = (char)ToMessageID(ID_SND_RECEIPT_ACKED);
             sendReceiptSerialMutex.Lock();
             memcpy(buff + 1, &sendReceiptSerial, 4);
             sendReceiptSerialMutex.Unlock();
@@ -1329,7 +1329,7 @@ uint32_t RakPeer::Send(
         SendLoopback((const char*)bitStream->GetData(), bitStream->GetNumberOfBytesUsed());
         if (reliability >= UNRELIABLE_WITH_ACK_RECEIPT) {
             char buff[5];
-            buff[0] = ID_SND_RECEIPT_ACKED;
+            buff[0] = (char)ToMessageID(ID_SND_RECEIPT_ACKED);
             sendReceiptSerialMutex.Lock();
             memcpy(buff + 1, &sendReceiptSerial, 4);
             sendReceiptSerialMutex.Unlock();
@@ -1632,7 +1632,7 @@ void RakPeer::CloseConnection(
     // sendDisconnectionNotification==false, elsewise it is never returned
     if (sendDisconnectionNotification == false && GetConnectionState(target) == IS_CONNECTED) {
         Packet* packet  = AllocPacket(sizeof(char), _FILE_AND_LINE_);
-        packet->data[0] = ID_CONNECTION_LOST; // DeadConnection
+        packet->data[0] = ToMessageID(ID_CONNECTION_LOST); // DeadConnection
         packet->guid    = target.rakNetGuid == UNASSIGNED_RAKNET_GUID ? GetGuidFromSystemAddress(target.systemAddress)
                                                                       : target.rakNetGuid;
         packet->systemAddress             = target.systemAddress == UNASSIGNED_SYSTEM_ADDRESS
@@ -2186,12 +2186,12 @@ RakNet::Time RakPeer::GetClockDifferentialInt(RemoteSystemStruct* remoteSystem) 
 void RakPeer::SetOfflinePingResponse(const char* data, const unsigned int length) {
     RakAssert(length < 400);
 
-    rakPeerMutexes[offlinePingResponse_Mutex].Lock();
+    rakPeerMutexes[static_cast<unsigned int>(RakPeerMutexId::offlinePingResponse_Mutex)].Lock();
     offlinePingResponse.Reset();
 
     if (data && length > 0) offlinePingResponse.Write(data, length);
 
-    rakPeerMutexes[offlinePingResponse_Mutex].Unlock();
+    rakPeerMutexes[static_cast<unsigned int>(RakPeerMutexId::offlinePingResponse_Mutex)].Unlock();
 }
 
 // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2203,10 +2203,10 @@ void RakPeer::SetOfflinePingResponse(const char* data, const unsigned int length
 // \sa SetOfflinePingResponse
 // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 void RakPeer::GetOfflinePingResponse(char** data, unsigned int* length) {
-    rakPeerMutexes[offlinePingResponse_Mutex].Lock();
+    rakPeerMutexes[static_cast<unsigned int>(RakPeerMutexId::offlinePingResponse_Mutex)].Lock();
     *data   = (char*)offlinePingResponse.GetData();
     *length = (int)offlinePingResponse.GetNumberOfBytesUsed();
-    rakPeerMutexes[offlinePingResponse_Mutex].Unlock();
+    rakPeerMutexes[static_cast<unsigned int>(RakPeerMutexId::offlinePingResponse_Mutex)].Unlock();
 }
 
 // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -4491,13 +4491,13 @@ bool ProcessOfflineNetworkPacket(
                     sizeof(OFFLINE_MESSAGE_DATA_ID)
                 );
 
-                rakPeer->rakPeerMutexes[RakPeer::offlinePingResponse_Mutex].Lock();
+                rakPeer->rakPeerMutexes[static_cast<unsigned int>(RakPeer::RakPeerMutexId::offlinePingResponse_Mutex)].Lock();
                 // They are connected, so append offline ping data
                 outBitStream.Write(
                     (char*)rakPeer->offlinePingResponse.GetData(),
                     rakPeer->offlinePingResponse.GetNumberOfBytesUsed()
                 );
-                rakPeer->rakPeerMutexes[RakPeer::offlinePingResponse_Mutex].Unlock();
+                rakPeer->rakPeerMutexes[static_cast<unsigned int>(RakPeer::RakPeerMutexId::offlinePingResponse_Mutex)].Unlock();
 
                 unsigned pluginIndex;
                 for (pluginIndex = 0; pluginIndex < rakPeer->pluginListNTS.Size(); pluginIndex++)
@@ -4578,14 +4578,14 @@ bool ProcessOfflineNetworkPacket(
             if (data[sizeof(OFFLINE_MESSAGE_DATA_ID) + sizeof(MessageID) + RakNetGUID::size()] == ID_ADVERTISE_SYSTEM) {
                 packet->length--;
                 packet->bitSize = BYTES_TO_BITS(packet->length);
-                packet->data[0] = ID_ADVERTISE_SYSTEM;
+                packet->data[0] = ToMessageID(ID_ADVERTISE_SYSTEM);
                 memcpy(
                     packet->data + 1,
                     data + sizeof(OFFLINE_MESSAGE_DATA_ID) + sizeof(MessageID) * 2 + RakNetGUID::size(),
                     dataLength - 1
                 );
             } else {
-                packet->data[0] = ID_OUT_OF_BAND_INTERNAL;
+                packet->data[0] = ToMessageID(ID_OUT_OF_BAND_INTERNAL);
                 memcpy(
                     packet->data + 1,
                     data + sizeof(OFFLINE_MESSAGE_DATA_ID) + sizeof(MessageID) + RakNetGUID::size(),
@@ -4653,7 +4653,7 @@ bool ProcessOfflineNetworkPacket(
                             );
 
                             packet                = rakPeer->AllocPacket(sizeof(char), _FILE_AND_LINE_);
-                            packet->data[0]       = ID_PUBLIC_KEY_MISMATCH; // Attempted a connection and couldn't
+                            packet->data[0] = ToMessageID(ID_PUBLIC_KEY_MISMATCH); // Attempted a connection and couldn't
                             packet->bitSize       = (sizeof(char) * 8);
                             packet->systemAddress = rcs->systemAddress;
                             packet->guid          = serverGuid;
@@ -4690,7 +4690,7 @@ bool ProcessOfflineNetworkPacket(
                             );
 
                             packet          = rakPeer->AllocPacket(sizeof(char), _FILE_AND_LINE_);
-                            packet->data[0] = ID_OUR_SYSTEM_REQUIRES_SECURITY; // Attempted a connection and
+                            packet->data[0] = ToMessageID(ID_OUR_SYSTEM_REQUIRES_SECURITY); // Attempted a connection and
                                                                                // couldn't
                             packet->bitSize       = (sizeof(char) * 8);
                             packet->systemAddress = rcs->systemAddress;
@@ -4789,7 +4789,7 @@ bool ProcessOfflineNetworkPacket(
                             rakPeer->requestedConnectionQueueMutex.Unlock();
 
                             packet          = rakPeer->AllocPacket(2, _FILE_AND_LINE_);
-                            packet->data[0] = ID_REMOTE_SYSTEM_REQUIRES_PUBLIC_KEY; // Attempted a
+                            packet->data[0] = ToMessageID(ID_REMOTE_SYSTEM_REQUIRES_PUBLIC_KEY); // Attempted a
                                                                                     // connection and
                                                                                     // couldn't
                             packet->data[1]       = 0; // Indicate server public key is missing
@@ -4936,7 +4936,7 @@ bool ProcessOfflineNetworkPacket(
                         } else {
                             // Failed, no connections available anymore
                             packet          = rakPeer->AllocPacket(sizeof(char), _FILE_AND_LINE_);
-                            packet->data[0] = ID_CONNECTION_ATTEMPT_FAILED; // Attempted a connection and
+                            packet->data[0] = ToMessageID(ID_CONNECTION_ATTEMPT_FAILED); // Attempted a connection and
                                                                             // couldn't
                             packet->bitSize       = (sizeof(char) * 8);
                             packet->systemAddress = rcs->systemAddress;
@@ -5644,7 +5644,7 @@ bool RakPeer::RunUpdateCycle(BitStream& updateBitStream) {
                     if (condition1 && !condition2 && rcs->actionToTake == RequestedConnectionStruct::CONNECT) {
                         // Tell user of connection attempt failed
                         packet          = AllocPacket(sizeof(char), _FILE_AND_LINE_);
-                        packet->data[0] = ID_CONNECTION_ATTEMPT_FAILED; // Attempted a connection and
+                        packet->data[0] = ToMessageID(ID_CONNECTION_ATTEMPT_FAILED); // Attempted a connection and
                                                                         // couldn't
                         packet->bitSize       = (sizeof(char) * 8);
                         packet->systemAddress = rcs->systemAddress;
@@ -5841,11 +5841,11 @@ bool RakPeer::RunUpdateCycle(BitStream& updateBitStream) {
                 //) + undeliveredMessages.GetNumberOfBytesUsed());
                 packet = AllocPacket(sizeof(char), _FILE_AND_LINE_);
                 if (remoteSystem->connectMode == RemoteSystemStruct::REQUESTED_CONNECTION)
-                    packet->data[0] = ID_CONNECTION_ATTEMPT_FAILED; // Attempted a connection and
+                    packet->data[0] = ToMessageID(ID_CONNECTION_ATTEMPT_FAILED); // Attempted a connection and
                                                                     // couldn't
                 else if (remoteSystem->connectMode == RemoteSystemStruct::CONNECTED)
-                    packet->data[0] = ID_CONNECTION_LOST;             // DeadConnection
-                else packet->data[0] = ID_DISCONNECTION_NOTIFICATION; // DeadConnection
+                    packet->data[0] = ToMessageID(ID_CONNECTION_LOST);             // DeadConnection
+                else packet->data[0] = ToMessageID(ID_DISCONNECTION_NOTIFICATION); // DeadConnection
 
                 //					memcpy(packet->data+1,
                 // undeliveredMessages.GetData(),
@@ -6354,7 +6354,7 @@ RAK_THREAD_DECLARATION(RakNet::UpdateNetworkLoop) {
 
 void RakPeer::CallPluginCallbacks(DataStructures::List<PluginInterface2*>& pluginList, Packet* packet) {
     for (unsigned int i = 0; i < pluginList.Size(); i++) {
-        switch (packet->data[0]) {
+        switch (static_cast<DefaultMessageIDTypes>(packet->data[0])) {
         case ID_DISCONNECTION_NOTIFICATION:
             pluginList[i]->OnClosedConnection(packet->systemAddress, packet->guid, LCR_DISCONNECTION_NOTIFICATION);
             break;
@@ -6397,6 +6397,8 @@ void RakPeer::CallPluginCallbacks(DataStructures::List<PluginInterface2*>& plugi
         case ID_IP_RECENTLY_CONNECTED:
             pluginList[i]->OnFailedConnectionAttempt(packet, FCAR_IP_RECENTLY_CONNECTED);
             break;
+        default:
+            break;
         }
     }
 }
@@ -6437,3 +6439,4 @@ void RakPeer::FillIPList(void) {
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
+

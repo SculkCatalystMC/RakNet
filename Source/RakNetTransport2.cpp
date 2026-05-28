@@ -88,7 +88,7 @@ void RakNetTransport2::DeallocatePacket(Packet* packet) {
     RakNet::OP_DELETE(packet, _FILE_AND_LINE_);
 }
 PluginReceiveResult RakNetTransport2::OnReceive(Packet* packet) {
-    switch (packet->data[0]) {
+    switch (static_cast<DefaultMessageIDTypes>(packet->data[0])) {
     case ID_TRANSPORT_STRING: {
         if (packet->length == sizeof(MessageID)) return RR_STOP_PROCESSING_AND_DEALLOCATE;
 
@@ -101,6 +101,8 @@ PluginReceiveResult RakNetTransport2::OnReceive(Packet* packet) {
         packetQueue.Push(p, _FILE_AND_LINE_);
     }
         return RR_STOP_PROCESSING_AND_DEALLOCATE;
+    default:
+        break;
     }
     return RR_CONTINUE_PROCESSING;
 }

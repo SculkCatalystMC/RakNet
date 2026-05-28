@@ -112,7 +112,7 @@ bool RakNetCommandParser::OnCommand(
     if (strcmp(command, "Startup") == 0) {
         RakNet::SocketDescriptor socketDescriptor((unsigned short)atoi(parameterList[1]), parameterList[2]);
         ReturnResult(
-            peer->Startup((unsigned short)atoi(parameterList[0]), &socketDescriptor, 1),
+            static_cast<int>(peer->Startup((unsigned short)atoi(parameterList[0]), &socketDescriptor, 1)),
             command,
             transport,
             systemAddress

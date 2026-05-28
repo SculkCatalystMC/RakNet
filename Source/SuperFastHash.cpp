@@ -114,12 +114,14 @@ uint32_t SuperFastHashFilePtr(FILE* fp) {
     unsigned int lastHash       = length;
     char         readBlock[INCREMENTAL_READ_BLOCK];
     while (bytesRemaining >= (int)sizeof(readBlock)) {
-        fread(readBlock, sizeof(readBlock), 1, fp);
+        size_t readCount = fread(readBlock, sizeof(readBlock), 1, fp);
+        if (readCount != 1) break;
         lastHash        = SuperFastHashIncremental(readBlock, (int)sizeof(readBlock), lastHash);
         bytesRemaining -= (int)sizeof(readBlock);
     }
     if (bytesRemaining > 0) {
-        fread(readBlock, bytesRemaining, 1, fp);
+        size_t readCount = fread(readBlock, bytesRemaining, 1, fp);
+        if (readCount != 1) return lastHash;
         lastHash = SuperFastHashIncremental(readBlock, bytesRemaining, lastHash);
     }
     return lastHash;

@@ -131,7 +131,9 @@ public:
 protected:
     node* root;
 
-    enum Direction_Types { NOT_FOUND, LEFT, RIGHT, ROOT } direction;
+    enum class DirectionTypes : unsigned char { NOT_FOUND, LEFT, RIGHT, ROOT };
+    using enum DirectionTypes;
+    DirectionTypes direction;
     unsigned int HeightRecursive(node* current);
     unsigned int BinarySearchTree_size;
     node*&       Find(const BinarySearchTreeType& element, node** parent);

@@ -17,6 +17,10 @@
 #include <string.h>
 
 using namespace RakNet;
+using enum RNSPerSecondMetrics;
+using enum PacketPriority;
+
+#define RNS_METRIC_INDEX(m) static_cast<unsigned int>(m)
 
 // Verbosity level currently supports 0 (low), 1 (medium), 2 (high)
 // Buffer must be hold enough to hold the output string.  See the source to get
@@ -34,8 +38,8 @@ void RAK_DLL_EXPORT RakNet::StatisticsToString(RakNetStatistics* s, char* buffer
             "Bytes per second sent     %" PRINTF_64_BIT_MODIFIER "u\n"
             "Bytes per second received %" PRINTF_64_BIT_MODIFIER "u\n"
             "Current packetloss        %.1f%%\n",
-            (long long unsigned int)s->valueOverLastSecond[ACTUAL_BYTES_SENT],
-            (long long unsigned int)s->valueOverLastSecond[ACTUAL_BYTES_RECEIVED],
+            (long long unsigned int)s->valueOverLastSecond[RNS_METRIC_INDEX(ACTUAL_BYTES_SENT)],
+            (long long unsigned int)s->valueOverLastSecond[RNS_METRIC_INDEX(ACTUAL_BYTES_RECEIVED)],
             s->packetlossLastSecond * 100.0f
         );
     } else if (verbosityLevel == 1) {
@@ -49,12 +53,12 @@ void RAK_DLL_EXPORT RakNet::StatisticsToString(RakNetStatistics* s, char* buffer
             "Current packetloss                 %.1f%%\n"
             "Average packetloss                 %.1f%%\n"
             "Elapsed connection time in seconds %" PRINTF_64_BIT_MODIFIER "u\n",
-            (long long unsigned int)s->valueOverLastSecond[ACTUAL_BYTES_SENT],
-            (long long unsigned int)s->valueOverLastSecond[ACTUAL_BYTES_RECEIVED],
-            (long long unsigned int)s->valueOverLastSecond[USER_MESSAGE_BYTES_PUSHED],
-            (long long unsigned int)s->runningTotal[ACTUAL_BYTES_SENT],
-            (long long unsigned int)s->runningTotal[ACTUAL_BYTES_RECEIVED],
-            (long long unsigned int)s->runningTotal[USER_MESSAGE_BYTES_PUSHED],
+            (long long unsigned int)s->valueOverLastSecond[RNS_METRIC_INDEX(ACTUAL_BYTES_SENT)],
+            (long long unsigned int)s->valueOverLastSecond[RNS_METRIC_INDEX(ACTUAL_BYTES_RECEIVED)],
+            (long long unsigned int)s->valueOverLastSecond[RNS_METRIC_INDEX(USER_MESSAGE_BYTES_PUSHED)],
+            (long long unsigned int)s->runningTotal[RNS_METRIC_INDEX(ACTUAL_BYTES_SENT)],
+            (long long unsigned int)s->runningTotal[RNS_METRIC_INDEX(ACTUAL_BYTES_RECEIVED)],
+            (long long unsigned int)s->runningTotal[RNS_METRIC_INDEX(USER_MESSAGE_BYTES_PUSHED)],
             s->packetlossLastSecond * 100.0f,
             s->packetlossTotal * 100.0f,
             (long long unsigned int)(uint64_t)((RakNet::GetTimeUS() - s->connectionStartTime) / 1000000)
@@ -64,14 +68,15 @@ void RAK_DLL_EXPORT RakNet::StatisticsToString(RakNetStatistics* s, char* buffer
             output += RakString(
                 "Send capacity                    %" PRINTF_64_BIT_MODIFIER "u bytes per second (%.0f%%)\n",
                 (long long unsigned int)s->BPSLimitByCongestionControl,
-                100.0f * s->valueOverLastSecond[ACTUAL_BYTES_SENT] / s->BPSLimitByCongestionControl
+                100.0f * s->valueOverLastSecond[RNS_METRIC_INDEX(ACTUAL_BYTES_SENT)] / s->BPSLimitByCongestionControl
             );
         }
         if (s->BPSLimitByOutgoingBandwidthLimit != 0) {
             output += RakString(
                 "Send limit                       %" PRINTF_64_BIT_MODIFIER "u (%.0f%%)\n",
                 (long long unsigned int)s->BPSLimitByOutgoingBandwidthLimit,
-                100.0f * s->valueOverLastSecond[ACTUAL_BYTES_SENT] / s->BPSLimitByOutgoingBandwidthLimit
+                100.0f * s->valueOverLastSecond[RNS_METRIC_INDEX(ACTUAL_BYTES_SENT)] /
+                    s->BPSLimitByOutgoingBandwidthLimit
             );
         }
     } else {
@@ -97,28 +102,28 @@ void RAK_DLL_EXPORT RakNet::StatisticsToString(RakNetStatistics* s, char* buffer
             "Current packetloss                   %.1f%%\n"
             "Average packetloss                   %.1f%%\n"
             "Elapsed connection time in seconds   %" PRINTF_64_BIT_MODIFIER "u\n",
-            (long long unsigned int)s->valueOverLastSecond[ACTUAL_BYTES_SENT],
-            (long long unsigned int)s->valueOverLastSecond[ACTUAL_BYTES_RECEIVED],
-            (long long unsigned int)s->valueOverLastSecond[USER_MESSAGE_BYTES_SENT],
-            (long long unsigned int)s->valueOverLastSecond[USER_MESSAGE_BYTES_RESENT],
-            (long long unsigned int)s->valueOverLastSecond[USER_MESSAGE_BYTES_PUSHED],
-            (long long unsigned int)s->valueOverLastSecond[USER_MESSAGE_BYTES_RECEIVED_PROCESSED],
-            (long long unsigned int)s->valueOverLastSecond[USER_MESSAGE_BYTES_RECEIVED_IGNORED],
-            (long long unsigned int)s->runningTotal[ACTUAL_BYTES_SENT],
-            (long long unsigned int)s->runningTotal[ACTUAL_BYTES_RECEIVED],
-            (long long unsigned int)s->runningTotal[USER_MESSAGE_BYTES_SENT],
-            (long long unsigned int)s->runningTotal[USER_MESSAGE_BYTES_RESENT],
-            (long long unsigned int)s->runningTotal[USER_MESSAGE_BYTES_PUSHED],
-            (long long unsigned int)s->runningTotal[USER_MESSAGE_BYTES_RECEIVED_PROCESSED],
-            (long long unsigned int)s->runningTotal[USER_MESSAGE_BYTES_RECEIVED_IGNORED],
-            s->messageInSendBuffer[IMMEDIATE_PRIORITY],
-            s->messageInSendBuffer[HIGH_PRIORITY],
-            s->messageInSendBuffer[MEDIUM_PRIORITY],
-            s->messageInSendBuffer[LOW_PRIORITY],
-            (unsigned int)s->bytesInSendBuffer[IMMEDIATE_PRIORITY],
-            (unsigned int)s->bytesInSendBuffer[HIGH_PRIORITY],
-            (unsigned int)s->bytesInSendBuffer[MEDIUM_PRIORITY],
-            (unsigned int)s->bytesInSendBuffer[LOW_PRIORITY],
+            (long long unsigned int)s->valueOverLastSecond[RNS_METRIC_INDEX(ACTUAL_BYTES_SENT)],
+            (long long unsigned int)s->valueOverLastSecond[RNS_METRIC_INDEX(ACTUAL_BYTES_RECEIVED)],
+            (long long unsigned int)s->valueOverLastSecond[RNS_METRIC_INDEX(USER_MESSAGE_BYTES_SENT)],
+            (long long unsigned int)s->valueOverLastSecond[RNS_METRIC_INDEX(USER_MESSAGE_BYTES_RESENT)],
+            (long long unsigned int)s->valueOverLastSecond[RNS_METRIC_INDEX(USER_MESSAGE_BYTES_PUSHED)],
+            (long long unsigned int)s->valueOverLastSecond[RNS_METRIC_INDEX(USER_MESSAGE_BYTES_RECEIVED_PROCESSED)],
+            (long long unsigned int)s->valueOverLastSecond[RNS_METRIC_INDEX(USER_MESSAGE_BYTES_RECEIVED_IGNORED)],
+            (long long unsigned int)s->runningTotal[RNS_METRIC_INDEX(ACTUAL_BYTES_SENT)],
+            (long long unsigned int)s->runningTotal[RNS_METRIC_INDEX(ACTUAL_BYTES_RECEIVED)],
+            (long long unsigned int)s->runningTotal[RNS_METRIC_INDEX(USER_MESSAGE_BYTES_SENT)],
+            (long long unsigned int)s->runningTotal[RNS_METRIC_INDEX(USER_MESSAGE_BYTES_RESENT)],
+            (long long unsigned int)s->runningTotal[RNS_METRIC_INDEX(USER_MESSAGE_BYTES_PUSHED)],
+            (long long unsigned int)s->runningTotal[RNS_METRIC_INDEX(USER_MESSAGE_BYTES_RECEIVED_PROCESSED)],
+            (long long unsigned int)s->runningTotal[RNS_METRIC_INDEX(USER_MESSAGE_BYTES_RECEIVED_IGNORED)],
+            s->messageInSendBuffer[static_cast<unsigned int>(PacketPriority::IMMEDIATE_PRIORITY)],
+            s->messageInSendBuffer[static_cast<unsigned int>(PacketPriority::HIGH_PRIORITY)],
+            s->messageInSendBuffer[static_cast<unsigned int>(PacketPriority::MEDIUM_PRIORITY)],
+            s->messageInSendBuffer[static_cast<unsigned int>(PacketPriority::LOW_PRIORITY)],
+            (unsigned int)s->bytesInSendBuffer[static_cast<unsigned int>(PacketPriority::IMMEDIATE_PRIORITY)],
+            (unsigned int)s->bytesInSendBuffer[static_cast<unsigned int>(PacketPriority::HIGH_PRIORITY)],
+            (unsigned int)s->bytesInSendBuffer[static_cast<unsigned int>(PacketPriority::MEDIUM_PRIORITY)],
+            (unsigned int)s->bytesInSendBuffer[static_cast<unsigned int>(PacketPriority::LOW_PRIORITY)],
             s->messagesInResendBuffer,
             (long long unsigned int)s->bytesInResendBuffer,
             s->packetlossLastSecond * 100.0f,
@@ -130,17 +135,20 @@ void RAK_DLL_EXPORT RakNet::StatisticsToString(RakNetStatistics* s, char* buffer
             output += RakString(
                 "Send capacity                    %" PRINTF_64_BIT_MODIFIER "u bytes per second (%.0f%%)\n",
                 (long long unsigned int)s->BPSLimitByCongestionControl,
-                100.0f * s->valueOverLastSecond[ACTUAL_BYTES_SENT] / s->BPSLimitByCongestionControl
+                100.0f * s->valueOverLastSecond[RNS_METRIC_INDEX(ACTUAL_BYTES_SENT)] / s->BPSLimitByCongestionControl
             );
         }
         if (s->BPSLimitByOutgoingBandwidthLimit != 0) {
             output += RakString(
                 "Send limit                       %" PRINTF_64_BIT_MODIFIER "u (%.0f%%)\n",
                 (long long unsigned int)s->BPSLimitByOutgoingBandwidthLimit,
-                100.0f * s->valueOverLastSecond[ACTUAL_BYTES_SENT] / s->BPSLimitByOutgoingBandwidthLimit
+                100.0f * s->valueOverLastSecond[RNS_METRIC_INDEX(ACTUAL_BYTES_SENT)] /
+                    s->BPSLimitByOutgoingBandwidthLimit
             );
         }
     }
 
     memcpy(buffer, output.C_String(), output.GetLength() + 1);
+
+#undef RNS_METRIC_INDEX
 }

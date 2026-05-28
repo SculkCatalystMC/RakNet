@@ -494,7 +494,8 @@ private:
     // DataStructures::Queue<InternalPacket*> sendPacketSet[ NUMBER_OF_PRIORITIES
     // ];
     DataStructures::Heap<reliabilityHeapWeightType, InternalPacket*, false> outgoingPacketBuffer;
-    reliabilityHeapWeightType outgoingPacketBufferNextWeights[NUMBER_OF_PRIORITIES];
+    reliabilityHeapWeightType
+        outgoingPacketBufferNextWeights[static_cast<unsigned int>(PacketPriority::NUMBER_OF_PRIORITIES)];
     void                      InitHeapWeights(void);
     reliabilityHeapWeightType GetNextWeight(int priorityLevel);
     //	unsigned int messageInSendBuffer[NUMBER_OF_PRIORITIES];
@@ -704,7 +705,7 @@ private:
     void FreeInternalPacketData(InternalPacket* internalPacket, const char* file, unsigned int line);
     DataStructures::MemoryPool<InternalPacketRefCountedData> refCountedDataPool;
 
-    BPSTracker bpsMetrics[RNS_PER_SECOND_METRICS_COUNT];
+    BPSTracker bpsMetrics[static_cast<unsigned int>(RNSPerSecondMetrics::RNS_PER_SECOND_METRICS_COUNT)];
     CCTimeType lastBpsClear;
 
 #if LIBCAT_SECURITY == 1

@@ -24,6 +24,9 @@
 #include <math.h>
 
 using namespace RakNet;
+using enum RNSPerSecondMetrics;
+
+#define RNS_METRIC_INDEX(m) static_cast<unsigned int>(m)
 
 // Can't figure out which library has this function on the PS3
 double Ceil(double d) {
@@ -432,12 +435,12 @@ void ReliabilityLayer::InitializeVariables(void) {
     datagramHistoryPopCount = 0;
 
     InitHeapWeights();
-    for (int i = 0; i < NUMBER_OF_PRIORITIES; i++) {
+    for (int i = 0; i < static_cast<int>(PacketPriority::NUMBER_OF_PRIORITIES); i++) {
         statistics.messageInSendBuffer[i] = 0;
         statistics.bytesInSendBuffer[i]   = 0.0;
     }
 
-    for (int i = 0; i < RNS_PER_SECOND_METRICS_COUNT; i++) {
+    for (int i = 0; i < static_cast<int>(RNSPerSecondMetrics::RNS_PER_SECOND_METRICS_COUNT); i++) {
         bpsMetrics[i].Reset(_FILE_AND_LINE_);
     }
 }
@@ -1746,8 +1749,8 @@ bool ReliabilityLayer::Send(
     uint32_t          receipt
 ) {
 #ifdef _DEBUG
-    RakAssert(!(reliability >= NUMBER_OF_RELIABILITIES || reliability < 0));
-    RakAssert(!(priority > NUMBER_OF_PRIORITIES || priority < 0));
+    RakAssert(!(static_cast<unsigned int>(reliability) >= static_cast<unsigned int>(PacketReliability::NUMBER_OF_RELIABILITIES)));
+    RakAssert(!(static_cast<unsigned int>(priority) >= static_cast<unsigned int>(PacketPriority::NUMBER_OF_PRIORITIES)));
     RakAssert(!(orderingChannel >= NUMBER_OF_ORDERED_STREAMS));
     RakAssert(numberOfBitsToSend > 0);
 #endif
@@ -1761,9 +1764,9 @@ bool ReliabilityLayer::Send(
     //	int a = BITS_TO_BYTES(numberOfBitsToSend);
 
     // Fix any bad parameters
-    if (reliability > RELIABLE_ORDERED_WITH_ACK_RECEIPT || reliability < 0) reliability = RELIABLE;
+    if (reliability > RELIABLE_ORDERED_WITH_ACK_RECEIPT) reliability = RELIABLE;
 
-    if (priority > NUMBER_OF_PRIORITIES || priority < 0) priority = HIGH_PRIORITY;
+    if (priority >= PacketPriority::NUMBER_OF_PRIORITIES) priority = HIGH_PRIORITY;
 
     if (orderingChannel >= NUMBER_OF_ORDERED_STREAMS) orderingChannel = 0;
 
@@ -1777,7 +1780,7 @@ bool ReliabilityLayer::Send(
         return false; // Out of memory
     }
 
-    bpsMetrics[(int)USER_MESSAGE_BYTES_PUSHED].Push1(currentTime, numberOfBytesToSend);
+    bpsMetrics[RNS_METRIC_INDEX(USER_MESSAGE_BYTES_PUSHED)].Push1(currentTime, numberOfBytesToSend);
 
     internalPacket->creationTime = currentTime;
 
@@ -1875,7 +1878,7 @@ bool ReliabilityLayer::Send(
 
     RakAssert(internalPacket->dataBitLength < BYTES_TO_BITS(MAXIMUM_MTU_SIZE));
     RakAssert(internalPacket->messageNumberAssigned == false);
-    outgoingPacketBuffer.Push(GetNextWeight(internalPacket->priority), internalPacket, _FILE_AND_LINE_);
+    outgoingPacketBuffer.Push(GetNextWeight(static_cast<int>(internalPacket->priority)), internalPacket, _FILE_AND_LINE_);
     RakAssert(
         outgoingPacketBuffer.Size() == 0 || outgoingPacketBuffer.Peek()->dataBitLength < BYTES_TO_BITS(MAXIMUM_MTU_SIZE)
     );
@@ -2045,7 +2048,7 @@ void ReliabilityLayer::Update(
                    100000
 #endif
     ) {
-        for (i = 0; i < RNS_PER_SECOND_METRICS_COUNT; i++) {
+        for (i = 0; i < static_cast<unsigned int>(RNSPerSecondMetrics::RNS_PER_SECOND_METRICS_COUNT); i++) {
             bpsMetrics[i].ClearExpired1(time);
         }
 
@@ -2203,7 +2206,8 @@ void ReliabilityLayer::Update(
 
                 statistics.isLimitedByOutgoingBandwidthLimit =
                     bitsPerSecondLimit != 0
-                    && BITS_TO_BYTES(bitsPerSecondLimit) < bpsMetrics[USER_MESSAGE_BYTES_SENT].GetBPS1(time);
+                          && BITS_TO_BYTES(bitsPerSecondLimit)
+                              < bpsMetrics[RNS_METRIC_INDEX(USER_MESSAGE_BYTES_SENT)].GetBPS1(time);
 
                 while (outgoingPacketBuffer.Size() && statistics.isLimitedByOutgoingBandwidthLimit == false)
                 // while ( sendPacketSet[ i ].Size() )
@@ -2875,9 +2879,12 @@ BitSize_t ReliabilityLayer::WriteToBitStreamFromInternalPacket(
 
     // (Incoming data may be all zeros due to padding)
     bitStream->AlignWriteToByteBoundary(); // Potentially unaligned
-    if (internalPacket->reliability == UNRELIABLE_WITH_ACK_RECEIPT) tempChar = UNRELIABLE;
-    else if (internalPacket->reliability == RELIABLE_WITH_ACK_RECEIPT) tempChar = RELIABLE;
-    else if (internalPacket->reliability == RELIABLE_ORDERED_WITH_ACK_RECEIPT) tempChar = RELIABLE_ORDERED;
+    if (internalPacket->reliability == UNRELIABLE_WITH_ACK_RECEIPT)
+        tempChar = static_cast<unsigned char>(UNRELIABLE);
+    else if (internalPacket->reliability == RELIABLE_WITH_ACK_RECEIPT)
+        tempChar = static_cast<unsigned char>(RELIABLE);
+    else if (internalPacket->reliability == RELIABLE_ORDERED_WITH_ACK_RECEIPT)
+        tempChar = static_cast<unsigned char>(RELIABLE_ORDERED);
     else tempChar = (unsigned char)internalPacket->reliability;
 
     bitStream->WriteBits((const unsigned char*)&tempChar, 3,
@@ -3291,7 +3298,11 @@ void ReliabilityLayer::SplitPacket(InternalPacket* internalPacket) {
         RakAssert(internalPacketArray[i]->dataBitLength < BYTES_TO_BITS(MAXIMUM_MTU_SIZE));
         RakAssert(internalPacketArray[i]->messageNumberAssigned == false);
         outgoingPacketBuffer
-            .PushSeries(GetNextWeight(internalPacketArray[i]->priority), internalPacketArray[i], _FILE_AND_LINE_);
+            .PushSeries(
+                GetNextWeight(static_cast<int>(internalPacketArray[i]->priority)),
+                internalPacketArray[i],
+                _FILE_AND_LINE_
+            );
         RakAssert(
             outgoingPacketBuffer.Size() == 0
             || outgoingPacketBuffer.Peek()->dataBitLength < BYTES_TO_BITS(MAXIMUM_MTU_SIZE)
@@ -3696,26 +3707,33 @@ RakNetStatistics* ReliabilityLayer::GetStatistics(RakNetStatistics* rns) {
     uint64_t       uint64Denominator;
     double         doubleDenominator;
 
-    for (i = 0; i < RNS_PER_SECOND_METRICS_COUNT; i++) {
+    for (i = 0; i < static_cast<unsigned int>(RNSPerSecondMetrics::RNS_PER_SECOND_METRICS_COUNT); i++) {
         statistics.valueOverLastSecond[i] = bpsMetrics[i].GetBPS1Threadsafe(time);
         statistics.runningTotal[i]        = bpsMetrics[i].GetTotal1();
     }
 
     memcpy(rns, &statistics, sizeof(statistics));
 
-    if (rns->valueOverLastSecond[USER_MESSAGE_BYTES_SENT] + rns->valueOverLastSecond[USER_MESSAGE_BYTES_RESENT] > 0)
-        rns->packetlossLastSecond = (float)((double)rns->valueOverLastSecond[USER_MESSAGE_BYTES_RESENT]
-                                            / ((double)rns->valueOverLastSecond[USER_MESSAGE_BYTES_SENT]
-                                               + (double)rns->valueOverLastSecond[USER_MESSAGE_BYTES_RESENT]));
+    if (rns->valueOverLastSecond[RNS_METRIC_INDEX(USER_MESSAGE_BYTES_SENT)]
+        + rns->valueOverLastSecond[RNS_METRIC_INDEX(USER_MESSAGE_BYTES_RESENT)] > 0)
+        rns->packetlossLastSecond =
+            (float)((double)rns->valueOverLastSecond[RNS_METRIC_INDEX(USER_MESSAGE_BYTES_RESENT)]
+                    / ((double)rns->valueOverLastSecond[RNS_METRIC_INDEX(USER_MESSAGE_BYTES_SENT)]
+                       + (double)rns->valueOverLastSecond[RNS_METRIC_INDEX(USER_MESSAGE_BYTES_RESENT)]));
     else rns->packetlossLastSecond = 0.0f;
 
     rns->packetlossTotal = 0.0f;
-    uint64Denominator    = (rns->runningTotal[USER_MESSAGE_BYTES_SENT] + rns->runningTotal[USER_MESSAGE_BYTES_RESENT]);
-    if (uint64Denominator != 0 && rns->runningTotal[USER_MESSAGE_BYTES_SENT] / uint64Denominator > 0) {
+    uint64Denominator =
+        (rns->runningTotal[RNS_METRIC_INDEX(USER_MESSAGE_BYTES_SENT)]
+         + rns->runningTotal[RNS_METRIC_INDEX(USER_MESSAGE_BYTES_RESENT)]);
+    if (uint64Denominator != 0
+        && rns->runningTotal[RNS_METRIC_INDEX(USER_MESSAGE_BYTES_SENT)] / uint64Denominator > 0) {
         doubleDenominator =
-            ((double)rns->runningTotal[USER_MESSAGE_BYTES_SENT] + (double)rns->runningTotal[USER_MESSAGE_BYTES_RESENT]);
+            ((double)rns->runningTotal[RNS_METRIC_INDEX(USER_MESSAGE_BYTES_SENT)]
+             + (double)rns->runningTotal[RNS_METRIC_INDEX(USER_MESSAGE_BYTES_RESENT)]);
         if (doubleDenominator != 0) {
-            rns->packetlossTotal = (float)((double)rns->runningTotal[USER_MESSAGE_BYTES_RESENT] / doubleDenominator);
+            rns->packetlossTotal =
+                (float)((double)rns->runningTotal[RNS_METRIC_INDEX(USER_MESSAGE_BYTES_RESENT)] / doubleDenominator);
         }
     }
 
@@ -4190,14 +4208,14 @@ BitSize_t ReliabilityLayer::GetMaxDatagramSizeExcludingMessageHeaderBits(void) {
 }
 //-------------------------------------------------------------------------------------------------------
 void ReliabilityLayer::InitHeapWeights(void) {
-    for (int priorityLevel = 0; priorityLevel < NUMBER_OF_PRIORITIES; priorityLevel++)
+    for (int priorityLevel = 0; priorityLevel < static_cast<int>(PacketPriority::NUMBER_OF_PRIORITIES); priorityLevel++)
         outgoingPacketBufferNextWeights[priorityLevel] = (1 << priorityLevel) * priorityLevel + priorityLevel;
 }
 //-------------------------------------------------------------------------------------------------------
 reliabilityHeapWeightType ReliabilityLayer::GetNextWeight(int priorityLevel) {
     uint64_t next = outgoingPacketBufferNextWeights[priorityLevel];
     if (outgoingPacketBuffer.Size() > 0) {
-        int                       peekPL = outgoingPacketBuffer.Peek()->priority;
+        int                       peekPL = static_cast<int>(outgoingPacketBuffer.Peek()->priority);
         reliabilityHeapWeightType weight = outgoingPacketBuffer.PeekWeight();
         reliabilityHeapWeightType min    = weight - (1 << peekPL) * peekPL + peekPL;
         if (next < min) next = min + (1 << priorityLevel) * priorityLevel + priorityLevel;
@@ -4208,6 +4226,8 @@ reliabilityHeapWeightType ReliabilityLayer::GetNextWeight(int priorityLevel) {
     }
     return next;
 }
+
+#undef RNS_METRIC_INDEX
 
 //-------------------------------------------------------------------------------------------------------
 // #if defined(RELIABILITY_LAYER_NEW_UNDEF_ALLOCATING_QUEUE)

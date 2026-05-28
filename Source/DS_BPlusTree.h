@@ -74,7 +74,7 @@ public:
     struct ReturnAction {
         KeyType key1;
         KeyType key2;
-        enum {
+        enum class Action : unsigned char {
             NO_ACTION,
             REPLACE_KEY1_WITH_KEY2,
             PUSH_KEY_TO_PARENT,
@@ -195,7 +195,7 @@ bool BPlusTree<KeyType, DataType, order>::Delete(const KeyType key, DataType& ou
     if (root == 0) return false;
 
     ReturnAction returnAction;
-    returnAction.action = ReturnAction::NO_ACTION;
+    returnAction.action = ReturnAction::Action::NO_ACTION;
     int  childIndex;
     bool underflow = false;
     if (root == leftmostLeaf) {
@@ -248,8 +248,8 @@ bool BPlusTree<KeyType, DataType, order>::FindDeleteRebalance(
         if (branchIndex < cur->size) rightRootKey = cur->keys[branchIndex]; // Shift right to left
         else rightRootKey = cur->keys[branchIndex - 1];                     // Shift center to left
 
-        if (returnAction->action == ReturnAction::SET_BRANCH_KEY && branchIndex != childIndex) {
-            returnAction->action  = ReturnAction::NO_ACTION;
+        if (returnAction->action == ReturnAction::Action::SET_BRANCH_KEY && branchIndex != childIndex) {
+            returnAction->action  = ReturnAction::Action::NO_ACTION;
             cur->keys[childIndex] = returnAction->key1;
 
             if (branchIndex < cur->size) rightRootKey = cur->keys[branchIndex]; // Shift right to left
@@ -269,7 +269,7 @@ bool BPlusTree<KeyType, DataType, order>::FindDeleteRebalance(
             if (branchIndex > 0) cur->keys[branchIndex - 1] = cur->children[branchIndex]->keys[0];
 
             if (branchIndex == 0) {
-                returnAction->action = ReturnAction::SET_BRANCH_KEY;
+                returnAction->action = ReturnAction::Action::SET_BRANCH_KEY;
                 returnAction->key1   = cur->children[0]->keys[0];
             }
         }
@@ -339,13 +339,13 @@ bool BPlusTree<KeyType, DataType, order>::FixUnderflow(
 #endif
             if (order <= 3 && dest->size == 0) {
                 if (branchIndex == 0) {
-                    returnAction->action = ReturnAction::SET_BRANCH_KEY;
+                    returnAction->action = ReturnAction::Action::SET_BRANCH_KEY;
                     returnAction->key1   = dest->keys[0];
                 } else cur->keys[branchIndex - 1] = cur->children[branchIndex]->keys[0];
             }
         } else {
-            if (returnAction->action == ReturnAction::NO_ACTION) {
-                returnAction->action = ReturnAction::SET_BRANCH_KEY;
+            if (returnAction->action == ReturnAction::Action::NO_ACTION) {
+                returnAction->action = ReturnAction::Action::SET_BRANCH_KEY;
                 returnAction->key1   = dest->keys[0];
             }
 
@@ -420,7 +420,7 @@ bool BPlusTree<KeyType, DataType, order>::FixUnderflow(
         }
 
         if (branchIndex == 0 && dest->isLeaf) {
-            returnAction->action = ReturnAction::SET_BRANCH_KEY;
+            returnAction->action = ReturnAction::Action::SET_BRANCH_KEY;
             returnAction->key1   = dest->keys[0];
         }
 
@@ -533,7 +533,7 @@ Page<KeyType, DataType, order>* BPlusTree<KeyType, DataType, order>::InsertIntoN
 
                 // the first key is the middle key.  Remove it from the page and push it
                 // to the parent
-                returnAction->action = ReturnAction::PUSH_KEY_TO_PARENT;
+                returnAction->action = ReturnAction::Action::PUSH_KEY_TO_PARENT;
                 returnAction->key1   = newPage->keys[0];
                 for (int j = 0; j < destIndex - 1; j++) newPage->keys[j] = newPage->keys[j + 1];
             }
@@ -554,7 +554,7 @@ Page<KeyType, DataType, order>* BPlusTree<KeyType, DataType, order>::InsertIntoN
 
                 // the first key is the middle key.  Remove it from the page and push it
                 // to the parent
-                returnAction->action = ReturnAction::PUSH_KEY_TO_PARENT;
+                returnAction->action = ReturnAction::Action::PUSH_KEY_TO_PARENT;
                 returnAction->key1   = newPage->keys[0];
                 for (int j = 0; j < destIndex - 1; j++) newPage->keys[j] = newPage->keys[j + 1];
             }
@@ -661,7 +661,7 @@ Page<KeyType, DataType, order>* BPlusTree<KeyType, DataType, order>::InsertBranc
             }
 
             if (CanRotateLeft(cur, branchIndex)) {
-                returnAction->action = ReturnAction::REPLACE_KEY1_WITH_KEY2;
+                returnAction->action = ReturnAction::Action::REPLACE_KEY1_WITH_KEY2;
                 if (key > cur->children[branchIndex]->keys[0]) {
                     RotateLeft(cur, branchIndex, returnAction);
 
@@ -684,7 +684,7 @@ Page<KeyType, DataType, order>* BPlusTree<KeyType, DataType, order>::InsertBranc
 
                 return 0;
             } else if (CanRotateRight(cur, branchIndex)) {
-                returnAction->action = ReturnAction::REPLACE_KEY1_WITH_KEY2;
+                returnAction->action = ReturnAction::Action::REPLACE_KEY1_WITH_KEY2;
 
                 if (key < cur->children[branchIndex]->keys[cur->children[branchIndex]->size - 1]) {
                     RotateRight(cur, branchIndex, returnAction);
@@ -705,13 +705,13 @@ Page<KeyType, DataType, order>* BPlusTree<KeyType, DataType, order>::InsertBranc
         }
 
         newPage = InsertBranchDown(key, data, cur->children[branchIndex], returnAction, success);
-        if (returnAction->action == ReturnAction::REPLACE_KEY1_WITH_KEY2) {
+        if (returnAction->action == ReturnAction::Action::REPLACE_KEY1_WITH_KEY2) {
             if (branchIndex > 0 && cur->keys[branchIndex - 1] == returnAction->key1)
                 cur->keys[branchIndex - 1] = returnAction->key2;
         }
         if (newPage) {
             if (newPage->isLeaf == false) {
-                RakAssert(returnAction->action == ReturnAction::PUSH_KEY_TO_PARENT);
+                RakAssert(returnAction->action == ReturnAction::Action::PUSH_KEY_TO_PARENT);
                 newPage->size--;
                 return InsertIntoNode(returnAction->key1, data, branchIndex, newPage, cur, returnAction);
             } else {
@@ -744,7 +744,7 @@ bool BPlusTree<KeyType, DataType, order>::Insert(const KeyType key, const DataTy
     } else {
         bool         success = true;
         ReturnAction returnAction;
-        returnAction.action                     = ReturnAction::NO_ACTION;
+        returnAction.action                     = ReturnAction::Action::NO_ACTION;
         Page<KeyType, DataType, order>* newPage = InsertBranchDown(key, data, root, &returnAction, &success);
         if (success == false) return false;
         if (newPage) {
@@ -752,7 +752,7 @@ bool BPlusTree<KeyType, DataType, order>::Insert(const KeyType key, const DataTy
             if (newPage->isLeaf == false) {
                 // One key is pushed up through the stack.  I store that at keys[0] but
                 // it has to be removed for the page to be correct
-                RakAssert(returnAction.action == ReturnAction::PUSH_KEY_TO_PARENT);
+                RakAssert(returnAction.action == ReturnAction::Action::PUSH_KEY_TO_PARENT);
                 newKey = returnAction.key1;
                 newPage->size--;
             } else newKey = newPage->keys[0];

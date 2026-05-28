@@ -17,7 +17,7 @@
 #define __PACKET_PRIORITY_H
 
 /// These enumerations are used to describe when packets are delivered.
-enum PacketPriority {
+enum class PacketPriority : unsigned char {
     /// The highest possible priority. These message trigger sends immediately,
     /// and are generally not buffered or aggregated into a single datagram.
     IMMEDIATE_PRIORITY,
@@ -44,13 +44,16 @@ enum PacketPriority {
     NUMBER_OF_PRIORITIES
 };
 
+using enum PacketPriority;
+
+
 /// These enumerations are used to describe how packets are delivered.
 /// \note  Note to self: I write this with 3 bits in the stream.  If I add more
 /// remember to change that
 /// \note In ReliabilityLayer::WriteToBitStreamFromInternalPacket I assume there
 /// are 5 major types
 /// \note Do not reorder, I check on >= UNRELIABLE_WITH_ACK_RECEIPT
-enum PacketReliability {
+enum class PacketReliability : unsigned char {
     /// Same as regular UDP, except that it will also discard duplicate datagrams.
     /// RakNet adds (6 to 17) + 21 bits of overhead, 16 of which is used to detect
     /// duplicate packets and 6 to 17 of which is used for message length.
@@ -124,5 +127,8 @@ enum PacketReliability {
     /// \internal
     NUMBER_OF_RELIABILITIES
 };
+
+using enum PacketReliability;
+
 
 #endif

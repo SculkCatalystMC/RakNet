@@ -20,7 +20,7 @@
 /// Replica interface flags, used to enable and disable function calls on the
 /// Replica object Passed to ReplicaManager::EnableReplicaInterfaces and
 /// ReplicaManager::DisableReplicaInterfaces
-enum {
+enum class ReplicaInterfaceFlag : unsigned int {
     REPLICA_RECEIVE_DESTRUCTION  = 1 << 0,
     REPLICA_RECEIVE_SERIALIZE    = 1 << 1,
     REPLICA_RECEIVE_SCOPE_CHANGE = 1 << 2,
@@ -31,7 +31,8 @@ enum {
     REPLICA_SET_ALL              = 0xFF // Allow all of the above
 };
 
-enum ReplicaReturnResult {
+
+enum class ReplicaReturnResult : unsigned char {
     /// This means call the function again later, with the same parameters
     REPLICA_PROCESS_LATER,
     /// This means we are done processing (the normal result to return)

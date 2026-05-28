@@ -16,6 +16,9 @@
 #include <string.h>
 
 using namespace DataStructures;
+using enum Table::ColumnType;
+using enum Table::FilterQueryType;
+using enum Table::SortQueryType;
 
 #ifdef _MSC_VER
 #pragma warning(push)
@@ -684,7 +687,7 @@ void Table::QueryRow(
 
 static Table::SortQuery*                              _sortQueries;
 static unsigned                                       _numSortQueries;
-static DataStructures::List<unsigned>*                _columnIndices;
+static DataStructures::List<unsigned>                 _columnIndices;
 static DataStructures::List<Table::ColumnDescriptor>* _columns;
 int                                                   RowSort(
                                                       Table::Row* const& first,
@@ -694,7 +697,7 @@ int                                                   RowSort(
 {
     unsigned i, columnIndex;
     for (i = 0; i < _numSortQueries; i++) {
-        columnIndex = (*_columnIndices)[i];
+        columnIndex = _columnIndices[i];
         if (columnIndex == (unsigned)-1) continue;
 
         if (first->cells[columnIndex]->isEmpty == true && second->cells[columnIndex]->isEmpty == false)
@@ -727,21 +730,20 @@ int                                                   RowSort(
     return 0;
 }
 void Table::SortTable(Table::SortQuery* sortQueries, unsigned numSortQueries, Table::Row** out) {
-    unsigned                       i;
-    unsigned                       outLength;
-    DataStructures::List<unsigned> columnIndices;
+    unsigned i;
+    unsigned outLength;
     _sortQueries    = sortQueries;
     _numSortQueries = numSortQueries;
-    _columnIndices  = &columnIndices;
+    _columnIndices.Clear(false, _FILE_AND_LINE_);
     _columns        = &columns;
     bool anyValid   = false;
 
     for (i = 0; i < numSortQueries; i++) {
         if (sortQueries[i].columnIndex < columns.Size() && columns[sortQueries[i].columnIndex].columnType != BINARY) {
-            columnIndices.Insert(sortQueries[i].columnIndex, _FILE_AND_LINE_);
+            _columnIndices.Insert(sortQueries[i].columnIndex, _FILE_AND_LINE_);
             anyValid = true;
-        } else columnIndices.Insert((unsigned)-1,
-                                    _FILE_AND_LINE_); // Means don't check this column
+        } else _columnIndices.Insert((unsigned)-1,
+                                     _FILE_AND_LINE_); // Means don't check this column
     }
 
     DataStructures::Page<unsigned, Row*, _TABLE_BPLUS_TREE_ORDER>* cur;

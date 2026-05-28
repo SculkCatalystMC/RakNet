@@ -88,7 +88,8 @@ public:
 
     /// Results of HTTP requests.  Standard response codes are < 999
     /// ( define HTTP codes and our internal codes as needed )
-    enum ResponseCodes { NoBody = 1001, OK = 200, Deleted = 1002 };
+    enum class ResponseCodes : int { NoBody = 1001, OK = 200, Deleted = 1002 };
+    using enum ResponseCodes;
 
     HTTPConnection& operator=(const HTTPConnection& rhs) {
         (void)rhs;
@@ -136,13 +137,14 @@ private:
     unsigned short                     port;
     DataStructures::Queue<BadResponse> badResponses;
 
-    enum ConnectionState {
+    enum class ConnectionState : unsigned char {
         CS_NONE,
         CS_DISCONNECTING,
         CS_CONNECTING,
         CS_CONNECTED,
         CS_PROCESSING,
     } connectionState;
+    using enum ConnectionState;
 
     RakNet::RakString                        incomingData;
     DataStructures::Queue<RakNet::RakString> results;

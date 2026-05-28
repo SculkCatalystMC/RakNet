@@ -41,16 +41,19 @@ struct RNS2_BerkleyBindParameters;
 struct RNS2_SendParameters;
 typedef int RNS2Socket;
 
-enum RNS2BindResult {
+enum class RNS2BindResult : unsigned char {
     BR_SUCCESS,
     BR_REQUIRES_RAKNET_SUPPORT_IPV6_DEFINE,
     BR_FAILED_TO_BIND_SOCKET,
     BR_FAILED_SEND_TEST,
 };
 
+using enum RNS2BindResult;
+
+
 typedef int RNS2SendResult;
 
-enum RNS2Type {
+enum class RNS2Type : unsigned char {
     RNS2T_WINDOWS_STORE_8,
     RNS2T_PS3,
     RNS2T_PS4,
@@ -61,6 +64,9 @@ enum RNS2Type {
     RNS2T_WINDOWS,
     RNS2T_LINUX
 };
+
+using enum RNS2Type;
+
 
 struct RNS2_SendParameters {
     RNS2_SendParameters() { ttl = 0; }

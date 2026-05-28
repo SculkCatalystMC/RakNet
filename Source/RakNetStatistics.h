@@ -21,7 +21,7 @@
 
 namespace RakNet {
 
-enum RNSPerSecondMetrics {
+enum class RNSPerSecondMetrics : unsigned int {
     /// How many bytes per pushed via a call to RakPeerInterface::Send()
     USER_MESSAGE_BYTES_PUSHED,
 
@@ -55,17 +55,20 @@ enum RNSPerSecondMetrics {
     RNS_PER_SECOND_METRICS_COUNT
 };
 
+using enum RNSPerSecondMetrics;
+
+
 /// \brief Network Statisics Usage
 ///
 /// Store Statistics information related to network usage
 struct RAK_DLL_EXPORT RakNetStatistics {
     /// For each type in RNSPerSecondMetrics, what is the value over the last 1
     /// second?
-    uint64_t valueOverLastSecond[RNS_PER_SECOND_METRICS_COUNT];
+    uint64_t valueOverLastSecond[static_cast<unsigned int>(RNSPerSecondMetrics::RNS_PER_SECOND_METRICS_COUNT)];
 
     /// For each type in RNSPerSecondMetrics, what is the total value over the
     /// lifetime of the connection?
-    uint64_t runningTotal[RNS_PER_SECOND_METRICS_COUNT];
+    uint64_t runningTotal[static_cast<unsigned int>(RNSPerSecondMetrics::RNS_PER_SECOND_METRICS_COUNT)];
 
     /// When did the connection start?
     /// \sa RakNet::GetTimeUS()
@@ -89,10 +92,10 @@ struct RAK_DLL_EXPORT RakNetStatistics {
     uint64_t BPSLimitByOutgoingBandwidthLimit;
 
     /// For each priority level, how many messages are waiting to be sent out?
-    unsigned int messageInSendBuffer[NUMBER_OF_PRIORITIES];
+    unsigned int messageInSendBuffer[static_cast<unsigned int>(PacketPriority::NUMBER_OF_PRIORITIES)];
 
     /// For each priority level, how many bytes are waiting to be sent out?
-    double bytesInSendBuffer[NUMBER_OF_PRIORITIES];
+    double bytesInSendBuffer[static_cast<unsigned int>(PacketPriority::NUMBER_OF_PRIORITIES)];
 
     /// How many messages are waiting in the resend buffer? This includes messages
     /// waiting for an ack, so should normally be a small value If the value is
@@ -113,12 +116,12 @@ struct RAK_DLL_EXPORT RakNetStatistics {
 
     RakNetStatistics& operator+=(const RakNetStatistics& other) {
         unsigned i;
-        for (i = 0; i < NUMBER_OF_PRIORITIES; i++) {
+        for (i = 0; i < static_cast<unsigned int>(PacketPriority::NUMBER_OF_PRIORITIES); i++) {
             messageInSendBuffer[i] += other.messageInSendBuffer[i];
             bytesInSendBuffer[i]   += other.bytesInSendBuffer[i];
         }
 
-        for (i = 0; i < RNS_PER_SECOND_METRICS_COUNT; i++) {
+        for (i = 0; i < static_cast<unsigned int>(RNSPerSecondMetrics::RNS_PER_SECOND_METRICS_COUNT); i++) {
             valueOverLastSecond[i] += other.valueOverLastSecond[i];
             runningTotal[i]        += other.runningTotal[i];
         }

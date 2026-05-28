@@ -1048,7 +1048,7 @@ public:
         char client_public_key[cat::EasyHandshake::PUBLIC_KEY_BYTES];
 #endif
 
-        enum ConnectMode {
+        enum class ConnectMode : unsigned char {
             NO_ACTION,
             DISCONNECT_ASAP,
             DISCONNECT_ASAP_SILENTLY,
@@ -1058,6 +1058,7 @@ public:
             UNVERIFIED_SENDER,
             CONNECTED
         } connectMode;
+        using enum ConnectMode;
     };
 
     // DS_APR
@@ -1248,13 +1249,14 @@ protected:
     //&sa) const; 	unsigned int FirstFreeRemoteSystemLookupIndex(const
     // SystemAddress &sa) const;
 
-    enum {
+    enum class RakPeerMutexId : unsigned int {
         // Only put these mutexes in user thread functions!
         requestedConnectionList_Mutex,
         offlinePingResponse_Mutex,
         NUMBER_OF_RAKPEER_MUTEXES
     };
-    SimpleMutex rakPeerMutexes[NUMBER_OF_RAKPEER_MUTEXES];
+    using enum RakPeerMutexId;
+    SimpleMutex rakPeerMutexes[static_cast<unsigned int>(RakPeerMutexId::NUMBER_OF_RAKPEER_MUTEXES)];
     /// RunUpdateCycle is not thread safe but we don't need to mutex calls. Just
     /// skip calls if it is running already
 
@@ -1296,10 +1298,11 @@ protected:
         RakNet::TimeMS timeoutTime;
         PublicKeyMode  publicKeyMode;
         RakNetSocket2* socket;
-        enum {
+        enum class RequestedConnectionAction : unsigned char {
             CONNECT = 1,
             /*PING=2, PING_OPEN_CONNECTIONS=4,*/ /*ADVERTISE_SYSTEM=2*/
         } actionToTake;
+        using enum RequestedConnectionAction;
 
 #if LIBCAT_SECURITY == 1
         char                      handshakeChallenge[cat::EasyHandshake::CHALLENGE_BYTES];
@@ -1342,7 +1345,7 @@ protected:
         RakNetSocket2*                  socket;
         unsigned short                  port;
         uint32_t                        receipt;
-        enum {
+        enum class BufferedCommandType : unsigned char {
             BCS_SEND,
             BCS_CLOSE_CONNECTION,
             BCS_GET_SOCKET,
@@ -1351,6 +1354,7 @@ protected:
                BCS_RPC_SHIFT,*/
             BCS_DO_NOTHING
         } command;
+        using enum BufferedCommandType;
     };
 
     // Single producer single consumer queue using a linked list

@@ -242,7 +242,7 @@ void          HTTPConnection::ProcessTCPPacket(Packet* packet) {
 
 bool HTTPConnection::IsBusy(void) const { return connectionState != CS_NONE; }
 
-int HTTPConnection::GetState(void) const { return connectionState; }
+int HTTPConnection::GetState(void) const { return static_cast<int>(connectionState); }
 
 HTTPConnection::~HTTPConnection(void) {
     if (tcp) tcp->CloseConnection(server);

@@ -30,7 +30,7 @@
 #endif
 
 /// What algorithm to use to store the data for the Multilist
-enum MultilistType {
+enum class MultilistType : unsigned char {
     /// Removing from the middle of the list will swap the end of the list rather
     /// than shift the elements. Push and Pop operate on the tail.
     ML_UNORDERED_LIST,
@@ -45,6 +45,9 @@ enum MultilistType {
     /// A list whose type can change at runtime
     ML_VARIABLE_DURING_RUNTIME
 };
+
+using enum MultilistType;
+
 
 /// The namespace DataStructures was only added to avoid compiler errors for
 /// commonly named data structures As these data structures are stand-alone, you
@@ -283,7 +286,9 @@ protected:
     /// Won't automatically deallocate below this
     _IndexType preallocationSize;
 
-    enum { ML_UNSORTED, ML_SORTED_ASCENDING, ML_SORTED_DESCENDING } sortState;
+    enum class SortState : unsigned char { ML_UNSORTED, ML_SORTED_ASCENDING, ML_SORTED_DESCENDING };
+    using enum SortState;
+    SortState sortState;
 
     bool ascendingSort;
 

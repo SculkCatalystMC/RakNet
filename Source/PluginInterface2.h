@@ -38,7 +38,7 @@ struct InternalPacket;
 /// opportunity to process them first. This enumeration represents what to do
 /// with the message
 /// \ingroup PLUGIN_INTERFACE_GROUP
-enum PluginReceiveResult {
+enum class PluginReceiveResult : unsigned char {
     /// The plugin used this message and it shouldn't be given to the user.
     RR_STOP_PROCESSING_AND_DEALLOCATE = 0,
 
@@ -50,9 +50,12 @@ enum PluginReceiveResult {
     RR_STOP_PROCESSING
 };
 
+using enum PluginReceiveResult;
+
+
 /// Reasons why a connection was lost
 /// \ingroup PLUGIN_INTERFACE_GROUP
-enum PI2_LostConnectionReason {
+enum class PI2_LostConnectionReason : unsigned char {
     /// Called RakPeer::CloseConnection()
     LCR_CLOSED_BY_USER,
 
@@ -63,9 +66,12 @@ enum PI2_LostConnectionReason {
     LCR_CONNECTION_LOST
 };
 
+using enum PI2_LostConnectionReason;
+
+
 /// Returns why a connection attempt failed
 /// \ingroup PLUGIN_INTERFACE_GROUP
-enum PI2_FailedConnectionAttemptReason {
+enum class PI2_FailedConnectionAttemptReason : unsigned char {
     FCAR_CONNECTION_ATTEMPT_FAILED,
     FCAR_ALREADY_CONNECTED,
     FCAR_NO_FREE_INCOMING_CONNECTIONS,
@@ -78,6 +84,9 @@ enum PI2_FailedConnectionAttemptReason {
     FCAR_OUR_SYSTEM_REQUIRES_SECURITY,
     FCAR_PUBLIC_KEY_MISMATCH
 };
+
+using enum PI2_FailedConnectionAttemptReason;
+
 
 /// RakNet's plugin system. Each plugin processes the following events:
 /// -Connection attempts

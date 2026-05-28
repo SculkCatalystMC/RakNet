@@ -11,7 +11,7 @@
 #ifndef __AUTOPATCHER_PATCH_CONTEXT_H
 #define __AUTOPATCHER_PATCH_CONTEXT_H
 
-enum PatchContext {
+enum class PatchContext : unsigned char {
     PC_HASH_1_WITH_PATCH,
     PC_HASH_2_WITH_PATCH,
     PC_WRITE_FILE,
@@ -23,5 +23,6 @@ enum PatchContext {
     PC_NOTICE_FILE_DOWNLOADED,
     PC_NOTICE_FILE_DOWNLOADED_PATCH,
 };
+
 
 #endif
