@@ -30,6 +30,7 @@
 
 #else
 #include <arpa/inet.h>
+#include <netdb.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #endif
@@ -501,7 +502,7 @@ bool SystemAddress::FromString(const char* str, char portDelineator, int ipVersi
         address.addr4.sin_family = AF_INET6;
         snprintf(ipPart, sizeof(ipPart), "%s", IPV6_LOOPBACK);
     } else if (NonNumericHostString(str) == false) {
-        for (; i < sizeof(ipPart) && str[i] != 0 && str[i] != portDelineator; i++) {
+        for (; i < static_cast<int>(sizeof(ipPart)) && str[i] != 0 && str[i] != portDelineator; i++) {
             if ((str[i] < '0' || str[i] > '9') && (str[i] < 'a' || str[i] > 'f') && (str[i] < 'A' || str[i] > 'F')
                 && str[i] != '.' && str[i] != ':' && str[i] != '%' && str[i] != '-' && str[i] != '/')
                 break;
@@ -517,7 +518,7 @@ bool SystemAddress::FromString(const char* str, char portDelineator, int ipVersi
     j = 0;
     if (str[i] == portDelineator && portDelineator != 0) {
         i++;
-        for (; j < sizeof(portPart) && str[i] != 0; i++, j++) {
+        for (; j < static_cast<int>(sizeof(portPart)) && str[i] != 0; i++, j++) {
             portPart[j] = str[i];
         }
     }

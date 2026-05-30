@@ -270,7 +270,9 @@ RNS2_Berkley::BindSharedIPV4And6(RNS2_BerkleyBindParameters* bindParameters, con
     int              ret = 0;
     struct addrinfo  hints;
     struct addrinfo *servinfo = 0, *aip; // will point to the results
-    PrepareAddrInfoHints2(&hints);
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_socktype = SOCK_DGRAM;
+    hints.ai_flags    = AI_PASSIVE;
     hints.ai_family = bindParameters->addressFamily;
     char portStr[32];
     Itoa(bindParameters->port, portStr, 10);
@@ -288,7 +290,7 @@ RNS2_Berkley::BindSharedIPV4And6(RNS2_BerkleyBindParameters* bindParameters, con
     for (aip = servinfo; aip != NULL; aip = aip->ai_next) {
         // Open socket. The address type depends on what
         // getaddrinfo() gave us.
-        rns2Socket = socket__(aip->ai_family, aip->ai_socktype, aip->ai_protocol);
+        rns2Socket = static_cast<RNS2Socket>(socket__(aip->ai_family, aip->ai_socktype, aip->ai_protocol));
 
         if (rns2Socket == -1) return BR_FAILED_TO_BIND_SOCKET;
 

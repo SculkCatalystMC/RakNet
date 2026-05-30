@@ -24,6 +24,7 @@ using namespace RakNet;
 #include <arpa/inet.h>
 #include <errno.h> // error numbers
 #include <fcntl.h>
+#include <netdb.h>
 #include <unistd.h>
 #if !defined(ANDROID)
 #include <ifaddrs.h>
@@ -33,6 +34,7 @@ using namespace RakNet;
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include "LinuxStrings.h"
 #endif
 
 #ifdef TEST_NATIVE_CLIENT_ON_WINDOWS

@@ -30,6 +30,15 @@ ENDIF(WIN32 AND NOT UNIX)
 option(RAKNET_ENABLE_DLL "Generate the DLL project if true." OFF)
 option(RAKNET_ENABLE_STATIC "Generate the static library project if true." ON)
 option(RAKNET_GENERATE_INCLUDE_ONLY_DIR "Setup a include/RakNet/ directory in which all the headers are copied." OFF)
+option(RAKNET_SUPPORT_IPV6 "Build RakNet with IPv6 support enabled." ON)
+
+if(RAKNET_SUPPORT_IPV6)
+	set(RAKNET_SUPPORT_IPV6_VALUE 1)
+else()
+	set(RAKNET_SUPPORT_IPV6_VALUE 0)
+endif()
+
+set(RAKNET_COMMON_COMPILE_DEFINITIONS RAKNET_SUPPORT_IPV6=${RAKNET_SUPPORT_IPV6_VALUE})
 
 set(RAKNETHEADERFILES ${RakNet_SOURCE_DIR}/Source) # This name doesn't follow CMake conventions but for retro compatibility I'll let it there.
 

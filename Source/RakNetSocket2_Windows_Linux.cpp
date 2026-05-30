@@ -29,6 +29,7 @@ void GetMyIP_Windows_Linux_IPV4And6(SystemAddress addresses[MAXIMUM_NUMBER_OF_IN
     int  idx = 0;
     char ac[80];
     int  err = gethostname(ac, sizeof(ac));
+    (void)err;
     RakAssert(err != -1);
 
     struct addrinfo  hints;

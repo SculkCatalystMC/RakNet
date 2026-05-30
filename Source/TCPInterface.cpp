@@ -52,9 +52,11 @@ RAK_THREAD_DECLARATION(ConnectionAttemptLoop);
 } // namespace RakNet
 
 namespace {
+#if RAKNET_SUPPORT_IPV6 != 1
 bool ParseIpv4Address(const char* text, in_addr* outAddress) {
     return inet_pton(AF_INET, text, outAddress) == 1;
 }
+#endif
 }
 #ifdef _MSC_VER
 #pragma warning(push)
@@ -123,6 +125,7 @@ bool TCPInterface::CreateListenSocket(
 
     listen__(listenSocket, maxIncomingConnections);
 #else
+    (void)bindAddress;
     struct addrinfo hints;
     memset(&hints, 0, sizeof(addrinfo));      // make sure the struct is empty
     hints.ai_family           = socketFamily; // don't care IPv4 or IPv6
@@ -715,9 +718,10 @@ __TCPSOCKET__ TCPInterface::SocketConnect(
     connectResult = connect__(sockfd, (struct sockaddr*)&serverAddress, sizeof(struct sockaddr));
 
 #else
+    (void)bindAddress;
 
     struct addrinfo hints, *res;
-    int             sockfd;
+    __TCPSOCKET__   sockfd;
     memset(&hints, 0, sizeof hints);
     hints.ai_family   = socketFamily;
     hints.ai_socktype = SOCK_STREAM;
@@ -728,7 +732,7 @@ __TCPSOCKET__ TCPInterface::SocketConnect(
     blockingSocketListMutex.Lock();
     blockingSocketList.Insert(sockfd, _FILE_AND_LINE_);
     blockingSocketListMutex.Unlock();
-    connectResult = connect__(sockfd, res->ai_addr, res->ai_addrlen);
+    connectResult = connect__(sockfd, res->ai_addr, static_cast<int>(res->ai_addrlen));
     freeaddrinfo(res); // free the linked-list
 
 #endif // #if RAKNET_SUPPORT_IPV6!=1
