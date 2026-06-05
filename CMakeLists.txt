@@ -32,7 +32,7 @@ option(RAKNET_ENABLE_STATIC "Generate the static library project if true." ON)
 option(RAKNET_GENERATE_INCLUDE_ONLY_DIR "Setup a include/RakNet/ directory in which all the headers are copied." OFF)
 option(RAKNET_SUPPORT_IPV6 "Build RakNet with IPv6 support enabled." ON)
 
-set(RAKNET_COMMON_COMPILE_DEFINITIONS RAKNET_SUPPORT_IPV6=${RAKNET_SUPPORT_IPV6_VALUE})
+set(RAKNET_COMMON_COMPILE_DEFINITIONS RAKNET_SUPPORT_IPV6=$<IF:$<BOOL:${RAKNET_SUPPORT_IPV6}>,1,0>)
 
 set(RAKNETHEADERFILES ${RakNet_SOURCE_DIR}/Source) # This name doesn't follow CMake conventions but for retro compatibility I'll let it there.
 
