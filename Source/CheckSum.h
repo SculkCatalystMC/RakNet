@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -10,8 +10,7 @@
 
 ///
 /// \file CheckSum.cpp
-/// \brief [Internal] CheckSum implementation from
-/// http://www.flounder.com/checksum.htm
+/// \brief [Internal] CheckSum implementation from http://www.flounder.com/checksum.htm
 ///
 
 #ifndef __CHECKSUM_H
@@ -35,6 +34,7 @@ public:
     }
 
     void Add(unsigned int w);
+
 
     void Add(unsigned short w);
 

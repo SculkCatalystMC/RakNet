@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -10,9 +10,10 @@
 
 /// \file DS_OrderedChannelHeap.h
 /// \internal
-/// \brief Ordered Channel Heap .  This is a heap where you add to it on
-/// multiple ordered channels, with each channel having a different weight.
+/// \brief Ordered Channel Heap .  This is a heap where you add to it on multiple ordered channels, with each channel
+/// having a different weight.
 ///
+
 
 #ifndef __RAKNET_ORDERED_CHANNEL_HEAP_H
 #define __RAKNET_ORDERED_CHANNEL_HEAP_H
@@ -24,16 +25,15 @@
 #include "RakAssert.h"
 #include "Rand.h"
 
-/// The namespace DataStructures was only added to avoid compiler errors for
-/// commonly named data structures As these data structures are stand-alone, you
-/// can use them outside of RakNet for your own projects if you wish.
+/// The namespace DataStructures was only added to avoid compiler errors for commonly named data structures
+/// As these data structures are stand-alone, you can use them outside of RakNet for your own projects if you wish.
 namespace DataStructures {
 template <
     class channel_key_type,
     class heap_data_type,
     int (*channel_key_comparison_func)(const channel_key_type&, const channel_key_type&) =
         defaultMapKeyComparison<channel_key_type>>
-class RAK_DLL_EXPORT OrderedChannelHeap {
+class RAKNET_API OrderedChannelHeap {
 public:
     static void IMPLEMENT_DEFAULT_COMPARISON(void) {
         DataStructures::defaultMapKeyComparison<channel_key_type>(channel_key_type(), channel_key_type());
@@ -122,17 +122,14 @@ void OrderedChannelHeap<channel_key_type, heap_data_type, channel_key_comparison
     const channel_key_type& channelID,
     const heap_data_type&   data
 ) {
-    // If an assert hits here then this is an unknown channel.  Call AddChannel
-    // first.
+    // If an assert hits here then this is an unknown channel.  Call AddChannel first.
     QueueAndWeight* queueAndWeight = map.Get(channelID);
     double          maxRange, minRange, rnd;
     if (queueAndWeight->randResultQueue.Size() == 0) {
-        // Set maxRange to the greatest random number waiting to be returned, rather
-        // than 1.0 necessarily This is so weights are scaled similarly among
-        // channels.  For example, if the head weight for a used channel was .25 and
-        // then we added another channel, the new channel would need to choose
-        // between .25 and 0 If we chose between 1.0 and 0, it would be 1/.25 (4x)
-        // more likely to be at the head of the heap than it should be
+        // Set maxRange to the greatest random number waiting to be returned, rather than 1.0 necessarily
+        // This is so weights are scaled similarly among channels.  For example, if the head weight for a used channel
+        // was .25 and then we added another channel, the new channel would need to choose between .25 and 0 If we chose
+        // between 1.0 and 0, it would be 1/.25 (4x) more likely to be at the head of the heap than it should be
         maxRange = GreatestRandResult();
         if (maxRange == 0.0) maxRange = 1.0;
         minRange = 0.0;
@@ -172,22 +169,20 @@ OrderedChannelHeap<channel_key_type, heap_data_type, channel_key_comparison_func
 
     QueueAndWeight* queueAndWeight = map.Get(heap[startingIndex].channel);
     if (startingIndex != 0) {
-        // Ugly - have to count in the heap how many nodes have the same channel, so
-        // we know where to delete from in the queue
+        // Ugly - have to count in the heap how many nodes have the same channel, so we know where to delete from in the
+        // queue
         unsigned indiceCount = 0;
         unsigned i;
         for (i = 0; i < startingIndex; i++)
             if (channel_key_comparison_func(heap[i].channel, heap[startingIndex].channel) == 0) indiceCount++;
         queueAndWeight->randResultQueue.RemoveAtIndex(indiceCount);
     } else {
-        // TODO - ordered channel heap uses progressively lower values as items are
-        // inserted.  But this won't give relative ordering among channels.  I have
-        // to renormalize after every pop.
+        // TODO - ordered channel heap uses progressively lower values as items are inserted.  But this won't give
+        // relative ordering among channels.  I have to renormalize after every pop.
         queueAndWeight->randResultQueue.Pop();
     }
 
-    // Try to remove the channel after every pop, because doing so is not valid
-    // while there are elements in the list.
+    // Try to remove the channel after every pop, because doing so is not valid while there are elements in the list.
     if (queueAndWeight->signalDeletion) RemoveChannel(heap[startingIndex].channel);
 
     return heap.Pop(startingIndex).data;
@@ -232,8 +227,7 @@ void OrderedChannelHeap<channel_key_type, heap_data_type, channel_key_comparison
             RakNet::OP_DELETE(map[i], _FILE_AND_LINE_);
             map.RemoveAtIndex(i);
         } else {
-            // Signal this channel for deletion later, because the heap has nodes with
-            // this channel right now
+            // Signal this channel for deletion later, because the heap has nodes with this channel right now
             map[i]->signalDeletion = true;
         }
     }
@@ -256,6 +250,7 @@ heap_data_type& OrderedChannelHeap<channel_key_type, heap_data_type, channel_key
 ) const {
     return heap[position].data;
 }
+
 
 template <
     class channel_key_type,

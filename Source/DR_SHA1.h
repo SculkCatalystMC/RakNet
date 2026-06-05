@@ -116,6 +116,7 @@
 // #define MAX_FILE_READ_BUFFER 8000
 #define SHA1_LENGTH 20
 
+
 #if !defined(SHA1_UTILITY_FUNCTIONS) && !defined(SHA1_NO_UTILITY_FUNCTIONS)
 #define SHA1_UTILITY_FUNCTIONS
 #endif
@@ -126,6 +127,7 @@
 #error STL functions require SHA1_UTILITY_FUNCTIONS.
 #endif
 #endif
+
 
 #include <memory.h>
 
@@ -229,11 +231,11 @@ typedef union {
     UINT_32 l[16];
 } SHA1_WORKSPACE_BLOCK;
 
-class RAK_DLL_EXPORT CSHA1 {
+class RAKNET_API CSHA1 {
 public:
 #ifdef SHA1_UTILITY_FUNCTIONS
     // Different formats for ReportHash(Stl)
-  enum class ReportType : unsigned char { Hex = 0, Digit = 1, HexShort = 2 };
+    enum REPORT_TYPE { REPORT_HEX = 0, REPORT_DIGIT = 1, REPORT_HEX_SHORT = 2 };
 #endif
 
     // Constructor and destructor
@@ -257,11 +259,11 @@ public:
     void Final();
 
 #ifdef SHA1_UTILITY_FUNCTIONS
-  bool ReportHash(TCHAR* tszReport, ReportType rtReportType = ReportType::Hex) const;
+    bool ReportHash(TCHAR* tszReport, REPORT_TYPE rtReportType = REPORT_HEX) const;
 #endif
 
 #ifdef SHA1_STL_FUNCTIONS
-  bool ReportHashStl(std::basic_string<TCHAR>& strOut, ReportType rtReportType = ReportType::Hex) const;
+    bool ReportHashStl(std::basic_string<TCHAR>& strOut, REPORT_TYPE rtReportType = REPORT_HEX) const;
 #endif
 
     // Get the raw message digest (20 bytes)

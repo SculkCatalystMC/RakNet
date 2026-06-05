@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -11,6 +11,7 @@
 /// \file
 /// \brief \b [Internal] Random number generator
 ///
+
 
 #ifndef __RAND_SYNC_H
 #define __RAND_SYNC_H
@@ -24,7 +25,7 @@ namespace RakNet {
 
 class BitStream;
 
-class RAK_DLL_EXPORT RakNetRandomSync {
+class RAKNET_API RakNetRandomSync {
 public:
     RakNetRandomSync();
     virtual ~RakNetRandomSync();
@@ -50,5 +51,6 @@ protected:
     RakNetRandom                        rnr;
 };
 } // namespace RakNet
+
 
 #endif

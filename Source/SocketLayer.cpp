@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -11,6 +11,7 @@
 /// \file
 /// \brief SocketLayer class implementation
 ///
+
 
 #include "SocketLayer.h"
 #include "GetTime.h"
@@ -58,6 +59,7 @@ using namespace pp;
 
 #endif
 
+
 #if defined(_WIN32)
 #include "WSAStartupSingleton.h"
 #include "WindowsIncludes.h"
@@ -82,20 +84,14 @@ extern void ProcessNetworkPacket(
     RakPeer*            rakPeer,
     RakNet::TimeUS      timeRead
 );
-// extern void ProcessNetworkPacket( const SystemAddress systemAddress, const
-// char *data, const int length, RakPeer *rakPeer, RakNetSocket* rakNetSocket,
-// RakNet::TimeUS timeRead );
+// extern void ProcessNetworkPacket( const SystemAddress systemAddress, const char *data, const int length, RakPeer
+// *rakPeer, RakNetSocket* rakNetSocket, RakNet::TimeUS timeRead );
 } // namespace RakNet
-
-namespace {
-bool FormatIpv4AddressString(const in_addr& address, char output[INET_ADDRSTRLEN]) {
-    return inet_ntop(AF_INET, &address, output, INET_ADDRSTRLEN) != 0;
-}
-}
 
 #ifdef _DEBUG
 #include <stdio.h>
 #endif
+
 
 // http://beej.us/guide/bgnet/output/html/singlepage/bgnet.html#ip4to6
 // http://beej.us/guide/bgnet/output/html/singlepage/bgnet.html#getaddrinfo
@@ -118,21 +114,24 @@ void SocketLayer::SetSocketOptions(__UDPSOCKET__ listenSocket, bool blockingSock
     sock_opt = 1024 * 256;
     setsockopt__(listenSocket, SOL_SOCKET, SO_RCVBUF, (char*)&sock_opt, sizeof(sock_opt));
 
-    // Immediate hard close. Don't linger the socket, or recreating the socket
-    // quickly on Vista fails. Fail with voice and xbox
+    // Immediate hard close. Don't linger the socket, or recreating the socket quickly on Vista fails.
+    // Fail with voice and xbox
 
     sock_opt = 0;
     setsockopt__(listenSocket, SOL_SOCKET, SO_LINGER, (char*)&sock_opt, sizeof(sock_opt));
+
 
     // This doesn't make much difference: 10% maybe
     // Not supported on console 2
     sock_opt = 1024 * 16;
     setsockopt__(listenSocket, SOL_SOCKET, SO_SNDBUF, (char*)&sock_opt, sizeof(sock_opt));
 
+
     if (blockingSocket == false) {
 #ifdef _WIN32
         unsigned long nonblocking = 1;
         ioctlsocket__(listenSocket, FIONBIO, &nonblocking);
+
 
 #else
         fcntl(listenSocket, F_SETFL, O_NONBLOCK);
@@ -161,7 +160,7 @@ void SocketLayer::SetSocketOptions(__UDPSOCKET__ listenSocket, bool blockingSock
                 NULL
             );
             // something has gone wrong here...
-            RAKNET_DEBUG_PRINTF("setsockopt__(SO_BROADCAST) failed:Error code - %d\n%s", dwIOError, messageBuffer);
+            // RAKNET_DEBUG_PRINTF( "setsockopt__(SO_BROADCAST) failed:Error code - %d\n%s", dwIOError, messageBuffer );
             // Free the buffer.
             LocalFree(messageBuffer);
 #endif
@@ -172,10 +171,11 @@ void SocketLayer::SetSocketOptions(__UDPSOCKET__ listenSocket, bool blockingSock
 #endif
 }
 
+
 RakNet::RakString SocketLayer::GetSubNetForSocketAndIp(__UDPSOCKET__ inSock, RakNet::RakString inIpString) {
     RakNet::RakString netMaskString;
     RakNet::RakString ipString;
-    static_cast<void>(inSock);
+
 
 #if defined(WINDOWS_STORE_RT)
     RakAssert("Not yet supported" && 0);
@@ -193,18 +193,11 @@ RakNet::RakString SocketLayer::GetSubNetForSocketAndIp(__UDPSOCKET__ inSock, Rak
     for (int i = 0; i < nNumInterfaces; ++i) {
         sockaddr_in* pAddress;
         pAddress = (sockaddr_in*)&(InterfaceList[i].iiAddress);
-        char ipBuffer[INET_ADDRSTRLEN];
-        if (!FormatIpv4AddressString(pAddress->sin_addr, ipBuffer)) {
-            continue;
-        }
-        ipString = ipBuffer;
+        ipString = inet_ntoa(pAddress->sin_addr);
 
         if (inIpString == ipString) {
             pAddress      = (sockaddr_in*)&(InterfaceList[i].iiNetmask);
-            char netmaskBuffer[INET_ADDRSTRLEN];
-            if (FormatIpv4AddressString(pAddress->sin_addr, netmaskBuffer)) {
-                netMaskString = netmaskBuffer;
-            }
+            netMaskString = inet_ntoa(pAddress->sin_addr);
             return netMaskString;
         }
     }
@@ -230,11 +223,7 @@ RakNet::RakString SocketLayer::GetSubNetForSocketAndIp(__UDPSOCKET__ inSock, Rak
     ifr        = ifc.ifc_req;
     int intNum = ifc.ifc_len / sizeof(struct ifreq);
     for (int i = 0; i < intNum; i++) {
-        char ipBuffer[INET_ADDRSTRLEN];
-        if (!FormatIpv4AddressString(((struct sockaddr_in*)&ifr[i].ifr_addr)->sin_addr, ipBuffer)) {
-            continue;
-        }
-        ipString = ipBuffer;
+        ipString = inet_ntoa(((struct sockaddr_in*)&ifr[i].ifr_addr)->sin_addr);
 
         if (inIpString == ipString) {
             struct ifreq ifr2;
@@ -244,16 +233,13 @@ RakNet::RakString SocketLayer::GetSubNetForSocketAndIp(__UDPSOCKET__ inSock, Rak
             }
             ifr2.ifr_addr.sa_family = AF_INET;
 
-            memcpy(ifr2.ifr_name, ifr[i].ifr_name, IFNAMSIZ);
+            strncpy(ifr2.ifr_name, ifr[i].ifr_name, IFNAMSIZ - 1);
 
             ioctl(fd, SIOCGIFNETMASK, &ifr2);
 
             close(fd);
             close(fd2);
-            char netmaskBuffer[INET_ADDRSTRLEN];
-            if (FormatIpv4AddressString(((struct sockaddr_in*)&ifr2.ifr_addr)->sin_addr, netmaskBuffer)) {
-                netMaskString = netmaskBuffer;
-            }
+            netMaskString = inet_ntoa(((struct sockaddr_in*)&ifr2.ifr_addr)->sin_addr);
 
             return netMaskString;
         }
@@ -265,10 +251,10 @@ RakNet::RakString SocketLayer::GetSubNetForSocketAndIp(__UDPSOCKET__ inSock, Rak
 #endif
 }
 
+
 #if defined(WINDOWS_STORE_RT)
 void GetMyIP_WinRT(SystemAddress addresses[MAXIMUM_NUMBER_OF_INTERNAL_IDS]) {
-    // Perhaps DatagramSocket.BindEndpointAsynch, use localHostName as an empty
-    // string, then query what it bound to?
+    // Perhaps DatagramSocket.BindEndpointAsynch, use localHostName as an empty string, then query what it bound to?
     RakAssert("Not yet supported" && 0);
 }
 #else
@@ -290,16 +276,13 @@ void GetMyIP_Win32(SystemAddress addresses[MAXIMUM_NUMBER_OF_INTERNAL_IDS]) {
             NULL
         );
         // something has gone wrong here...
-        RAKNET_DEBUG_PRINTF(
-            "gethostname failed:Error code - %d\n%s",
-            dwIOError,
-            reinterpret_cast<const char*>(messageBuffer)
-        );
+        // RAKNET_DEBUG_PRINTF( "gethostname failed:Error code - %d\n%s", dwIOError, messageBuffer );
         // Free the buffer.
         LocalFree(messageBuffer);
 #endif
         return;
     }
+
 
 #if RAKNET_SUPPORT_IPV6 == 1
     struct addrinfo  hints;
@@ -319,14 +302,9 @@ void GetMyIP_Win32(SystemAddress addresses[MAXIMUM_NUMBER_OF_INTERNAL_IDS]) {
 
     freeaddrinfo(servinfo); // free the linked-list
 #else
-    struct addrinfo  hints;
-    struct addrinfo* servinfo = 0;
-    struct addrinfo* aip;
-    memset(&hints, 0, sizeof(hints));
-    hints.ai_family   = AF_INET;
-    hints.ai_socktype = SOCK_DGRAM;
+    struct hostent* phe = gethostbyname(ac);
 
-    if (getaddrinfo(ac, "", &hints, &servinfo) != 0 || servinfo == 0) {
+    if (phe == 0) {
 #if defined(_WIN32) && !defined(WINDOWS_PHONE_8)
         DWORD  dwIOError = GetLastError();
         LPVOID messageBuffer;
@@ -340,22 +318,18 @@ void GetMyIP_Win32(SystemAddress addresses[MAXIMUM_NUMBER_OF_INTERNAL_IDS]) {
             NULL
         );
         // something has gone wrong here...
-        RAKNET_DEBUG_PRINTF(
-            "getaddrinfo failed:Error code - %d\n%s",
-            dwIOError,
-            reinterpret_cast<const char*>(messageBuffer)
-        );
+        // RAKNET_DEBUG_PRINTF( "gethostbyname failed:Error code - %d\n%s", dwIOError, messageBuffer );
 
         // Free the buffer.
         LocalFree(messageBuffer);
 #endif
         return;
     }
-    for (idx = 0, aip = servinfo; aip != NULL && idx < MAXIMUM_NUMBER_OF_INTERNAL_IDS; aip = aip->ai_next, ++idx) {
-        struct sockaddr_in* ipv4 = reinterpret_cast<struct sockaddr_in*>(aip->ai_addr);
-        memcpy(&addresses[idx].address.addr4, ipv4, sizeof(sockaddr_in));
+    for (idx = 0; idx < MAXIMUM_NUMBER_OF_INTERNAL_IDS; ++idx) {
+        if (phe->h_addr_list[idx] == 0) break;
+
+        memcpy(&addresses[idx].address.addr4.sin_addr, phe->h_addr_list[idx], sizeof(struct in_addr));
     }
-    freeaddrinfo(servinfo);
 #endif // else RAKNET_SUPPORT_IPV6==1
 
     while (idx < MAXIMUM_NUMBER_OF_INTERNAL_IDS) {
@@ -366,7 +340,9 @@ void GetMyIP_Win32(SystemAddress addresses[MAXIMUM_NUMBER_OF_INTERNAL_IDS]) {
 
 #endif
 
+
 void SocketLayer::GetMyIP(SystemAddress addresses[MAXIMUM_NUMBER_OF_INTERNAL_IDS]) {
+
 
 #if defined(WINDOWS_STORE_RT)
     GetMyIP_WinRT(addresses);
@@ -378,12 +354,13 @@ void SocketLayer::GetMyIP(SystemAddress addresses[MAXIMUM_NUMBER_OF_INTERNAL_IDS
 #endif
 }
 
+
 /*
 unsigned short SocketLayer::GetLocalPort(RakNetSocket *s)
 {
-        SystemAddress sa;
-        GetSystemAddress(s,&sa);
-        return sa.GetPort();
+    SystemAddress sa;
+    GetSystemAddress(s,&sa);
+    return sa.GetPort();
 }
 */
 unsigned short SocketLayer::GetLocalPort(__UDPSOCKET__ s) {
@@ -412,7 +389,7 @@ void SocketLayer::GetSystemAddress_Old(__UDPSOCKET__ s, SystemAddress* systemAdd
             NULL
         );
         // something has gone wrong here...
-        RAKNET_DEBUG_PRINTF("getsockname failed:Error code - %d\n%s", dwIOError, messageBuffer);
+        // RAKNET_DEBUG_PRINTF( "getsockname failed:Error code - %d\n%s", dwIOError, messageBuffer );
 
         // Free the buffer.
         LocalFree(messageBuffer);
@@ -426,10 +403,9 @@ void SocketLayer::GetSystemAddress_Old(__UDPSOCKET__ s, SystemAddress* systemAdd
 #endif
 }
 /*
-void SocketLayer::GetSystemAddress_Old ( RakNetSocket *s, SystemAddress
-*systemAddressOut )
+void SocketLayer::GetSystemAddress_Old ( RakNetSocket *s, SystemAddress *systemAddressOut )
 {
-        return GetSystemAddress_Old(s->s, systemAddressOut);
+    return GetSystemAddress_Old(s->s, systemAddressOut);
 }
 */
 void SocketLayer::GetSystemAddress(__UDPSOCKET__ s, SystemAddress* systemAddressOut) {
@@ -485,10 +461,9 @@ void SocketLayer::GetSystemAddress(__UDPSOCKET__ s, SystemAddress* systemAddress
 #endif // #if RAKNET_SUPPORT_IPV6!=1
 }
 /*
-void SocketLayer::GetSystemAddress ( RakNetSocket *s, SystemAddress
-*systemAddressOut )
+void SocketLayer::GetSystemAddress ( RakNetSocket *s, SystemAddress *systemAddressOut )
 {
-        return GetSystemAddress(s->s, systemAddressOut);
+    return GetSystemAddress(s->s, systemAddressOut);
 }
 */
 
@@ -500,6 +475,7 @@ void SocketLayer::GetSystemAddress ( RakNetSocket *s, SystemAddress
 bool SocketLayer::GetFirstBindableIP(char firstBindable[128], int ipProto) {
     SystemAddress ipList[MAXIMUM_NUMBER_OF_INTERNAL_IDS];
     SocketLayer::GetMyIP(ipList);
+
 
     if (ipProto == AF_UNSPEC)
 
@@ -526,6 +502,7 @@ bool SocketLayer::GetFirstBindableIP(char firstBindable[128], int ipProto) {
     ipList[l].ToString(false, firstBindable);
     return true;
 }
+
 
 #ifdef _MSC_VER
 #pragma warning(pop)

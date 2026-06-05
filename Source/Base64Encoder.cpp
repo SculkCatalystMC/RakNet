@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -34,8 +34,8 @@ int Base64Encoding(const unsigned char* inputData, int dataLength, char* outputD
             charCount                  = 0;
         }
 
-        // Remaining 2 bits from first byte, placed in position, and 4 high bits
-        // from the second byte, masked to ignore bits 7,8
+        // Remaining 2 bits from first byte, placed in position, and 4 high bits from the second byte, masked to ignore
+        // bits 7,8
         outputData[outputOffset++] = base64Map[((inputData[j * 3 + 0] << 4) | (inputData[j * 3 + 1] >> 4)) & 63];
         if ((++charCount % 76) == 0) {
             outputData[outputOffset++] = '\r';
@@ -43,8 +43,7 @@ int Base64Encoding(const unsigned char* inputData, int dataLength, char* outputD
             charCount                  = 0;
         }
 
-        // 4 low bits from the second byte and the two high bits from the third
-        // byte, masked to ignore bits 7,8
+        // 4 low bits from the second byte and the two high bits from the third byte, masked to ignore bits 7,8
         outputData[outputOffset++] =
             base64Map[((inputData[j * 3 + 1] << 2) | (inputData[j * 3 + 2] >> 6)) & 63]; // Third 6 bits
         if ((++charCount % 76) == 0) {
@@ -71,8 +70,8 @@ int Base64Encoding(const unsigned char* inputData, int dataLength, char* outputD
             charCount                  = 0;
         }
 
-        // Remaining 2 bits from first byte, placed in position, and 4 high bits
-        // from the second byte, masked to ignore bits 7,8
+        // Remaining 2 bits from first byte, placed in position, and 4 high bits from the second byte, masked to ignore
+        // bits 7,8
         outputData[outputOffset++] = base64Map[((inputData[j * 3 + 0] << 4) | (inputData[j * 3 + 1] >> 4)) & 63];
         if ((++charCount % 76) == 0) {
             outputData[outputOffset++] = '\r';
@@ -94,8 +93,8 @@ int Base64Encoding(const unsigned char* inputData, int dataLength, char* outputD
             charCount                  = 0;
         }
 
-        // Remaining 2 bits from first byte, placed in position, and 4 high bits
-        // from the second byte, masked to ignore bits 7,8
+        // Remaining 2 bits from first byte, placed in position, and 4 high bits from the second byte, masked to ignore
+        // bits 7,8
         outputData[outputOffset++] = base64Map[((inputData[j * 3 + 0] << 4) | (inputData[j * 3 + 1] >> 4)) & 63];
         if ((++charCount % 76) == 0) {
             outputData[outputOffset++] = '\r';

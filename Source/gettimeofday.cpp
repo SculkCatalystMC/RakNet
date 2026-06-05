@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -7,6 +7,7 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  *
  */
+
 
 #if defined(_WIN32) && !defined(__GNUC__) && !defined(__GCCXML__)
 
@@ -52,12 +53,8 @@ int gettimeofday(struct timeval* tv, struct timezone* tz) {
             _tzset();
             tzflag++;
         }
-        long timezoneSeconds = 0;
-        int  daylightFlag    = 0;
-        _get_timezone(&timezoneSeconds);
-        _get_daylight(&daylightFlag);
-        tz->tz_minuteswest = (int)(timezoneSeconds / 60);
-        tz->tz_dsttime     = daylightFlag;
+        tz->tz_minuteswest = _timezone / 60;
+        tz->tz_dsttime     = _daylight;
     }
 
 #endif

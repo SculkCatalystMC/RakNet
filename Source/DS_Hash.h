@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -12,6 +12,7 @@
 /// \brief Hashing container
 ///
 
+
 #ifndef __HASH_H
 #define __HASH_H
 
@@ -21,9 +22,8 @@
 #include "RakString.h"
 #include <string.h> // memmove
 
-/// The namespace DataStructures was only added to avoid compiler errors for
-/// commonly named data structures As these data structures are stand-alone, you
-/// can use them outside of RakNet for your own projects if you wish.
+/// The namespace DataStructures was only added to avoid compiler errors for commonly named data structures
+/// As these data structures are stand-alone, you can use them outside of RakNet for your own projects if you wish.
 namespace DataStructures {
 struct HashIndex {
     unsigned int primaryIndex;
@@ -35,10 +35,9 @@ struct HashIndex {
     }
 };
 
-/// \brief Using a string as a identifier for a node, store an allocated pointer
-/// to that node
+/// \brief Using a string as a identifier for a node, store an allocated pointer to that node
 template <class key_type, class data_type, unsigned int HASH_SIZE, unsigned long (*hashFunction)(const key_type&)>
-class RAK_DLL_EXPORT Hash {
+class RAKNET_API Hash {
 public:
     /// Default constructor
     Hash();

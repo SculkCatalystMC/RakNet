@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -20,9 +20,8 @@
 #ifndef __ORDERED_LIST_H
 #define __ORDERED_LIST_H
 
-/// The namespace DataStructures was only added to avoid compiler errors for
-/// commonly named data structures As these data structures are stand-alone, you
-/// can use them outside of RakNet for your own projects if you wish.
+/// The namespace DataStructures was only added to avoid compiler errors for commonly named data structures
+/// As these data structures are stand-alone, you can use them outside of RakNet for your own projects if you wish.
 namespace DataStructures {
 template <class key_type, class data_type>
 int defaultOrderedListComparison(const key_type& a, const data_type& b) {
@@ -31,15 +30,14 @@ int defaultOrderedListComparison(const key_type& a, const data_type& b) {
     return 1;
 }
 
-/// \note IMPORTANT! If you use defaultOrderedListComparison then call
-/// IMPLEMENT_DEFAULT_COMPARISON or you will get an unresolved external linker
-/// error.
+/// \note IMPORTANT! If you use defaultOrderedListComparison then call IMPLEMENT_DEFAULT_COMPARISON or you will get an
+/// unresolved external linker error.
 template <
     class key_type,
     class data_type,
     int (*default_comparison_function)(const key_type&, const data_type&) =
         defaultOrderedListComparison<key_type, data_type>>
-class RAK_DLL_EXPORT OrderedList {
+class RAKNET_API OrderedList {
 public:
     static void IMPLEMENT_DEFAULT_COMPARISON(void) {
         DataStructures::defaultOrderedListComparison<key_type, data_type>(key_type(), data_type());
@@ -50,12 +48,10 @@ public:
     OrderedList(const OrderedList& original_copy);
     OrderedList& operator=(const OrderedList& original_copy);
 
-    /// comparisonFunction must take a key_type and a data_type and return <0,
-    /// ==0, or >0 If the data type has comparison operators already defined then
-    /// you can just use defaultComparison
+    /// comparisonFunction must take a key_type and a data_type and return <0, ==0, or >0
+    /// If the data type has comparison operators already defined then you can just use defaultComparison
     bool HasData(const key_type& key, int (*cf)(const key_type&, const data_type&) = default_comparison_function) const;
-    // GetIndexFromKey returns where the insert should go at the same time checks
-    // if it is there
+    // GetIndexFromKey returns where the insert should go at the same time checks if it is there
     unsigned GetIndexFromKey(
         const key_type& key,
         bool*           objectExists,

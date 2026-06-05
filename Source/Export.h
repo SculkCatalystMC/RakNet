@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -10,10 +10,22 @@
 
 #include "RakNetDefines.h"
 
-#if defined(_WIN32) && !(defined(__GNUC__) || defined(__GCCXML__)) && !defined(_RAKNET_LIB) && defined(_RAKNET_DLL)
-#define RAK_DLL_EXPORT __declspec(dllexport)
+#ifdef _WIN32
+#ifdef _RAKNET_EXPORT
+#define RAKNET_API __declspec(dllexport)
 #else
-#define RAK_DLL_EXPORT
+#ifdef _RANKET_DLL
+#define RAKNET_API __declspec(dllimport)
+#else
+#define RAKNET_API
+#endif
+#endif
+#else
+#ifdef RAKNET_EXPORT
+#define RAKNET_API __attribute__((visibility("default"), used))
+#else
+#define RAKNET_API
+#endif
 #endif
 
 #define STATIC_FACTORY_DECLARATIONS(x)                                                                                 \

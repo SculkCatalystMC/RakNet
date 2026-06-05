@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -10,6 +10,7 @@
 
 /// \file
 ///
+
 
 #ifndef __NETWORK_ID_MANAGER_H
 #define __NETWORK_ID_MANAGER_H
@@ -26,12 +27,11 @@ namespace RakNet {
 /// This value must match on all systems
 #define NETWORK_ID_MANAGER_HASH_LENGTH 1024
 
-/// This class is simply used to generate a unique number for a group of
-/// instances of NetworkIDObject An instance of this class is required to use
-/// the ObjectID to pointer lookup system You should have one instance of this
-/// class per game instance. Call SetIsNetworkIDAuthority before using any
-/// functions of this class, or of NetworkIDObject
-class RAK_DLL_EXPORT NetworkIDManager {
+/// This class is simply used to generate a unique number for a group of instances of NetworkIDObject
+/// An instance of this class is required to use the ObjectID to pointer lookup system
+/// You should have one instance of this class per game instance.
+/// Call SetIsNetworkIDAuthority before using any functions of this class, or of NetworkIDObject
+class RAKNET_API NetworkIDManager {
 public:
     // GetInstance() and DestroyInstance(instance*)
     STATIC_FACTORY_DECLARATIONS(NetworkIDManager)

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -7,6 +7,7 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  *
  */
+
 
 #include "NativeFeatureIncludes.h"
 #if _RAKNET_SUPPORT_LogCommandParser == 1
@@ -97,8 +98,10 @@ void        LogCommandParser::SendHelp(TransportInterface* transport, const Syst
     PrintChannels(systemAddress, transport);
 }
 void LogCommandParser::AddChannel(const char* channelName) {
+    unsigned channelIndex = 0;
+    channelIndex          = GetChannelIndexFromName(channelName);
     // Each channel can only be added once.
-    RakAssert(GetChannelIndexFromName(channelName) == (unsigned)-1);
+    RakAssert(channelIndex == (unsigned)-1);
 
     unsigned i;
     for (i = 0; i < 32; i++) {
@@ -109,8 +112,7 @@ void LogCommandParser::AddChannel(const char* channelName) {
         }
     }
 
-    // No more available channels - max 32 with this implementation where I save
-    // subscribed channels with bit operations
+    // No more available channels - max 32 with this implementation where I save subscribed channels with bit operations
     RakAssert(0);
 }
 void LogCommandParser::WriteLog(const char* channelName, const char* format, ...) {
@@ -125,7 +127,7 @@ void LogCommandParser::WriteLog(const char* channelName, const char* format, ...
     char    text[REMOTE_MAX_TEXT_INPUT];
     va_list ap;
     va_start(ap, format);
-    vsnprintf(text, REMOTE_MAX_TEXT_INPUT, format, ap);
+    _vsnprintf(text, REMOTE_MAX_TEXT_INPUT, format, ap);
     va_end(ap);
     text[REMOTE_MAX_TEXT_INPUT - 1] = 0;
 
@@ -136,11 +138,7 @@ void LogCommandParser::WriteLog(const char* channelName, const char* format, ...
     if (text[textLen - 1] == '\n') {
         text[textLen - 1] = 0;
     }
-    if (textLen < REMOTE_MAX_TEXT_INPUT - 4) {
-        text[textLen++] = '\r';
-        text[textLen++] = '\n';
-        text[textLen]   = 0;
-    }
+    if (textLen < REMOTE_MAX_TEXT_INPUT - 4) strcat(text, "\r\n");
     else {
         text[textLen - 3] = '\r';
         text[textLen - 2] = '\n';

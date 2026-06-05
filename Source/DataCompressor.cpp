@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -45,6 +45,7 @@ void DataCompressor::Compress(unsigned char* userData, unsigned sizeInBytes, Rak
 unsigned DataCompressor::DecompressAndAllocate(RakNet::BitStream* input, unsigned char** output) {
     HuffmanEncodingTree tree;
     unsigned int        bitsUsed, destinationSizeInBytes;
+    unsigned int        decompressedBytes;
     unsigned int        frequencyTable[256];
     unsigned            i;
 
@@ -60,6 +61,7 @@ unsigned DataCompressor::DecompressAndAllocate(RakNet::BitStream* input, unsigne
     }
     *output = (unsigned char*)rakMalloc_Ex(destinationSizeInBytes, _FILE_AND_LINE_);
     tree.GenerateFromFrequencyTable(frequencyTable);
-    RakAssert(tree.DecodeArray(input, bitsUsed, destinationSizeInBytes, *output) == destinationSizeInBytes);
+    decompressedBytes = tree.DecodeArray(input, bitsUsed, destinationSizeInBytes, *output);
+    RakAssert(decompressedBytes == destinationSizeInBytes);
     return destinationSizeInBytes;
 }

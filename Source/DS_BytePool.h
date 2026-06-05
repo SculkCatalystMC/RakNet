@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -10,6 +10,7 @@
 
 /// \file DS_BytePool.h
 ///
+
 
 #ifndef __BYTE_POOL_H
 #define __BYTE_POOL_H
@@ -25,7 +26,7 @@
 
 namespace DataStructures {
 // Allocate some number of bytes from pools.  Uses the heap if necessary.
-class RAK_DLL_EXPORT BytePool {
+class RAKNET_API BytePool {
 public:
     BytePool();
     ~BytePool();

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -10,6 +10,7 @@
 
 /// \file FormatString.h
 ///
+
 
 #ifndef __FORMAT_STRING_H
 #define __FORMAT_STRING_H
@@ -23,5 +24,6 @@ char* FormatString(const char* format, ...);
 extern "C" {
 char* FormatStringTS(char* output, const char* format, ...);
 }
+
 
 #endif

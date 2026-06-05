@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -16,12 +16,14 @@
 
 using namespace RakNet;
 
+
 #if defined(_WIN32)
 #include "WindowsIncludes.h"
 #include <stdio.h>
 #if !defined(_WIN32_WCE)
 #include <process.h>
 #endif
+
 
 #else
 #include <pthread.h>
@@ -32,6 +34,7 @@ int RakThread::Create(LPTHREAD_START_ROUTINE start_address, void* arglist, int p
 #elif defined(_WIN32)
 int RakThread::Create(unsigned __stdcall start_address(void*), void* arglist, int priority)
 
+
 #else
 int RakThread::Create(void* start_address(void*), void* arglist, int priority)
 #endif
@@ -39,6 +42,7 @@ int RakThread::Create(void* start_address(void*), void* arglist, int priority)
 #ifdef _WIN32
     HANDLE   threadHandle;
     unsigned threadID = 0;
+
 
 #if defined(WINDOWS_PHONE_8) || defined(WINDOWS_STORE_RT)
     threadHandle = CreateThread(NULL, 0, start_address, arglist, CREATE_SUSPENDED, 0);
@@ -61,6 +65,7 @@ int RakThread::Create(void* start_address(void*), void* arglist, int priority)
         return 0;
     }
 
+
 #else
     pthread_t threadHandle;
     // Create thread linux
@@ -69,6 +74,7 @@ int RakThread::Create(void* start_address(void*), void* arglist, int priority)
     param.sched_priority = priority;
     pthread_attr_init(&attr);
     pthread_attr_setschedparam(&attr, &param);
+
 
     pthread_attr_setstacksize(&attr, MAX_ALLOCA_STACK_ALLOCATION * 2);
 

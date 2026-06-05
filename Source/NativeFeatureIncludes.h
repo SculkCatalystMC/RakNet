@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -8,36 +8,23 @@
  *
  */
 
-// If you want to change these defines, put them in
-// NativeFeatureIncludesOverrides so your changes are not lost when updating
-// RakNet The user should not edit this file
+// If you want to change these defines, put them in NativeFeatureIncludesOverrides so your changes are not lost when
+// updating RakNet The user should not edit this file
 #include "NativeFeatureIncludesOverrides.h"
 
 #ifndef __NATIVE_FEATURE_INCLDUES_H
 #define __NATIVE_FEATURE_INCLDUES_H
 
-// Uncomment below defines, and paste to NativeFeatureIncludesOverrides.h, to
-// exclude plugins that you do not want to build into the static library, or DLL
-// These are not all the plugins, only those that are in the core library
-// Other plugins are located in DependentExtensions
-// #define _RAKNET_SUPPORT_ConnectionGraph2 0
-// #define _RAKNET_SUPPORT_DirectoryDeltaTransfer 0
-// #define _RAKNET_SUPPORT_FileListTransfer 0
-// #define _RAKNET_SUPPORT_FullyConnectedMesh2 0
-// #define _RAKNET_SUPPORT_MessageFilter 0
-// #define _RAKNET_SUPPORT_NatPunchthroughClient 0
-// #define _RAKNET_SUPPORT_NatPunchthroughServer 0
-// #define _RAKNET_SUPPORT_NatTypeDetectionClient 0
-// #define _RAKNET_SUPPORT_NatTypeDetectionServer 0
-// #define _RAKNET_SUPPORT_PacketLogger 0
-// #define _RAKNET_SUPPORT_ReadyEvent 0
-// #define _RAKNET_SUPPORT_ReplicaManager3 0
-// #define _RAKNET_SUPPORT_Router2 0
-// #define _RAKNET_SUPPORT_RPC4Plugin 0
-// #define _RAKNET_SUPPORT_TeamBalancer 0
-// #define _RAKNET_SUPPORT_TeamManager 0
-// #define _RAKNET_SUPPORT_UDPProxyClient 0
-// #define _RAKNET_SUPPORT_UDPProxyCoordinator 0
+// Uncomment below defines, and paste to NativeFeatureIncludesOverrides.h, to exclude plugins that you do not want to
+// build into the static library, or DLL These are not all the plugins, only those that are in the core library Other
+// plugins are located in DependentExtensions #define _RAKNET_SUPPORT_ConnectionGraph2 0 #define
+// _RAKNET_SUPPORT_DirectoryDeltaTransfer 0 #define _RAKNET_SUPPORT_FileListTransfer 0 #define
+// _RAKNET_SUPPORT_FullyConnectedMesh2 0 #define _RAKNET_SUPPORT_MessageFilter 0 #define
+// _RAKNET_SUPPORT_NatPunchthroughClient 0 #define _RAKNET_SUPPORT_NatPunchthroughServer 0 #define
+// _RAKNET_SUPPORT_NatTypeDetectionClient 0 #define _RAKNET_SUPPORT_NatTypeDetectionServer 0 #define
+// _RAKNET_SUPPORT_PacketLogger 0 #define _RAKNET_SUPPORT_ReadyEvent 0 #define _RAKNET_SUPPORT_ReplicaManager3 0 #define
+// _RAKNET_SUPPORT_Router2 0 #define _RAKNET_SUPPORT_RPC4Plugin 0 #define _RAKNET_SUPPORT_TeamBalancer 0 #define
+// _RAKNET_SUPPORT_TeamManager 0 #define _RAKNET_SUPPORT_UDPProxyClient 0 #define _RAKNET_SUPPORT_UDPProxyCoordinator 0
 // #define _RAKNET_SUPPORT_UDPProxyServer 0
 // #define _RAKNET_SUPPORT_ConsoleServer 0
 // #define _RAKNET_SUPPORT_RakNetTransport 0
@@ -193,5 +180,6 @@
 #undef _RAKNET_SUPPORT_TCPInterface
 #define _RAKNET_SUPPORT_TCPInterface 1
 #endif
+
 
 #endif // __NATIVE_FEATURE_INCLDUES_H

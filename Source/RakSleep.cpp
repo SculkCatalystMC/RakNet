@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -11,6 +11,7 @@
 #if defined(_WIN32)
 #include "WindowsIncludes.h" // Sleep
 
+
 #else
 #include <pthread.h>
 #include <sys/time.h>
@@ -21,6 +22,7 @@ pthread_cond_t  fakeCond  = PTHREAD_COND_INITIALIZER;
 
 #include "RakSleep.h"
 
+
 #if defined(WINDOWS_PHONE_8) || defined(WINDOWS_STORE_RT)
 #include "ThreadEmulation.h"
 using namespace ThreadEmulation;
@@ -29,14 +31,11 @@ using namespace ThreadEmulation;
 void RakSleep(unsigned int ms) {
 #ifdef _WIN32
     Sleep(ms);
-
 #else
     // Single thread sleep code thanks to Furquan Shaikh,
-    // http://somethingswhichidintknow.blogspot.com/2009/09/sleep-in-pthread.html
-    // Modified slightly from the original
+    // http://somethingswhichidintknow.blogspot.com/2009/09/sleep-in-pthread.html Modified slightly from the original
     struct timespec timeToWait;
     struct timeval  now;
-    int             rt;
 
     gettimeofday(&now, NULL);
 
@@ -51,8 +50,7 @@ void RakSleep(unsigned int ms) {
     }
 
     pthread_mutex_lock(&fakeMutex);
-    rt = pthread_cond_timedwait(&fakeCond, &fakeMutex, &timeToWait);
-    static_cast<void>(rt);
+    pthread_cond_timedwait(&fakeCond, &fakeMutex, &timeToWait);
     pthread_mutex_unlock(&fakeMutex);
 #endif
 }

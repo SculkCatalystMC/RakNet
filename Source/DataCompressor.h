@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -10,9 +10,9 @@
 
 /// \file DataCompressor.h
 /// \brief DataCompressor does compression on a block of data.
-/// \details Not very good compression, but it's small and fast so is something
-/// you can use per-message at runtime.
+/// \details Not very good compression, but it's small and fast so is something you can use per-message at runtime.
 ///
+
 
 #ifndef __DATA_COMPRESSOR_H
 #define __DATA_COMPRESSOR_H
@@ -23,9 +23,9 @@
 
 namespace RakNet {
 
-/// \brief Does compression on a block of data.  Not very good compression, but
-/// it's small and fast so is something you can compute at runtime.
-class RAK_DLL_EXPORT DataCompressor {
+/// \brief Does compression on a block of data.  Not very good compression, but it's small and fast so is something you
+/// can compute at runtime.
+class RAKNET_API DataCompressor {
 public:
     // GetInstance() and DestroyInstance(instance*)
     STATIC_FACTORY_DECLARATIONS(DataCompressor)

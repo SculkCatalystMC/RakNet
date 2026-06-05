@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -7,6 +7,7 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  *
  */
+
 
 #include "SuperFastHash.h"
 #include "NativeTypes.h"
@@ -94,12 +95,7 @@ uint32_t SuperFastHashIncremental(const char* data, int len, unsigned int lastHa
 }
 
 uint32_t SuperFastHashFile(const char* filename) {
-    FILE* fp = 0;
-#if defined(_WIN32)
-    fopen_s(&fp, filename, "rb");
-#else
-    fp = fopen(filename, "rb");
-#endif
+    FILE* fp = fopen(filename, "rb");
     if (fp == 0) return 0;
     uint32_t hash = SuperFastHashFilePtr(fp);
     fclose(fp);
@@ -114,14 +110,12 @@ uint32_t SuperFastHashFilePtr(FILE* fp) {
     unsigned int lastHash       = length;
     char         readBlock[INCREMENTAL_READ_BLOCK];
     while (bytesRemaining >= (int)sizeof(readBlock)) {
-        size_t readCount = fread(readBlock, sizeof(readBlock), 1, fp);
-        if (readCount != 1) break;
+        fread(readBlock, sizeof(readBlock), 1, fp);
         lastHash        = SuperFastHashIncremental(readBlock, (int)sizeof(readBlock), lastHash);
         bytesRemaining -= (int)sizeof(readBlock);
     }
     if (bytesRemaining > 0) {
-        size_t readCount = fread(readBlock, bytesRemaining, 1, fp);
-        if (readCount != 1) return lastHash;
+        fread(readBlock, bytesRemaining, 1, fp);
         lastHash = SuperFastHashIncremental(readBlock, bytesRemaining, lastHash);
     }
     return lastHash;

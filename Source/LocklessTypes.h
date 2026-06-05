@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -21,7 +21,7 @@
 
 namespace RakNet {
 
-class RAK_DLL_EXPORT LocklessUint32_t {
+class RAKNET_API LocklessUint32_t {
 public:
     LocklessUint32_t();
     explicit LocklessUint32_t(uint32_t initial);

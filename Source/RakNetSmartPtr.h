@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -22,7 +22,7 @@
 
 namespace RakNet {
 
-class RAK_DLL_EXPORT ReferenceCounter {
+class RAKNET_API ReferenceCounter {
 private:
     int refCount;
 
@@ -35,15 +35,14 @@ public:
 };
 
 template <typename T>
-class RAK_DLL_EXPORT RakNetSmartPtr {
+class RAKNET_API RakNetSmartPtr {
 private:
     T*                ptr;       // pointer
     ReferenceCounter* reference; // Reference refCount
 
 public:
     RakNetSmartPtr() : ptr(0), reference(0) {
-        // Do not allocate by default, wasteful if we just have a list of
-        // preallocated and unassigend smart pointers
+        // Do not allocate by default, wasteful if we just have a list of preallocated and unassigend smart pointers
     }
 
     RakNetSmartPtr(T* pValue) : ptr(pValue) {
@@ -51,8 +50,7 @@ public:
         reference->AddRef();
 
         //		allocCount+=2;
-        //		printf("allocCount=%i deallocCount=%i Line=%i\n",allocCount,
-        // deallocCount, __LINE__);
+        //		printf("allocCount=%i deallocCount=%i Line=%i\n",allocCount, deallocCount, __LINE__);
     }
 
     RakNetSmartPtr(const RakNetSmartPtr<T>& sp) : ptr(sp.ptr), reference(sp.reference) {
@@ -65,8 +63,7 @@ public:
             RakNet::OP_DELETE(reference, _FILE_AND_LINE_);
 
             //			deallocCount+=2;
-            //			printf("allocCount=%i deallocCount=%i
-            // Line=%i\n",allocCount, deallocCount, __LINE__);
+            //			printf("allocCount=%i deallocCount=%i Line=%i\n",allocCount, deallocCount, __LINE__);
         }
     }
 
@@ -78,8 +75,7 @@ public:
             RakNet::OP_DELETE(reference, _FILE_AND_LINE_);
 
             //			deallocCount+=2;
-            //			printf("allocCount=%i deallocCount=%i
-            // Line=%i\n",allocCount, deallocCount, __LINE__);
+            //			printf("allocCount=%i deallocCount=%i Line=%i\n",allocCount, deallocCount, __LINE__);
         }
         ptr       = 0;
         reference = 0;
@@ -87,8 +83,8 @@ public:
 
     bool IsUnique(void) const { return reference->GetRefCount() == 1; }
 
-    // Allow you to change the values of the internal contents of the pointer,
-    // without changing what is pointed to by other instances of the smart pointer
+    // Allow you to change the values of the internal contents of the pointer, without changing what is pointed to by
+    // other instances of the smart pointer
     void Clone(bool copyContents) {
         if (IsUnique() == false) {
             reference->Release();
@@ -127,8 +123,7 @@ public:
                 RakNet::OP_DELETE(reference, _FILE_AND_LINE_);
 
                 //				deallocCount+=2;
-                //				printf("allocCount=%i deallocCount=%i
-                // Line=%i\n",allocCount, deallocCount, __LINE__);
+                //				printf("allocCount=%i deallocCount=%i Line=%i\n",allocCount, deallocCount, __LINE__);
             }
 
             ptr       = sp.ptr;

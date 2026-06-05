@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -19,9 +19,11 @@
 
 using namespace RakNet;
 
+
 SignaledEvent::SignaledEvent() {
 #ifdef _WIN32
     eventList = INVALID_HANDLE_VALUE;
+
 
 #else
     isSignaled = false;
@@ -36,6 +38,7 @@ void SignaledEvent::InitEvent(void) {
     eventList = CreateEventEx(0, 0, 0, 0);
 #elif defined(_WIN32)
     eventList = CreateEvent(0, false, false, 0);
+
 
 #else
 
@@ -57,6 +60,7 @@ void SignaledEvent::CloseEvent(void) {
         eventList = INVALID_HANDLE_VALUE;
     }
 
+
 #else
     pthread_cond_destroy(&eventList);
     pthread_mutex_destroy(&hMutex);
@@ -70,6 +74,7 @@ void SignaledEvent::CloseEvent(void) {
 void SignaledEvent::SetEvent(void) {
 #ifdef _WIN32
     ::SetEvent(eventList);
+
 
 #else
     // Different from SetEvent which stays signaled.
@@ -92,6 +97,7 @@ void SignaledEvent::WaitOnEvent(int timeoutMs) {
     //		timeoutMs);
     WaitForSingleObjectEx(eventList, timeoutMs, FALSE);
 
+
 #else
 
     // If was previously set signaled, just unset and return
@@ -103,25 +109,25 @@ void SignaledEvent::WaitOnEvent(int timeoutMs) {
     }
     isSignaledMutex.Unlock();
 
+
     // struct timespec   ts;
 
     // Else wait for SetEvent to be called
+
 
     struct timespec ts;
 
     int            rc;
     struct timeval tp;
     rc         = gettimeofday(&tp, NULL);
-    static_cast<void>(rc);
     ts.tv_sec  = tp.tv_sec;
     ts.tv_nsec = tp.tv_usec * 1000;
     // #endif
 
     while (timeoutMs > 30) {
         // Wait 30 milliseconds for the signal, then check again.
-        // This is in case we  missed the signal between the top of this function
-        // and pthread_cond_timedwait, or after the end of the loop and
-        // pthread_cond_timedwait
+        // This is in case we  missed the signal between the top of this function and pthread_cond_timedwait, or after
+        // the end of the loop and pthread_cond_timedwait
         ts.tv_nsec += 30 * 1000000;
         if (ts.tv_nsec >= 1000000000) {
             ts.tv_nsec -= 1000000000;

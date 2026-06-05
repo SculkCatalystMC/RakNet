@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -65,7 +65,7 @@ RNS2_NativeClient::Bind(NativeClientBindParameters* bindParameters, const char* 
             NetAddressPrivate::ReplacePort(client_addr, bindParameters->port, &client_addr);
         }
 
-        bindState = BindState::InProgress;
+        bindState = BS_IN_PROGRESS;
 
         RAKNET_DEBUG_PRINTF("attempting to bind to %s\n", NetAddressPrivate::Describe(client_addr, true).c_str());
         PP_CompletionCallback cc = PP_MakeCompletionCallback(RNS2_NativeClient::onSocketBound, this);
@@ -104,8 +104,7 @@ void RNS2_NativeClient::onRecvFrom(void* pData, int32_t dataSize) {
     RNS2RecvStruct*    recvStruct = (RNS2RecvStruct*)pData;
     RNS2_NativeClient* socket2    = (RNS2_NativeClient*)recvStruct->socket;
 
-    // any error codes will be given to us in the dataSize value; see pp_errors.h
-    // for a list of errors
+    // any error codes will be given to us in the dataSize value; see pp_errors.h for a list of errors
     if (dataSize <= 0 || !pData) {
         // Free data
         socket2->eventHandler->DeallocRNS2RecvStruct(recvStruct, _FILE_AND_LINE_);
@@ -129,6 +128,7 @@ void RNS2_NativeClient::onRecvFrom(void* pData, int32_t dataSize) {
 
     recvStruct->bytesRead = dataSize;
     recvStruct->timeRead  = RakNet::GetTimeUS();
+
 
     PP_NetAddress_Private addr;
     bool                  ok = false;

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -12,7 +12,7 @@
 #define __GET_TIME_OF_DAY_H
 
 #if defined(_WIN32) && !defined(__GNUC__) && !defined(__GCCXML__)
-#include < time.h >
+#include <time.h>
 struct timezone {
     int tz_minuteswest; /* minutes W of Greenwich */
     int tz_dsttime;     /* type of dst correction */
@@ -27,7 +27,9 @@ struct timeval {
 
 int gettimeofday(struct timeval* tv, struct timezone* tz);
 
+
 #else
+
 
 #include <sys/time.h>
 
@@ -35,8 +37,7 @@ int gettimeofday(struct timeval* tv, struct timezone* tz);
 
 // Uncomment this if you need to
 /*
-//
-http://www.halcode.com/archives/2008/08/26/retrieving-system-time-gettimeofday/
+// http://www.halcode.com/archives/2008/08/26/retrieving-system-time-gettimeofday/
 struct timezone
 {
   int tz_minuteswest;
@@ -49,19 +50,19 @@ void  GetSystemTimeAsFileTime(FILETIME*);
 
 inline int gettimeofday(struct timeval* p, void* tz )
 {
-        union {
-            long long ns100; // time since 1 Jan 1601 in 100ns units
-                FILETIME ft;
-        } now;
+    union {
+        long long ns100; // time since 1 Jan 1601 in 100ns units
+        FILETIME ft;
+    } now;
 
     GetSystemTimeAsFileTime( &(now.ft) );
     p->tv_usec=(long)((now.ns100 / 10LL) % 1000000LL );
     p->tv_sec= (long)((now.ns100-(116444736000000000LL))/10000000LL);
-        return 0;
+    return 0;
 }
 
 #else
-        int gettimeofday(struct timeval* p, void* tz );
+    int gettimeofday(struct timeval* p, void* tz );
 #endif
 */
 

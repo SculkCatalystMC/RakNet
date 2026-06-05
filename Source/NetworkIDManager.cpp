@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -10,6 +10,7 @@
 
 /// \file
 ///
+
 
 #include "NetworkIDManager.h"
 #include "GetTime.h"
@@ -46,9 +47,7 @@ NetworkID NetworkIDManager::GetNewNetworkID(void) {
     return startingOffset;
 }
 unsigned int NetworkIDManager::NetworkIDToHashIndex(NetworkID networkId) {
-    //	return SuperFastHash((const char*)
-    //&networkId.guid.g,sizeof(networkId.guid.g)) %
-    // NETWORK_ID_MANAGER_HASH_LENGTH;
+    //	return SuperFastHash((const char*) &networkId.guid.g,sizeof(networkId.guid.g)) % NETWORK_ID_MANAGER_HASH_LENGTH;
     return (unsigned int)(networkId % NETWORK_ID_MANAGER_HASH_LENGTH);
 }
 void NetworkIDManager::TrackNetworkIDObject(NetworkIDObject* networkIdObject) {

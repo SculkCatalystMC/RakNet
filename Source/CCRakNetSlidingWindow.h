@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -61,8 +61,7 @@ else use congestion avoidance
 // #define CC_DEBUG_PRINTF_4(x,y,z,a) printf(x,y,z,a)
 // #define CC_DEBUG_PRINTF_5(x,y,z,a,b) printf(x,y,z,a,b)
 
-/// Set to 4 if you are using the iPod Touch TG. See
-/// http://www.jenkinssoftware.com/forum/index.php?topic=2717.0
+/// Set to 4 if you are using the iPod Touch TG. See http://www.jenkinssoftware.com/forum/index.php?topic=2717.0
 #define CC_TIME_TYPE_BYTES 8
 
 #if CC_TIME_TYPE_BYTES == 8
@@ -102,15 +101,13 @@ public:
         bool       isContinuousSend
     );
 
-    /// Acks do not have to be sent immediately. Instead, they can be buffered up
-    /// such that groups of acks are sent at a time This reduces overall bandwidth
-    /// usage How long they can be buffered depends on the retransmit time of the
+    /// Acks do not have to be sent immediately. Instead, they can be buffered up such that groups of acks are sent at a
+    /// time This reduces overall bandwidth usage How long they can be buffered depends on the retransmit time of the
     /// sender Should call once per update tick, and send if needed
     bool ShouldSendACKs(CCTimeType curTime, CCTimeType estimatedTimeToNextTick);
 
     /// Every data packet sent must contain a sequence number
-    /// Call this function to get it. The sequence number is passed into
-    /// OnGotPacketPair()
+    /// Call this function to get it. The sequence number is passed into OnGotPacketPair()
     DatagramSequenceNumberType GetAndIncrementNextDatagramSequenceNumber(void);
     DatagramSequenceNumberType GetNextDatagramSequenceNumber(void);
 
@@ -118,17 +115,15 @@ public:
     /// Every 15th and 16th packets should be sent as a packet pair if possible
     /// When packets marked as a packet pair arrive, pass to OnGotPacketPair()
     /// When any packets arrive, (additionally) pass to OnGotPacket
-    /// Packets should contain our system time, so we can pass rtt to
-    /// OnNonDuplicateAck()
+    /// Packets should contain our system time, so we can pass rtt to OnNonDuplicateAck()
     void OnSendBytes(CCTimeType curTime, uint32_t numBytes);
 
     /// Call this when you get a packet pair
     void OnGotPacketPair(DatagramSequenceNumberType datagramSequenceNumber, uint32_t sizeInBytes, CCTimeType curTime);
 
     /// Call this when you get a packet (including packet pairs)
-    /// If the DatagramSequenceNumberType is out of order, skippedMessageCount
-    /// will be non-zero In that case, send a NAK for every sequence number up to
-    /// that count
+    /// If the DatagramSequenceNumberType is out of order, skippedMessageCount will be non-zero
+    /// In that case, send a NAK for every sequence number up to that count
     bool OnGotPacket(
         DatagramSequenceNumberType datagramSequenceNumber,
         bool                       isContinuousSend,
@@ -158,15 +153,15 @@ public:
     );
     void OnDuplicateAck(CCTimeType curTime, DatagramSequenceNumberType sequenceNumber);
 
-    /// Call when you send an ack, to see if the ack should have the B and AS
-    /// parameters transmitted Call before calling OnSendAck()
+    /// Call when you send an ack, to see if the ack should have the B and AS parameters transmitted
+    /// Call before calling OnSendAck()
     void OnSendAckGetBAndAS(CCTimeType curTime, bool* hasBAndAS, BytesPerMicrosecond* _B, BytesPerMicrosecond* _AS);
 
     /// Call when we send an ack, to write B and AS if needed
     /// B and AS are only written once per SYN, to prevent slow calculations
     /// Also updates SND, the period between sends, since data is written out
-    /// Be sure to call OnSendAckGetBAndAS() before calling OnSendAck(), since
-    /// whether you write it or not affects \a numBytes
+    /// Be sure to call OnSendAckGetBAndAS() before calling OnSendAck(), since whether you write it or not affects \a
+    /// numBytes
     void OnSendAck(CCTimeType curTime, uint32_t numBytes);
 
     /// Call when we send a NACK
@@ -174,13 +169,11 @@ public:
     void OnSendNACK(CCTimeType curTime, uint32_t numBytes);
 
     /// Retransmission time out for the sender
-    /// If the time difference between when a message was last transmitted, and
-    /// the current time is greater than RTO then packet is eligible for
-    /// retransmission, pending congestion control RTO = (RTT + 4 * RTTVar) + SYN
-    /// If we have been continuously sending for the last RTO, and no ACK or NAK
-    /// at all, SND*=2; This is per message, which is different from UDT, but
-    /// RakNet supports packetloss with continuing data where UDT is only
-    /// RELIABLE_ORDERED Minimum value is 100 milliseconds
+    /// If the time difference between when a message was last transmitted, and the current time is greater than RTO
+    /// then packet is eligible for retransmission, pending congestion control RTO = (RTT + 4 * RTTVar) + SYN If we have
+    /// been continuously sending for the last RTO, and no ACK or NAK at all, SND*=2; This is per message, which is
+    /// different from UDT, but RakNet supports packetloss with continuing data where UDT is only RELIABLE_ORDERED
+    /// Minimum value is 100 milliseconds
     CCTimeType GetRTOForRetransmission(unsigned char timesSent) const;
 
     /// Set the maximum amount of data that can be sent in one datagram
@@ -204,6 +197,7 @@ public:
     bool     GetIsInSlowStart(void) const { return IsInSlowStart(); }
     uint32_t GetCWNDLimit(void) const { return (uint32_t)0; }
 
+
     /// Is a > b, accounting for variable overflow?
     static bool GreaterThan(DatagramSequenceNumberType a, DatagramSequenceNumberType b);
     /// Is a < b, accounting for variable overflow?
@@ -212,8 +206,7 @@ public:
     uint64_t GetBytesPerSecondLimitByCongestionControl(void) const;
 
 protected:
-    // Maximum amount of bytes that the user can send, e.g. the size of one full
-    // datagram
+    // Maximum amount of bytes that the user can send, e.g. the size of one full datagram
     uint32_t MAXIMUM_MTU_INCLUDING_UDP_HEADER;
 
     double cwnd;     // max bytes on wire
@@ -225,8 +218,7 @@ protected:
 
     CCTimeType GetSenderRTOForACK(void) const;
 
-    /// Every outgoing datagram is assigned a sequence number, which increments by
-    /// 1 every assignment
+    /// Every outgoing datagram is assigned a sequence number, which increments by 1 every assignment
     DatagramSequenceNumberType nextDatagramSequenceNumber;
     DatagramSequenceNumberType nextCongestionControlBlock;
     bool                       backoffThisBlock, speedUpThisBlock;

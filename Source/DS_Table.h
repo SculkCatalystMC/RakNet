@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -10,6 +10,7 @@
 
 /// \file DS_Table.h
 ///
+
 
 #ifndef __TABLE_H
 #define __TABLE_H
@@ -27,21 +28,18 @@
 #define _TABLE_BPLUS_TREE_ORDER       16
 #define _TABLE_MAX_COLUMN_NAME_LENGTH 64
 
-/// The namespace DataStructures was only added to avoid compiler errors for
-/// commonly named data structures As these data structures are stand-alone, you
-/// can use them outside of RakNet for your own projects if you wish.
+/// The namespace DataStructures was only added to avoid compiler errors for commonly named data structures
+/// As these data structures are stand-alone, you can use them outside of RakNet for your own projects if you wish.
 namespace DataStructures {
 
 /// \brief Holds a set of columns, a set of rows, and rows times columns cells.
-/// \details The table data structure is useful if you want to store a set of
-/// structures and perform queries on those structures.<BR> This is a relatively
-/// simple and fast implementation of the types of tables commonly used in
-/// databases.<BR> See TableSerializer to serialize data members of the
-/// table.<BR> See LightweightDatabaseClient and LightweightDatabaseServer to
-/// transmit the table over the network.
-class RAK_DLL_EXPORT Table {
+/// \details The table data structure is useful if you want to store a set of structures and perform queries on those
+/// structures.<BR> This is a relatively simple and fast implementation of the types of tables commonly used in
+/// databases.<BR> See TableSerializer to serialize data members of the table.<BR> See LightweightDatabaseClient and
+/// LightweightDatabaseServer to transmit the table over the network.
+class RAKNET_API Table {
 public:
-    enum class ColumnType : unsigned char {
+    enum ColumnType {
         // Cell::i used
         NUMERIC,
 
@@ -54,12 +52,11 @@ public:
         // Cell::c holds data.  Not deallocated. Set manually by assigning ptr.
         POINTER,
     };
-    using enum ColumnType;
+
 
     /// Holds the actual data in the table
-    // Note: If this structure is changed the struct in the swig files need to be
-    // changed as well
-    struct RAK_DLL_EXPORT Cell {
+    // Note: If this structure is changed the struct in the swig files need to be changed as well
+    struct RAKNET_API Cell {
         Cell();
         ~Cell();
         Cell(double numericValue, char* charValue, void* ptr, ColumnType type);
@@ -106,9 +103,8 @@ public:
 
     /// Stores the name and type of the column
     /// \internal
-    // Note: If this structure is changed the struct in the swig files need to be
-    // changed as well
-    struct RAK_DLL_EXPORT ColumnDescriptor {
+    // Note: If this structure is changed the struct in the swig files need to be changed as well
+    struct RAKNET_API ColumnDescriptor {
         ColumnDescriptor();
         ~ColumnDescriptor();
         ColumnDescriptor(const char cn[_TABLE_MAX_COLUMN_NAME_LENGTH], ColumnType ct);
@@ -117,11 +113,9 @@ public:
         ColumnType columnType;
     };
 
-    /// Stores the list of cells for this row, and a special flag used for
-    /// internal sorting
-    // Note: If this structure is changed the struct in the swig files need to be
-    // changed as well
-    struct RAK_DLL_EXPORT Row {
+    /// Stores the list of cells for this row, and a special flag used for internal sorting
+    // Note: If this structure is changed the struct in the swig files need to be changed as well
+    struct RAKNET_API Row {
         // list of cells
         DataStructures::List<Cell*> cells;
 
@@ -136,7 +130,7 @@ public:
     };
 
     // Operations to perform for cell comparison
-    enum class FilterQueryType : unsigned char {
+    enum FilterQueryType {
         QF_EQUAL,
         QF_NOT_EQUAL,
         QF_GREATER_THAN,
@@ -146,12 +140,10 @@ public:
         QF_IS_EMPTY,
         QF_NOT_EMPTY,
     };
-    using enum FilterQueryType;
 
-    // Compare the cell value for a row at columnName to the cellValue using
-    // operation. Note: If this structure is changed the struct in the swig files
-    // need to be changed as well
-    struct RAK_DLL_EXPORT FilterQuery {
+    // Compare the cell value for a row at columnName to the cellValue using operation.
+    // Note: If this structure is changed the struct in the swig files need to be changed as well
+    struct RAKNET_API FilterQuery {
         FilterQuery();
         ~FilterQuery();
         FilterQuery(unsigned column, Cell* cell, FilterQueryType op);
@@ -164,16 +156,14 @@ public:
     };
 
     /// Increasing or decreasing sort order
-    enum class SortQueryType : unsigned char {
+    enum SortQueryType {
         QS_INCREASING_ORDER,
         QS_DECREASING_ORDER,
     };
-    using enum SortQueryType;
 
     // Sort on increasing or decreasing order for a particular column
-    // Note: If this structure is changed the struct in the swig files need to be
-    // changed as well
-    struct RAK_DLL_EXPORT SortQuery {
+    // Note: If this structure is changed the struct in the swig files need to be changed as well
+    struct RAKNET_API SortQuery {
         /// The index of the table column we are sorting on
         unsigned columnIndex;
 
@@ -223,15 +213,12 @@ public:
     unsigned GetRowCount(void) const;
 
     /// \brief Adds a row to the table
-    /// \details New rows are added with empty values for all cells.  However, if
-    /// you specify initialCelLValues you can specify initial values It's up to
-    /// you to ensure that the values in the specific cells match the type of data
-    /// used by that row rowId can be considered the primary key for the row.  It
-    /// is much faster to lookup a row by its rowId than by searching keys. rowId
-    /// must be unique Rows are stored in sorted order in the table, using rowId
-    /// as the sort key
-    /// \param[in] rowId The UNIQUE primary key for the row.  This can never be
-    /// changed.
+    /// \details New rows are added with empty values for all cells.  However, if you specify initialCelLValues you can
+    /// specify initial values It's up to you to ensure that the values in the specific cells match the type of data
+    /// used by that row rowId can be considered the primary key for the row.  It is much faster to lookup a row by its
+    /// rowId than by searching keys. rowId must be unique Rows are stored in sorted order in the table, using rowId as
+    /// the sort key
+    /// \param[in] rowId The UNIQUE primary key for the row.  This can never be changed.
     /// \param[in] initialCellValues Initial values to give the row (optional)
     /// \return The newly added row
     Table::Row* AddRow(unsigned rowId);
@@ -248,11 +235,9 @@ public:
     void RemoveRows(Table* tableContainingRowIDs);
 
     /// \brief Updates a particular cell in the table.
-    /// \note If you are going to update many cells of a particular row, it is
-    /// more efficient to call GetRow and perform the operations on the row
-    /// directly.
-    /// \note Row pointers do not change, so you can also write directly to the
-    /// rows for more efficiency.
+    /// \note If you are going to update many cells of a particular row, it is more efficient to call GetRow and perform
+    /// the operations on the row directly.
+    /// \note Row pointers do not change, so you can also write directly to the rows for more efficiency.
     /// \param[in] rowId The ID of the row
     /// \param[in] columnIndex The column of the cell
     /// \param[in] value The data to set
@@ -263,15 +248,14 @@ public:
     bool UpdateCellByIndex(unsigned rowIndex, unsigned columnIndex, char* str);
     bool UpdateCellByIndex(unsigned rowIndex, unsigned columnIndex, int byteLength, char* data);
 
-    /// \brief Note this is much less efficient to call than GetRow, then working
-    /// with the cells directly. Numeric, string, binary
+    /// \brief Note this is much less efficient to call than GetRow, then working with the cells directly.
+    /// Numeric, string, binary
     void GetCellValueByIndex(unsigned rowIndex, unsigned columnIndex, int* output);
     void GetCellValueByIndex(unsigned rowIndex, unsigned columnIndex, char* output);
     void GetCellValueByIndex(unsigned rowIndex, unsigned columnIndex, char* output, int* outputLength);
 
-    /// \brief Gets a row.  More efficient to do this and access Row::cells than
-    /// to repeatedly call GetCell. You can also update cells in rows from this
-    /// function.
+    /// \brief Gets a row.  More efficient to do this and access Row::cells than to repeatedly call GetCell.
+    /// You can also update cells in rows from this function.
     /// \param[in] rowId The ID of the row
     /// \return The desired row, or 0 if no such row.
     Row* GetRowByID(unsigned rowId) const;
@@ -283,20 +267,15 @@ public:
     /// \return The desired row, or 0 if no such row.
     Row* GetRowByIndex(unsigned rowIndex, unsigned* key) const;
 
-    /// \brief Queries the table, optionally returning only a subset of columns
-    /// and rows.
-    /// \param[in] columnSubset An array of column indices.  Only columns in this
-    /// array are returned.  Pass 0 for all columns
+    /// \brief Queries the table, optionally returning only a subset of columns and rows.
+    /// \param[in] columnSubset An array of column indices.  Only columns in this array are returned.  Pass 0 for all
+    /// columns
     /// \param[in] numColumnSubset The number of elements in \a columnSubset
-    /// \param[in] inclusionFilters An array of FilterQuery.  All filters must
-    /// pass for the row to be returned.
-    /// \param[in] numInclusionFilters The number of elements in \a
-    /// inclusionFilters
-    /// \param[in] rowIds An arrow of row IDs.  Only these rows with these IDs are
-    /// returned.  Pass 0 for all rows.
+    /// \param[in] inclusionFilters An array of FilterQuery.  All filters must pass for the row to be returned.
+    /// \param[in] numInclusionFilters The number of elements in \a inclusionFilters
+    /// \param[in] rowIds An arrow of row IDs.  Only these rows with these IDs are returned.  Pass 0 for all rows.
     /// \param[in] numRowIDs The number of elements in \a rowIds
-    /// \param[out] result The result of the query.  If no rows are returned, the
-    /// table will only have columns.
+    /// \param[out] result The result of the query.  If no rows are returned, the table will only have columns.
     void QueryTable(
         unsigned*    columnIndicesSubset,
         unsigned     numColumnSubset,
@@ -308,16 +287,14 @@ public:
     );
 
     /// \brief Sorts the table by rows
-    /// \details You can sort the table in ascending or descending order on one or
-    /// more columns Columns have precedence in the order they appear in the \a
-    /// sortQueries array If a row cell on column n has the same value as a a
-    /// different row on column n, then the row will be compared on column n+1
-    /// \param[in] sortQueries A list of SortQuery structures, defining the sorts
-    /// to perform on the table
+    /// \details You can sort the table in ascending or descending order on one or more columns
+    /// Columns have precedence in the order they appear in the \a sortQueries array
+    /// If a row cell on column n has the same value as a a different row on column n, then the row will be compared on
+    /// column n+1
+    /// \param[in] sortQueries A list of SortQuery structures, defining the sorts to perform on the table
     /// \param[in] numColumnSubset The number of elements in \a numSortQueries
-    /// \param[out] out The address of an array of Rows, which will receive the
-    /// sorted output.  The array must be long enough to contain all returned
-    /// rows, up to GetRowCount()
+    /// \param[out] out The address of an array of Rows, which will receive the sorted output.  The array must be long
+    /// enough to contain all returned rows, up to GetRowCount()
     void SortTable(Table::SortQuery* sortQueries, unsigned numSortQueries, Table::Row** out);
 
     /// \brief Frees all memory in the table.
@@ -333,8 +310,7 @@ public:
     /// \param[out] out A pointer to an array of bytes which will hold the output.
     /// \param[in] outLength The size of the \a out array
     /// \param[in] columnDelineator What character to print to delineate columns
-    /// \param[in] printDelineatorForBinary Binary output is not printed.  True to
-    /// still print the delineator.
+    /// \param[in] printDelineatorForBinary Binary output is not printed.  True to still print the delineator.
     /// \param[in] inputRow The row to print
     void PrintRow(
         char*       out,
@@ -373,9 +349,8 @@ protected:
         Table*                          result
     );
 
-    // 16 is arbitrary and is the order of the BPlus tree.  Higher orders are
-    // better for searching while lower orders are better for Insertions and
-    // deletions.
+    // 16 is arbitrary and is the order of the BPlus tree.  Higher orders are better for searching while lower orders
+    // are better for Insertions and deletions.
     DataStructures::BPlusTree<unsigned, Row*, _TABLE_BPLUS_TREE_ORDER> rows;
 
     // Columns in the table.

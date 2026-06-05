@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -20,8 +20,7 @@
 #include "RakNetTime.h"
 #include "RakNetTypes.h"
 
-/// Set to 4 if you are using the iPod Touch TG. See
-/// http://www.jenkinssoftware.com/forum/index.php?topic=2717.0
+/// Set to 4 if you are using the iPod Touch TG. See http://www.jenkinssoftware.com/forum/index.php?topic=2717.0
 #define CC_TIME_TYPE_BYTES 8
 
 namespace RakNet {
@@ -37,8 +36,7 @@ typedef double   BytesPerMicrosecond;
 typedef double   BytesPerSecond;
 typedef double   MicrosecondsPerByte;
 
-/// CC_RAKNET_UDT_PACKET_HISTORY_LENGTH should be a power of 2 for the
-/// writeIndex variables to wrap properly
+/// CC_RAKNET_UDT_PACKET_HISTORY_LENGTH should be a power of 2 for the writeIndex variables to wrap properly
 #define CC_RAKNET_UDT_PACKET_HISTORY_LENGTH 64
 #define RTT_HISTORY_LENGTH                  64
 
@@ -59,41 +57,32 @@ typedef double   MicrosecondsPerByte;
 /// \brief Encapsulates UDT congestion control, as used by RakNet
 /// Requirements:
 /// <OL>
-/// <LI>Each datagram is no more than MAXIMUM_MTU_SIZE, after accounting for the
-/// UDP header <LI>Each datagram containing a user message has a sequence number
-/// which is set after calling OnSendBytes(). Set it by calling
-/// GetAndIncrementNextDatagramSequenceNumber() <LI>System is designed to be
-/// used from a single thread. <LI>Each packet should have a timeout time based
-/// on GetSenderRTOForACK(). If this time elapses, add the packet to the head of
-/// the send list for retransmission.
+/// <LI>Each datagram is no more than MAXIMUM_MTU_SIZE, after accounting for the UDP header
+/// <LI>Each datagram containing a user message has a sequence number which is set after calling OnSendBytes(). Set it
+/// by calling GetAndIncrementNextDatagramSequenceNumber() <LI>System is designed to be used from a single thread.
+/// <LI>Each packet should have a timeout time based on GetSenderRTOForACK(). If this time elapses, add the packet to
+/// the head of the send list for retransmission.
 /// </OL>
 ///
 /// Recommended:
 /// <OL>
-/// <LI>Call sendto in its own thread. This takes a significant amount of time
-/// in high speed networks.
+/// <LI>Call sendto in its own thread. This takes a significant amount of time in high speed networks.
 /// </OL>
 ///
 /// Algorithm:
 /// <OL>
 /// <LI>On a new connection, call Init()
-/// <LI>On a periodic interval (SYN time is the best) call Update(). Also call
-/// ShouldSendACKs(), and send buffered ACKS if it returns true. <LI>Call
-/// OnSendAck() when sending acks. <LI>When you want to send or resend data,
-/// call GetNumberOfBytesToSend(). It will return you enough bytes to keep you
-/// busy for \a estimatedTimeToNextTick. You can send more than this to fill out
-/// a datagram, or to send packet pairs <LI>Call OnSendBytes() when sending
-/// datagrams. <LI>When data arrives, record the sequence number and buffer an
-/// ACK for it, to be sent from Update() if ShouldSendACKs() returns true
-/// <LI>Every 16 packets that you send, send two of them back to back (a packet
-/// pair) as long as both packets are the same size. If you don't have two
-/// packets the same size, it is fine to defer this until you do. <LI>When you
-/// get a packet, call OnGotPacket(). If the packet is also either of a packet
-/// pair, call OnGotPacketPair() <LI>If you get a packet, and the sequence
-/// number is not 1 + the last sequence number, send a NAK. On the remote
-/// system, call OnNAK() and resend that message. <LI>If you get an ACK, remove
-/// that message from retransmission. Call OnNonDuplicateAck(). <LI>If a message
-/// is not ACKed for GetRTOForRetransmission(), resend it.
+/// <LI>On a periodic interval (SYN time is the best) call Update(). Also call ShouldSendACKs(), and send buffered ACKS
+/// if it returns true. <LI>Call OnSendAck() when sending acks. <LI>When you want to send or resend data, call
+/// GetNumberOfBytesToSend(). It will return you enough bytes to keep you busy for \a estimatedTimeToNextTick. You can
+/// send more than this to fill out a datagram, or to send packet pairs <LI>Call OnSendBytes() when sending datagrams.
+/// <LI>When data arrives, record the sequence number and buffer an ACK for it, to be sent from Update() if
+/// ShouldSendACKs() returns true <LI>Every 16 packets that you send, send two of them back to back (a packet pair) as
+/// long as both packets are the same size. If you don't have two packets the same size, it is fine to defer this until
+/// you do. <LI>When you get a packet, call OnGotPacket(). If the packet is also either of a packet pair, call
+/// OnGotPacketPair() <LI>If you get a packet, and the sequence number is not 1 + the last sequence number, send a NAK.
+/// On the remote system, call OnNAK() and resend that message. <LI>If you get an ACK, remove that message from
+/// retransmission. Call OnNonDuplicateAck(). <LI>If a message is not ACKed for GetRTOForRetransmission(), resend it.
 /// </OL>
 class CCRakNetUDT {
 public:
@@ -119,15 +108,13 @@ public:
         bool       isContinuousSend
     );
 
-    /// Acks do not have to be sent immediately. Instead, they can be buffered up
-    /// such that groups of acks are sent at a time This reduces overall bandwidth
-    /// usage How long they can be buffered depends on the retransmit time of the
+    /// Acks do not have to be sent immediately. Instead, they can be buffered up such that groups of acks are sent at a
+    /// time This reduces overall bandwidth usage How long they can be buffered depends on the retransmit time of the
     /// sender Should call once per update tick, and send if needed
     bool ShouldSendACKs(CCTimeType curTime, CCTimeType estimatedTimeToNextTick);
 
     /// Every data packet sent must contain a sequence number
-    /// Call this function to get it. The sequence number is passed into
-    /// OnGotPacketPair()
+    /// Call this function to get it. The sequence number is passed into OnGotPacketPair()
     DatagramSequenceNumberType GetAndIncrementNextDatagramSequenceNumber(void);
     DatagramSequenceNumberType GetNextDatagramSequenceNumber(void);
 
@@ -135,17 +122,15 @@ public:
     /// Every 15th and 16th packets should be sent as a packet pair if possible
     /// When packets marked as a packet pair arrive, pass to OnGotPacketPair()
     /// When any packets arrive, (additionally) pass to OnGotPacket
-    /// Packets should contain our system time, so we can pass rtt to
-    /// OnNonDuplicateAck()
+    /// Packets should contain our system time, so we can pass rtt to OnNonDuplicateAck()
     void OnSendBytes(CCTimeType curTime, uint32_t numBytes);
 
     /// Call this when you get a packet pair
     void OnGotPacketPair(DatagramSequenceNumberType datagramSequenceNumber, uint32_t sizeInBytes, CCTimeType curTime);
 
     /// Call this when you get a packet (including packet pairs)
-    /// If the DatagramSequenceNumberType is out of order, skippedMessageCount
-    /// will be non-zero In that case, send a NAK for every sequence number up to
-    /// that count
+    /// If the DatagramSequenceNumberType is out of order, skippedMessageCount will be non-zero
+    /// In that case, send a NAK for every sequence number up to that count
     bool OnGotPacket(
         DatagramSequenceNumberType datagramSequenceNumber,
         bool                       isContinuousSend,
@@ -175,15 +160,15 @@ public:
     );
     void OnDuplicateAck(CCTimeType curTime, DatagramSequenceNumberType sequenceNumber) {}
 
-    /// Call when you send an ack, to see if the ack should have the B and AS
-    /// parameters transmitted Call before calling OnSendAck()
+    /// Call when you send an ack, to see if the ack should have the B and AS parameters transmitted
+    /// Call before calling OnSendAck()
     void OnSendAckGetBAndAS(CCTimeType curTime, bool* hasBAndAS, BytesPerMicrosecond* _B, BytesPerMicrosecond* _AS);
 
     /// Call when we send an ack, to write B and AS if needed
     /// B and AS are only written once per SYN, to prevent slow calculations
     /// Also updates SND, the period between sends, since data is written out
-    /// Be sure to call OnSendAckGetBAndAS() before calling OnSendAck(), since
-    /// whether you write it or not affects \a numBytes
+    /// Be sure to call OnSendAckGetBAndAS() before calling OnSendAck(), since whether you write it or not affects \a
+    /// numBytes
     void OnSendAck(CCTimeType curTime, uint32_t numBytes);
 
     /// Call when we send a NACK
@@ -191,13 +176,11 @@ public:
     void OnSendNACK(CCTimeType curTime, uint32_t numBytes);
 
     /// Retransmission time out for the sender
-    /// If the time difference between when a message was last transmitted, and
-    /// the current time is greater than RTO then packet is eligible for
-    /// retransmission, pending congestion control RTO = (RTT + 4 * RTTVar) + SYN
-    /// If we have been continuously sending for the last RTO, and no ACK or NAK
-    /// at all, SND*=2; This is per message, which is different from UDT, but
-    /// RakNet supports packetloss with continuing data where UDT is only
-    /// RELIABLE_ORDERED Minimum value is 100 milliseconds
+    /// If the time difference between when a message was last transmitted, and the current time is greater than RTO
+    /// then packet is eligible for retransmission, pending congestion control RTO = (RTT + 4 * RTTVar) + SYN If we have
+    /// been continuously sending for the last RTO, and no ACK or NAK at all, SND*=2; This is per message, which is
+    /// different from UDT, but RakNet supports packetloss with continuing data where UDT is only RELIABLE_ORDERED
+    /// Minimum value is 100 milliseconds
     CCTimeType GetRTOForRetransmission(unsigned char timesSent) const;
 
     /// Set the maximum amount of data that can be sent in one datagram
@@ -221,6 +204,7 @@ public:
     bool     GetIsInSlowStart(void) const { return isInSlowStart; }
     uint32_t GetCWNDLimit(void) const { return (uint32_t)(CWND * MAXIMUM_MTU_INCLUDING_UDP_HEADER); }
 
+
     /// Is a > b, accounting for variable overflow?
     static bool GreaterThan(DatagramSequenceNumberType a, DatagramSequenceNumberType b);
     /// Is a < b, accounting for variable overflow?
@@ -237,27 +221,26 @@ protected:
     /// Starts at 0 (invalid)
     MicrosecondsPerByte SND;
 
-    /// Supportive window mechanism, controlling the maximum number of in-flight
-    /// packets Used both during and after slow-start, but primarily during
-    /// slow-start Starts at 2, which is also the low threshhold Max is the socket
-    /// receive buffer / MTU CWND = AS * (RTT + SYN) + 16
+    /// Supportive window mechanism, controlling the maximum number of in-flight packets
+    /// Used both during and after slow-start, but primarily during slow-start
+    /// Starts at 2, which is also the low threshhold
+    /// Max is the socket receive buffer / MTU
+    /// CWND = AS * (RTT + SYN) + 16
     double CWND;
 
-    /// When we do an update process on the SYN interval, nextSYNUpdate is set to
-    /// the next time we should update Normally this is nextSYNUpdate+=SYN, in
-    /// order to update on a consistent schedule However, if this would result in
-    /// an immediate update yet again, it is set to SYN microseconds past the
-    /// current time (in case the thread did not update for a long time)
+    /// When we do an update process on the SYN interval, nextSYNUpdate is set to the next time we should update
+    /// Normally this is nextSYNUpdate+=SYN, in order to update on a consistent schedule
+    /// However, if this would result in an immediate update yet again, it is set to SYN microseconds past the current
+    /// time (in case the thread did not update for a long time)
     CCTimeType nextSYNUpdate;
 
+
     /// Index into packetPairRecieptHistory where we will next write
-    /// The history is always full (starting with default values) so no read index
-    /// is needed
+    /// The history is always full (starting with default values) so no read index is needed
     int packetPairRecieptHistoryWriteIndex;
 
-    /// Sent to the sender by the receiver from packetPairRecieptHistory whenever
-    /// a back to back packet arrives on the receiver Updated by B = B * .875 +
-    /// incomingB * .125
+    /// Sent to the sender by the receiver from packetPairRecieptHistory whenever a back to back packet arrives on the
+    /// receiver Updated by B = B * .875 + incomingB * .125
     // BytesPerMicrosecond B;
 
     /// Running round trip time (ping*2)
@@ -272,16 +255,13 @@ protected:
     /// Initialized to UNSET
     /// Set to rtt on first calculation
     // double RTTVar;
-    /// Update: Use min/max, RTTVar follows current variance too closely resulting
-    /// in packetloss
+    /// Update: Use min/max, RTTVar follows current variance too closely resulting in packetloss
     double minRTT, maxRTT;
 
-    /// Used to calculate packet arrival rate (in UDT) but data arrival rate (in
-    /// RakNet, where not all datagrams are the same size) Filter is used to cull
-    /// lowest half of values for bytesPerMicrosecond, to discount spikes and
-    /// inactivity Referred to in the documentation as AS, data arrival rate AS is
-    /// sent to the sender and calculated every 10th ack Each node represents
-    /// (curTime-lastPacketArrivalTime)/bytes Used with
+    /// Used to calculate packet arrival rate (in UDT) but data arrival rate (in RakNet, where not all datagrams are the
+    /// same size) Filter is used to cull lowest half of values for bytesPerMicrosecond, to discount spikes and
+    /// inactivity Referred to in the documentation as AS, data arrival rate AS is sent to the sender and calculated
+    /// every 10th ack Each node represents (curTime-lastPacketArrivalTime)/bytes Used with
     /// ReceiverCalculateDataArrivalRate();
     BytesPerMicrosecond packetArrivalHistory[CC_RAKNET_UDT_PACKET_HISTORY_LENGTH];
     BytesPerMicrosecond packetArrivalHistoryContinuousGaps[CC_RAKNET_UDT_PACKET_HISTORY_LENGTH];
@@ -291,28 +271,25 @@ protected:
     unsigned int        packetArrivalHistoryWriteCount;
 
     /// Index into packetArrivalHistory where we will next write
-    /// The history is always full (starting with default values) so no read index
-    /// is needed
+    /// The history is always full (starting with default values) so no read index is needed
     int packetArrivalHistoryWriteIndex;
 
-    /// Tracks the time the last packet that arrived, so BytesPerMicrosecond can
-    /// be calculated for packetArrivalHistory when a new packet arrives
+    /// Tracks the time the last packet that arrived, so BytesPerMicrosecond can be calculated for packetArrivalHistory
+    /// when a new packet arrives
     CCTimeType lastPacketArrivalTime;
 
-    /// Data arrival rate from the sender to the receiver, as told to us by the
-    /// receiver Used to calculate initial sending rate when slow start stops
+    /// Data arrival rate from the sender to the receiver, as told to us by the receiver
+    /// Used to calculate initial sending rate when slow start stops
     BytesPerMicrosecond AS;
 
-    /// When the receiver last calculated and send B and AS, from
-    /// packetArrivalHistory and packetPairRecieptHistory Used to prevent it from
-    /// being calculated and send too frequently, as they are slow operations
+    /// When the receiver last calculated and send B and AS, from packetArrivalHistory and packetPairRecieptHistory
+    /// Used to prevent it from being calculated and send too frequently, as they are slow operations
     CCTimeType lastTransmitOfBAndAS;
 
     /// New connections start in slow start
     /// During slow start, SND is not used, only CWND
     /// Slow start ends when we get a NAK, or the maximum size of CWND is reached
-    /// SND is initialized to the inverse of the receiver's packet arrival rate
-    /// when slow start ends
+    /// SND is initialized to the inverse of the receiver's packet arrival rate when slow start ends
     bool isInSlowStart;
 
     /// How many NAKs arrived this congestion period
@@ -324,33 +301,27 @@ protected:
     /// Used to generate a random number, DecRandom, between 1 and AvgNAKNum
     uint32_t AvgNAKNum;
 
-    /// How many times we have decremented SND this congestion period. Used to
-    /// limit the number of decrements to 5
+    /// How many times we have decremented SND this congestion period. Used to limit the number of decrements to 5
     uint32_t DecCount;
 
     /// Every DecInterval NAKs per congestion period, we decrease the send rate
     uint32_t DecInterval;
 
-    /// Every outgoing datagram is assigned a sequence number, which increments by
-    /// 1 every assignment
+    /// Every outgoing datagram is assigned a sequence number, which increments by 1 every assignment
     DatagramSequenceNumberType nextDatagramSequenceNumber;
 
-    /// If a packet is marked as a packet pair, lastPacketPairPacketArrivalTime is
-    /// set to the time it arrives This is used so when the 2nd packet of the pair
-    /// arrives, we can calculate the time interval between the two
+    /// If a packet is marked as a packet pair, lastPacketPairPacketArrivalTime is set to the time it arrives
+    /// This is used so when the 2nd packet of the pair arrives, we can calculate the time interval between the two
     CCTimeType lastPacketPairPacketArrivalTime;
 
-    /// If a packet is marked as a packet pair, lastPacketPairSequenceNumber is
-    /// checked to see if the last packet we got was the packet immediately before
-    /// the one that arrived If so, we can use lastPacketPairPacketArrivalTime to
-    /// get the time between the two packets, and thus estimate the link capacity
-    /// Initialized to -1, so the first packet of a packet pair won't be treated
-    /// as the second
+    /// If a packet is marked as a packet pair, lastPacketPairSequenceNumber is checked to see if the last packet we got
+    /// was the packet immediately before the one that arrived
+    /// If so, we can use lastPacketPairPacketArrivalTime to get the time between the two packets, and thus estimate the
+    /// link capacity Initialized to -1, so the first packet of a packet pair won't be treated as the second
     DatagramSequenceNumberType lastPacketPairSequenceNumber;
 
-    /// Used to cap UpdateWindowSizeAndAckOnAckPerSyn() to once speed increase per
-    /// SYN This is to prevent speeding up faster than congestion control can
-    /// compensate for
+    /// Used to cap UpdateWindowSizeAndAckOnAckPerSyn() to once speed increase per SYN
+    /// This is to prevent speeding up faster than congestion control can compensate for
     CCTimeType lastUpdateWindowSizeAndAck;
 
     /// Every time SND is halved due to timeout, the RTO is increased
@@ -366,8 +337,7 @@ protected:
     /// When we send out acks, set oldestUnsentAck to 0
     CCTimeType oldestUnsentAck;
 
-    // Maximum amount of bytes that the user can send, e.g. the size of one full
-    // datagram
+    // Maximum amount of bytes that the user can send, e.g. the size of one full datagram
     uint32_t MAXIMUM_MTU_INCLUDING_UDP_HEADER;
 
     // Max window size
@@ -377,14 +347,12 @@ protected:
     /// If a sequence number is skipped, send a NAK for all skipped messages
     DatagramSequenceNumberType expectedNextSequenceNumber;
 
-    // How many times have we sent B and AS? Used to force it to send at least
-    // CC_RAKNET_UDT_PACKET_HISTORY_LENGTH times Otherwise, the default values in
-    // the array generate inaccuracy
+    // How many times have we sent B and AS? Used to force it to send at least CC_RAKNET_UDT_PACKET_HISTORY_LENGTH times
+    // Otherwise, the default values in the array generate inaccuracy
     uint32_t sendBAndASCount;
 
     /// Most recent values read into the corresponding lists
-    /// Used during the beginning of a connection, when the median filter is still
-    /// inaccurate
+    /// Used during the beginning of a connection, when the median filter is still inaccurate
     BytesPerMicrosecond mostRecentPacketArrivalHistory;
 
     bool hasWrittenToPacketPairReceiptHistory;
@@ -397,8 +365,8 @@ protected:
     double estimatedLinkCapacityBytesPerSecond;
 
     // --------------------------- PROTECTED METHODS ---------------------------
-    /// Update nextSYNUpdate by SYN, or the same amount past the current time if
-    /// no updates have occurred for a long time
+    /// Update nextSYNUpdate by SYN, or the same amount past the current time if no updates have occurred for a long
+    /// time
     void SetNextSYNUpdate(CCTimeType currentTime);
 
     /// Returns the rate of data arrival, based on packets arriving on the sender.
@@ -413,13 +381,12 @@ protected:
         int                       lessThanSum,
         int                       greaterThanSum
     );
-    //	static uint32_t CalculateListMedianRecursive(const uint32_t
-    // inputList[RTT_HISTORY_LENGTH], int inputListLength, int lessThanSum, int
-    // greaterThanSum);
+    //	static uint32_t CalculateListMedianRecursive(const uint32_t inputList[RTT_HISTORY_LENGTH], int inputListLength,
+    // int lessThanSum, int greaterThanSum);
 
     /// Same as GetRTOForRetransmission, but does not factor in ExpCount
-    /// This is because the receiver does not know ExpCount for the sender, and
-    /// even if it did, acks shouldn't be delayed for this reason
+    /// This is because the receiver does not know ExpCount for the sender, and even if it did, acks shouldn't be
+    /// delayed for this reason
     CCTimeType GetSenderRTOForACK(void) const;
 
     /// Stop slow start, and enter normal transfer rate
@@ -442,8 +409,9 @@ protected:
         DatagramSequenceNumberType sequenceNumber
     );
 
-    /// Sets halveSNDOnNoDataTime to the future, and also resets ExpCount, which
-    /// is used to multiple the RTO on no data arriving at all
+
+    /// Sets halveSNDOnNoDataTime to the future, and also resets ExpCount, which is used to multiple the RTO on no data
+    /// arriving at all
     void ResetOnDataArrivalHalveSNDOnNoDataTime(CCTimeType curTime);
 
     // Init array

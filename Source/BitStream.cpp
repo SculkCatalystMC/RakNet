@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -10,6 +10,7 @@
 
 /// \file
 ///
+
 
 #if defined(_MSC_VER) && _MSC_VER < 1299 // VC6 doesn't support template specialization
 #include "BitStream_NoTemplate.cpp"
@@ -23,11 +24,13 @@
 #include "RakNetDefines.h"
 #include "SocketIncludes.h"
 
+
 #if defined(_WIN32)
 #include "WindowsIncludes.h"
 #include <cmath>
 #include <float.h>
 #include <memory.h>
+
 
 #else
 #include <arpa/inet.h>
@@ -107,8 +110,8 @@ BitStream::BitStream(unsigned char* _data, const unsigned int lengthInBytes, boo
     } else data = (unsigned char*)_data;
 }
 
-// Use this if you pass a pointer copy to the constructor (_copyData==false) and
-// want to overallocate to prevent reallocation
+// Use this if you pass a pointer copy to the constructor (_copyData==false) and want to overallocate to prevent
+// reallocation
 void BitStream::SetNumberOfBitsAllocated(const BitSize_t lengthInBits) {
 #ifdef _DEBUG
     RakAssert(lengthInBits >= (BitSize_t)numberOfBitsAllocated);
@@ -121,8 +124,7 @@ BitStream::~BitStream() {
         rakFree_Ex(
             data,
             _FILE_AND_LINE_
-        ); // Use realloc and free so we are more
-           // efficient than delete and new for resizing
+        ); // Use realloc and free so we are more efficient than delete and new for resizing
 }
 
 void BitStream::Reset(void) {
@@ -135,8 +137,7 @@ void BitStream::Reset(void) {
     }
 
     // Don't free memory here for speed efficiency
-    // free(data);  // Use realloc and free so we are more efficient than delete
-    // and new for resizing
+    // free(data);  // Use realloc and free so we are more efficient than delete and new for resizing
     numberOfBitsUsed = 0;
 
     // numberOfBitsAllocated=8;
@@ -271,10 +272,9 @@ bool BitStream::ReadBit(void) {
     return result;
 }
 
-// Align the bitstream to the byte boundary and then write the specified number
-// of bits. This is faster than WriteBits but wastes the bits to do the
-// alignment and requires you to call SetReadToByteAlignment at the
-// corresponding read position
+// Align the bitstream to the byte boundary and then write the specified number of bits.
+// This is faster than WriteBits but wastes the bits to do the alignment and requires you to call
+// SetReadToByteAlignment at the corresponding read position
 void BitStream::WriteAlignedBytes(const unsigned char* inByteArray, const unsigned int numberOfBytesToWrite) {
     AlignWriteToByteBoundary();
     Write((const char*)inByteArray, numberOfBytesToWrite);
@@ -284,8 +284,7 @@ void BitStream::EndianSwapBytes(int byteOffset, int length) {
         ReverseBytesInPlace(data + byteOffset, length);
     }
 }
-/// Aligns the bitstream, writes inputLength, and writes input. Won't write
-/// beyond maxBytesToWrite
+/// Aligns the bitstream, writes inputLength, and writes input. Won't write beyond maxBytesToWrite
 void BitStream::WriteAlignedBytesSafe(
     const char*        inByteArray,
     const unsigned int inputLength,
@@ -299,10 +298,9 @@ void BitStream::WriteAlignedBytesSafe(
     WriteAlignedBytes((const unsigned char*)inByteArray, inputLength < maxBytesToWrite ? inputLength : maxBytesToWrite);
 }
 
-// Read bits, starting at the next aligned bits. Note that the modulus 8
-// starting offset of the sequence must be the same as was used with WriteBits.
-// This will be a problem with packet coalescence unless you byte align the
-// coalesced packets.
+// Read bits, starting at the next aligned bits. Note that the modulus 8 starting offset of the
+// sequence must be the same as was used with WriteBits. This will be a problem with packet coalescence
+// unless you byte align the coalesced packets.
 bool BitStream::ReadAlignedBytes(unsigned char* inOutByteArray, const unsigned int numberOfBytesToRead) {
 #ifdef _DEBUG
     RakAssert(numberOfBytesToRead > 0);
@@ -365,8 +363,7 @@ void BitStream::WriteBits(
 
     const BitSize_t numberOfBitsUsedMod8 = numberOfBitsUsed & 7;
 
-    // If currently aligned and numberOfBits is a multiple of 8, just memcpy for
-    // speed
+    // If currently aligned and numberOfBits is a multiple of 8, just memcpy for speed
     if (numberOfBitsUsedMod8 == 0 && (numberOfBitsToWrite & 7) == 0) {
         memcpy(data + (numberOfBitsUsed >> 3), inByteArray, numberOfBitsToWrite >> 3);
         numberOfBitsUsed += numberOfBitsToWrite;
@@ -382,12 +379,11 @@ void BitStream::WriteBits(
     {
         dataByte = *(inputPtr++);
 
-        if (numberOfBitsToWrite < 8 && rightAlignedBits) // rightAlignedBits means in the case of a partial
-                                                         // byte, the bits are aligned from the right (bit 0)
-                                                         // rather than the left (as in the normal internal
-                                                         // representation)
-            dataByte <<= 8 - numberOfBitsToWrite;        // shift left to get the bits on the left, as
-                                                         // in our internal representation
+        if (numberOfBitsToWrite < 8
+            && rightAlignedBits) // rightAlignedBits means in the case of a partial byte, the bits are aligned from the
+                                 // right (bit 0) rather than the left (as in the normal internal representation)
+            dataByte <<=
+                8 - numberOfBitsToWrite; // shift left to get the bits on the left, as in our internal representation
 
         // Writing to a new byte each time
         if (numberOfBitsUsedMod8 == 0) *(data + (numberOfBitsUsed >> 3)) = dataByte;
@@ -396,14 +392,12 @@ void BitStream::WriteBits(
             *(data + (numberOfBitsUsed >> 3)) |= dataByte >> (numberOfBitsUsedMod8); // First half
 
             if (8 - (numberOfBitsUsedMod8) < 8
-                && 8 - (numberOfBitsUsedMod8) < numberOfBitsToWrite) // If we didn't write it all out in the first
-                                                                     // half (8 - (numberOfBitsUsed%8) is the
-                                                                     // number we wrote in the first half)
+                && 8 - (numberOfBitsUsedMod8)
+                       < numberOfBitsToWrite) // If we didn't write it all out in the first half (8 -
+                                              // (numberOfBitsUsed%8) is the number we wrote in the first half)
             {
                 *(data + (numberOfBitsUsed >> 3) + 1) =
-                    (unsigned char)(dataByte << (8 - (numberOfBitsUsedMod8))); // Second half
-                                                                               // (overlaps byte
-                                                                               // boundary)
+                    (unsigned char)(dataByte << (8 - (numberOfBitsUsedMod8))); // Second half (overlaps byte boundary)
             }
         }
 
@@ -439,11 +433,11 @@ void BitStream::WriteCompressed(const unsigned char* inByteArray, const unsigned
     }
 
     // Write upper bytes with a single 1
-    // From high byte to low byte, if high byte is a byteMatch then write a 1 bit.
-    // Otherwise write a 0 bit and then write the remaining bytes
+    // From high byte to low byte, if high byte is a byteMatch then write a 1 bit. Otherwise write a 0 bit and then
+    // write the remaining bytes
     while (currentByte > 0) {
-        if (inByteArray[currentByte] == byteMatch) // If high byte is byteMatch (0 of 0xff) then it would have
-                                                   // the same value shifted
+        if (inByteArray[currentByte]
+            == byteMatch) // If high byte is byteMatch (0 of 0xff) then it would have the same value shifted
         {
             bool b = true;
             Write(b);
@@ -455,14 +449,15 @@ void BitStream::WriteCompressed(const unsigned char* inByteArray, const unsigned
             WriteBits(inByteArray, (currentByte + 1) << 3, true);
             //  currentByte--;
 
+
             return;
         }
 
         currentByte--;
     }
 
-    // If the upper half of the last byte is a 0 (positive) or 16 (negative) then
-    // write a 1 and the remaining 4 bits.  Otherwise write a 0 and the 8 bites.
+    // If the upper half of the last byte is a 0 (positive) or 16 (negative) then write a 1 and the remaining 4 bits.
+    // Otherwise write a 0 and the 8 bites.
     if ((unsignedData && ((*(inByteArray + currentByte)) & 0xF0) == 0x00)
         || (unsignedData == false && ((*(inByteArray + currentByte)) & 0xF0) == 0xF0)) {
         bool b = true;
@@ -478,8 +473,8 @@ void BitStream::WriteCompressed(const unsigned char* inByteArray, const unsigned
 }
 
 // Read numberOfBitsToRead bits to the output source
-// alignBitsToRight should be set to true to convert internal bitstream data to
-// userdata It should be false if you used WriteBits with rightAlignedBits false
+// alignBitsToRight should be set to true to convert internal bitstream data to userdata
+// It should be false if you used WriteBits with rightAlignedBits false
 bool BitStream::ReadBits(unsigned char* inOutByteArray, BitSize_t numberOfBitsToRead, const bool alignBitsToRight) {
 #ifdef _DEBUG
     //	RakAssert( numberOfBitsToRead > 0 );
@@ -488,15 +483,16 @@ bool BitStream::ReadBits(unsigned char* inOutByteArray, BitSize_t numberOfBitsTo
 
     if (readOffset + numberOfBitsToRead > numberOfBitsUsed) return false;
 
+
     const BitSize_t readOffsetMod8 = readOffset & 7;
 
-    // If currently aligned and numberOfBits is a multiple of 8, just memcpy for
-    // speed
+    // If currently aligned and numberOfBits is a multiple of 8, just memcpy for speed
     if (readOffsetMod8 == 0 && (numberOfBitsToRead & 7) == 0) {
         memcpy(inOutByteArray, data + (readOffset >> 3), numberOfBitsToRead >> 3);
         readOffset += numberOfBitsToRead;
         return true;
     }
+
 
     BitSize_t offset = 0;
 
@@ -505,8 +501,9 @@ bool BitStream::ReadBits(unsigned char* inOutByteArray, BitSize_t numberOfBitsTo
     while (numberOfBitsToRead > 0) {
         *(inOutByteArray + offset) |= *(data + (readOffset >> 3)) << (readOffsetMod8); // First half
 
-        if (readOffsetMod8 > 0 && numberOfBitsToRead > 8 - (readOffsetMod8)) // If we have a second half, we didn't read
-                                                                             // enough bytes in the first half
+        if (readOffsetMod8 > 0
+            && numberOfBitsToRead
+                   > 8 - (readOffsetMod8)) // If we have a second half, we didn't read enough bytes in the first half
             *(inOutByteArray + offset) |=
                 *(data + (readOffset >> 3) + 1) >> (8 - (readOffsetMod8)); // Second half (overlaps byte boundary)
 
@@ -517,8 +514,7 @@ bool BitStream::ReadBits(unsigned char* inOutByteArray, BitSize_t numberOfBitsTo
         } else {
             int neg = (int)numberOfBitsToRead - 8;
 
-            if (neg < 0) // Reading a partial byte for the last byte, shift right so
-                         // the data is aligned on the right
+            if (neg < 0) // Reading a partial byte for the last byte, shift right so the data is aligned on the right
             {
 
                 if (alignBitsToRight) *(inOutByteArray + offset) >>= -neg;
@@ -535,10 +531,10 @@ bool BitStream::ReadBits(unsigned char* inOutByteArray, BitSize_t numberOfBitsTo
     return true;
 }
 
-// Assume the input source points to a compressed native type. Decompress and
-// read it
+// Assume the input source points to a compressed native type. Decompress and read it
 bool BitStream::ReadCompressed(unsigned char* inOutByteArray, const unsigned int size, const bool unsignedData) {
     unsigned int currentByte = (size >> 3) - 1;
+
 
     unsigned char byteMatch, halfByteMatch;
 
@@ -553,8 +549,8 @@ bool BitStream::ReadCompressed(unsigned char* inOutByteArray, const unsigned int
     }
 
     // Upper bytes are specified with a single 1 if they match byteMatch
-    // From high byte to low byte, if high byte is a byteMatch then write a 1 bit.
-    // Otherwise write a 0 bit and then write the remaining bytes
+    // From high byte to low byte, if high byte is a byteMatch then write a 1 bit. Otherwise write a 0 bit and then
+    // write the remaining bytes
     while (currentByte > 0) {
         // If we read a 1 then the data is byteMatch.
 
@@ -575,11 +571,9 @@ bool BitStream::ReadCompressed(unsigned char* inOutByteArray, const unsigned int
         }
     }
 
-    // All but the first bytes are byteMatch.  If the upper half of the last byte
-    // is a 0 (positive) or 16 (negative) then what we read will be a 1 and the
-    // remaining 4 bits. Otherwise we read a 0 and the 8 bytes
-    // RakAssert(readOffset+1 <=numberOfBitsUsed); // If this assert is hit the
-    // stream wasn't long enough to read from
+    // All but the first bytes are byteMatch.  If the upper half of the last byte is a 0 (positive) or 16 (negative)
+    // then what we read will be a 1 and the remaining 4 bits. Otherwise we read a 0 and the 8 bytes
+    // RakAssert(readOffset+1 <=numberOfBitsUsed); // If this assert is hit the stream wasn't long enough to read from
     if (readOffset + 1 > numberOfBitsUsed) return false;
 
     bool b = false;
@@ -591,8 +585,8 @@ bool BitStream::ReadCompressed(unsigned char* inOutByteArray, const unsigned int
 
         if (ReadBits(inOutByteArray + currentByte, 4) == false) return false;
 
-        inOutByteArray[currentByte] |= halfByteMatch; // We have to set the high 4 bits since these are set to
-                                                      // 0 by ReadBits
+        inOutByteArray[currentByte] |=
+            halfByteMatch; // We have to set the high 4 bits since these are set to 0 by ReadBits
     } else {
         if (ReadBits(inOutByteArray + currentByte, 8) == false) return false;
     }
@@ -609,10 +603,9 @@ void BitStream::AddBitsAndReallocate(const BitSize_t numberOfBitsToWrite) {
                < ((newNumberOfBitsAllocated - 1) >> 3)) // If we need to allocate 1 or more new bytes
     {
 #ifdef _DEBUG
-        // If this assert hits then we need to specify true for the third parameter
-        // in the constructor It needs to reallocate to hold all the data and can't
-        // do it unless we allocated to begin with Often hits if you call Write or
-        // Serialize on a read-only bitstream
+        // If this assert hits then we need to specify true for the third parameter in the constructor
+        // It needs to reallocate to hold all the data and can't do it unless we allocated to begin with
+        // Often hits if you call Write or Serialize on a read-only bitstream
         RakAssert(copyData == true);
 #endif
 
@@ -622,10 +615,8 @@ void BitStream::AddBitsAndReallocate(const BitSize_t numberOfBitsToWrite) {
         if (newNumberOfBitsAllocated - (numberOfBitsToWrite + numberOfBitsUsed) > 1048576)
             newNumberOfBitsAllocated = numberOfBitsToWrite + numberOfBitsUsed + 1048576;
 
-        //		BitSize_t newByteOffset = BITS_TO_BYTES( numberOfBitsAllocated
-        //);
-        // Use realloc and free so we are more efficient than delete and new for
-        // resizing
+        //		BitSize_t newByteOffset = BITS_TO_BYTES( numberOfBitsAllocated );
+        // Use realloc and free so we are more efficient than delete and new for resizing
         BitSize_t amountToAllocate = BITS_TO_BYTES(newNumberOfBitsAllocated);
         if (data == (unsigned char*)stackData) {
             if (amountToAllocate > BITSTREAM_STACK_ALLOCATION_SIZE) {
@@ -642,8 +633,8 @@ void BitStream::AddBitsAndReallocate(const BitSize_t numberOfBitsToWrite) {
 #ifdef _DEBUG
         RakAssert(data); // Make sure realloc succeeded
 #endif
-        //  memset(data+newByteOffset, 0,  ((newNumberOfBitsAllocated-1)>>3) -
-        //  ((numberOfBitsAllocated-1)>>3)); // Set the new data block to 0
+        //  memset(data+newByteOffset, 0,  ((newNumberOfBitsAllocated-1)>>3) - ((numberOfBitsAllocated-1)>>3)); // Set
+        //  the new data block to 0
     }
 
     if (newNumberOfBitsAllocated > numberOfBitsAllocated) numberOfBitsAllocated = newNumberOfBitsAllocated;
@@ -799,8 +790,7 @@ int BitStream::NumberOfLeadingZeroes(uint64_t x) {
 void BitStream::AssertStreamEmpty(void) { RakAssert(readOffset == numberOfBitsUsed); }
 void BitStream::PrintBits(char* out) const {
     if (numberOfBitsUsed <= 0) {
-        const char* noBits = "No bits\n";
-        memcpy(out, noBits, strlen(noBits) + 1);
+        strcpy(out, "No bits\n");
         return;
     }
 
@@ -831,15 +821,10 @@ void BitStream::PrintBits(void) const {
     RAKNET_DEBUG_PRINTF("%s", out);
 }
 void BitStream::PrintHex(char* out) const {
-    static const char hexDigits[] = "0123456789abcdef";
     BitSize_t i;
     for (i = 0; i < GetNumberOfBytesUsed(); i++) {
-        const unsigned char value = data[i];
-        out[i * 3]                = hexDigits[(value >> 4) & 0x0F];
-        out[i * 3 + 1]            = hexDigits[value & 0x0F];
-        out[i * 3 + 2]            = ' ';
+        sprintf(out + i * 3, "%02x ", data[i]);
     }
-    out[i * 3] = 0;
 }
 void BitStream::PrintHex(void) const {
     char out[2048];
@@ -864,8 +849,8 @@ void BitStream::IgnoreBits(const BitSize_t numberOfBits) { readOffset += numberO
 
 void BitStream::IgnoreBytes(const unsigned int numberOfBytes) { IgnoreBits(BYTES_TO_BITS(numberOfBytes)); }
 
-// Move the write pointer to a position on the array.  Dangerous if you don't
-// know what you are doing! Doesn't work with non-aligned data!
+// Move the write pointer to a position on the array.  Dangerous if you don't know what you are doing!
+// Doesn't work with non-aligned data!
 void BitStream::SetWriteOffset(const BitSize_t offset) { numberOfBitsUsed = offset; }
 
 /*
@@ -911,8 +896,8 @@ return data;
 }
 
 */
-// If we used the constructor version with copy data off, this makes sure it is
-// set to on and the data pointed to is copied.
+// If we used the constructor version with copy data off, this makes sure it is set to on and the data pointed to is
+// copied.
 void BitStream::AssertCopyData(void) {
     if (copyData == false) {
         copyData = true;
@@ -934,6 +919,7 @@ void BitStream::AssertCopyData(void) {
     }
 }
 bool BitStream::IsNetworkOrderInternal(void) {
+
 
     static unsigned long htonlValue = htonl(12345);
     return htonlValue == 12345;

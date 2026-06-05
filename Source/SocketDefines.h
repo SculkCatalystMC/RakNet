@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -12,6 +12,7 @@
 #define __SOCKET_DEFINES_H
 
 /// Internal
+
 
 #if defined(WINDOWS_STORE_RT)
 #include "WinRTSocketAdapter.h"
@@ -35,6 +36,7 @@
 #define WSASendTo__   WinRTSendTo
 #else
 
+
 #if defined(_WIN32)
 #define closesocket__ closesocket
 #define select__      select
@@ -49,11 +51,13 @@
 #define accept__  accept
 #define connect__ connect
 
+
 #define socket__ socket
 
 #define bind__        bind
 #define getsockname__ getsockname
 #define getsockopt__  getsockopt
+
 
 #define inet_addr__ inet_addr
 
@@ -62,9 +66,11 @@
 #define recv__        recv
 #define recvfrom__    recvfrom
 
+
 #define sendto__ sendto
 
 #define send__ send
+
 
 #define setsockopt__ setsockopt
 

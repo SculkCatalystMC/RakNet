@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -9,9 +9,9 @@
  */
 
 /// \file
-/// \brief \b Reference counted object. Very simple class for quick and dirty
-/// uses.
+/// \brief \b Reference counted object. Very simple class for quick and dirty uses.
 ///
+
 
 #ifndef __REF_COUNTED_OBJ_H
 #define __REF_COUNTED_OBJ_H

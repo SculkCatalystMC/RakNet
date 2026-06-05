@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -13,6 +13,6 @@
 
 #include "Export.h"
 
-void RAK_DLL_EXPORT RakSleep(unsigned int ms);
+void RAKNET_API RakSleep(unsigned int ms);
 
 #endif

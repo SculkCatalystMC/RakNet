@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -7,6 +7,7 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  *
  */
+
 
 #include "PluginInterface2.h"
 #include "BitStream.h"
@@ -16,7 +17,7 @@
 using namespace RakNet;
 
 PluginInterface2::PluginInterface2() {
-    rakPeerInterface = 0;
+    mRakPeerInterface = 0;
 #if _RAKNET_SUPPORT_PacketizedTCP == 1 && _RAKNET_SUPPORT_TCPInterface == 1
     tcpInterface = 0;
 #endif
@@ -30,8 +31,8 @@ void PluginInterface2::SendUnified(
     const AddressOrGUID      systemIdentifier,
     bool                     broadcast
 ) {
-    if (rakPeerInterface) {
-        rakPeerInterface->Send(bitStream, priority, reliability, orderingChannel, systemIdentifier, broadcast);
+    if (mRakPeerInterface) {
+        mRakPeerInterface->Send(bitStream, priority, reliability, orderingChannel, systemIdentifier, broadcast);
         return;
     }
 #if _RAKNET_SUPPORT_PacketizedTCP == 1 && _RAKNET_SUPPORT_TCPInterface == 1
@@ -48,10 +49,8 @@ void PluginInterface2::SendUnified(
 
     // Offline mode
     if (broadcast == false && systemIdentifier.rakNetGuid == GetMyGUIDUnified()) {
-        //		Packet *packet =
-        // AllocatePacketUnified(bitStream->GetNumberOfBytesUsed());
-        //		memcpy(packet->data, bitStream->GetData(),
-        // bitStream->GetNumberOfBytesUsed());
+        //		Packet *packet = AllocatePacketUnified(bitStream->GetNumberOfBytesUsed());
+        //		memcpy(packet->data, bitStream->GetData(), bitStream->GetNumberOfBytesUsed());
         Packet packet;
         packet.bitSize             = bitStream->GetNumberOfBitsUsed();
         packet.data                = bitStream->GetData();
@@ -75,8 +74,8 @@ void PluginInterface2::SendUnified(
     const AddressOrGUID systemIdentifier,
     bool                broadcast
 ) {
-    if (rakPeerInterface) {
-        rakPeerInterface->Send(data, length, priority, reliability, orderingChannel, systemIdentifier, broadcast);
+    if (mRakPeerInterface) {
+        mRakPeerInterface->Send(data, length, priority, reliability, orderingChannel, systemIdentifier, broadcast);
         return;
     }
 #if _RAKNET_SUPPORT_PacketizedTCP == 1 && _RAKNET_SUPPORT_TCPInterface == 1
@@ -88,10 +87,8 @@ void PluginInterface2::SendUnified(
 
     // Offline mode
     if (broadcast == false && systemIdentifier.rakNetGuid == GetMyGUIDUnified()) {
-        //		Packet *packet =
-        // AllocatePacketUnified(bitStream->GetNumberOfBytesUsed());
-        //		memcpy(packet->data, bitStream->GetData(),
-        // bitStream->GetNumberOfBytesUsed());
+        //		Packet *packet = AllocatePacketUnified(bitStream->GetNumberOfBytesUsed());
+        //		memcpy(packet->data, bitStream->GetData(), bitStream->GetNumberOfBytesUsed());
         Packet packet;
         packet.bitSize             = BYTES_TO_BITS(length);
         packet.data                = (unsigned char*)data;
@@ -107,8 +104,8 @@ void PluginInterface2::SendUnified(
     }
 }
 Packet* PluginInterface2::AllocatePacketUnified(unsigned dataSize) {
-    if (rakPeerInterface) {
-        return rakPeerInterface->AllocatePacket(dataSize);
+    if (mRakPeerInterface) {
+        return mRakPeerInterface->AllocatePacket(dataSize);
     }
 #if _RAKNET_SUPPORT_PacketizedTCP == 1 && _RAKNET_SUPPORT_TCPInterface == 1
     else if (tcpInterface) {
@@ -126,8 +123,8 @@ Packet* PluginInterface2::AllocatePacketUnified(unsigned dataSize) {
     return packet;
 }
 void PluginInterface2::PushBackPacketUnified(Packet* packet, bool pushAtHead) {
-    if (rakPeerInterface) {
-        rakPeerInterface->PushBackPacket(packet, pushAtHead);
+    if (mRakPeerInterface) {
+        mRakPeerInterface->PushBackPacket(packet, pushAtHead);
         return;
     }
 #if _RAKNET_SUPPORT_PacketizedTCP == 1 && _RAKNET_SUPPORT_TCPInterface == 1
@@ -141,8 +138,8 @@ void PluginInterface2::PushBackPacketUnified(Packet* packet, bool pushAtHead) {
     Update();
 }
 void PluginInterface2::DeallocPacketUnified(Packet* packet) {
-    if (rakPeerInterface) {
-        rakPeerInterface->DeallocatePacket(packet);
+    if (mRakPeerInterface) {
+        mRakPeerInterface->DeallocatePacket(packet);
         return;
     }
 #if _RAKNET_SUPPORT_PacketizedTCP == 1 && _RAKNET_SUPPORT_TCPInterface == 1
@@ -165,8 +162,8 @@ bool PluginInterface2::SendListUnified(
     const AddressOrGUID systemIdentifier,
     bool                broadcast
 ) {
-    if (rakPeerInterface) {
-        return rakPeerInterface->SendList(
+    if (mRakPeerInterface) {
+        return mRakPeerInterface->SendList(
                    data,
                    lengths,
                    numParameters,
@@ -215,11 +212,11 @@ bool PluginInterface2::SendListUnified(
 
     return false;
 }
-void PluginInterface2::SetRakPeerInterface(RakPeerInterface* ptr) { rakPeerInterface = ptr; }
+void PluginInterface2::SetRakPeerInterface(RakPeerInterface* ptr) { mRakPeerInterface = ptr; }
 #if _RAKNET_SUPPORT_TCPInterface == 1
 void PluginInterface2::SetTCPInterface(TCPInterface* ptr) { tcpInterface = ptr; }
 #endif
 RakNetGUID PluginInterface2::GetMyGUIDUnified(void) const {
-    if (rakPeerInterface) return rakPeerInterface->GetMyGUID();
+    if (mRakPeerInterface) return mRakPeerInterface->GetMyGUID();
     return UNASSIGNED_RAKNET_GUID;
 }

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -34,8 +34,8 @@ void GridSectorizer::Init(
     gridHeight          = maxY - minY;
     gridCellWidthCount  = (int)ceil(gridWidth / _maxCellWidth);
     gridCellHeightCount = (int)ceil(gridHeight / _maxCellHeight);
-    // Make the cells slightly smaller, so we allocate an extra unneeded cell if
-    // on the edge.  This way we don't go outside the array on rounding errors.
+    // Make the cells slightly smaller, so we allocate an extra unneeded cell if on the edge.  This way we don't go
+    // outside the array on rounding errors.
     cellWidth     = gridWidth / gridCellWidthCount;
     cellHeight    = gridHeight / gridCellHeightCount;
     invCellWidth  = 1.0f / cellWidth;

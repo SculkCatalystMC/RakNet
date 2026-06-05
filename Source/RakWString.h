@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -17,12 +17,13 @@
 
 #ifdef _WIN32
 
+
 #include "WindowsIncludes.h"
 #endif
 
 namespace RakNet {
 /// \brief String class for Unicode
-class RAK_DLL_EXPORT RakWString {
+class RAKNET_API RakWString {
 public:
     // Constructors
     RakWString();
@@ -111,6 +112,7 @@ public:
     /// Static version of the Deserialize() function
     static bool Deserialize(wchar_t* str, BitStream* bs);
 
+
 protected:
     wchar_t* c_str;
     size_t   c_strCharLength;
@@ -118,6 +120,7 @@ protected:
 
 } // namespace RakNet
 
-const RakNet::RakWString RAK_DLL_EXPORT operator+(const RakNet::RakWString& lhs, const RakNet::RakWString& rhs);
+const RakNet::RakWString RAKNET_API operator+(const RakNet::RakWString& lhs, const RakNet::RakWString& rhs);
+
 
 #endif

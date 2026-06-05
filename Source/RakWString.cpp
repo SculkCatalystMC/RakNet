@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -7,6 +7,7 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  *
  */
+
 
 #include "RakWString.h"
 #include "BitStream.h"
@@ -71,12 +72,12 @@ RakWString& RakWString::operator=(const wchar_t* const str) {
         notifyOutOfMemory(_FILE_AND_LINE_);
         return *this;
     }
-    wmemcpy(c_str, str, c_strCharLength + 1);
+    wcscpy(c_str, str);
 
     return *this;
 }
 RakWString& RakWString::operator=(wchar_t* str) {
-    *this = static_cast<const wchar_t*>(str);
+    *this = (const wchar_t* const)str;
     return *this;
 }
 RakWString& RakWString::operator=(const char* const str) {
@@ -87,13 +88,7 @@ RakWString& RakWString::operator=(const char* const str) {
     if (str == 0) return *this;
     if (str[0] == 0) return *this;
 
-#if defined(_WIN32)
-    size_t convertedChars = 0;
-    if (mbstowcs_s(&convertedChars, NULL, 0, str, 0) != 0 || convertedChars == 0) return *this;
-    c_strCharLength = convertedChars - 1;
-#else
     c_strCharLength = mbstowcs(NULL, str, 0);
-#endif
     c_str           = (wchar_t*)rakMalloc_Ex((c_strCharLength + 1) * MAX_BYTES_PER_UNICODE_CHAR, _FILE_AND_LINE_);
     if (!c_str) {
         c_strCharLength = 0;
@@ -101,21 +96,12 @@ RakWString& RakWString::operator=(const char* const str) {
         return *this;
     }
 
-#if defined(_WIN32)
-    if (mbstowcs_s(&convertedChars, c_str, c_strCharLength + 1, str, _TRUNCATE) != 0) {
-        RAKNET_DEBUG_PRINTF("Couldn't convert string--invalid multibyte character.\n");
-        Clear();
-        return *this;
-    }
-    c_strCharLength = convertedChars - 1;
-#else
     c_strCharLength = mbstowcs(c_str, str, c_strCharLength + 1);
     if (c_strCharLength == (size_t)(-1)) {
         RAKNET_DEBUG_PRINTF("Couldn't convert string--invalid multibyte character.\n");
         Clear();
         return *this;
     }
-#endif
 #else
     // mbstowcs not supported on android
     RakAssert("mbstowcs not supported on Android" && 0);
@@ -124,7 +110,7 @@ RakWString& RakWString::operator=(const char* const str) {
     return *this;
 }
 RakWString& RakWString::operator=(char* str) {
-    *this = static_cast<const char*>(str);
+    *this = (const char* const)str;
     return *this;
 }
 RakWString& RakWString::operator+=(const RakWString& right) {
@@ -143,7 +129,7 @@ RakWString& RakWString::operator+=(const RakWString& right) {
     if (isEmpty) {
         memcpy(newCStr, right.C_String(), (right.GetLength() + 1) * MAX_BYTES_PER_UNICODE_CHAR);
     } else {
-        wmemcpy(c_str + (newCharLength - right.GetLength()), right.C_String(), right.GetLength() + 1);
+        wcscat(c_str, right.C_String());
     }
 
     return *this;
@@ -165,12 +151,12 @@ RakWString& RakWString::operator+=(const wchar_t* const right) {
     if (isEmpty) {
         memcpy(newCStr, right, (rightLength + 1) * MAX_BYTES_PER_UNICODE_CHAR);
     } else {
-        wmemcpy(c_str + (newCharLength - rightLength), right, rightLength + 1);
+        wcscat(c_str, right);
     }
 
     return *this;
 }
-RakWString& RakWString::operator+=(wchar_t* right) { return *this += static_cast<const wchar_t*>(right); }
+RakWString& RakWString::operator+=(wchar_t* right) { return *this += (const wchar_t* const)right; }
 bool        RakWString::operator==(const RakWString& right) const {
     if (GetLength() != right.GetLength()) return false;
     return wcscmp(C_String(), right.C_String()) == 0;
@@ -300,7 +286,7 @@ bool RakWString::Deserialize(wchar_t* str, BitStream* bs) {
 #endif
         return true;
     } else {
-        str[0] = L'\0';
+        wcscpy(str, L"");
     }
     return true;
 }

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -11,6 +11,7 @@
 /// \file
 ///
 
+
 #include "StringCompressor.h"
 #include "BitStream.h"
 #include "DS_HuffmanEncodingTree.h"
@@ -19,6 +20,7 @@
 #include <string.h>
 
 #include <memory.h>
+
 
 using namespace RakNet;
 
@@ -62,8 +64,7 @@ unsigned int englishCharacterFrequencies[256] = {
 StringCompressor::StringCompressor() {
     DataStructures::Map<int, HuffmanEncodingTree*>::IMPLEMENT_DEFAULT_COMPARISON();
 
-    // Make a default tree immediately, since this is used for RPC possibly from
-    // multiple threads at the same time
+    // Make a default tree immediately, since this is used for RPC possibly from multiple threads at the same time
     HuffmanEncodingTree* huffmanEncodingTree = RakNet::OP_NEW<HuffmanEncodingTree>(_FILE_AND_LINE_);
     huffmanEncodingTree->GenerateFromFrequencyTable(englishCharacterFrequencies);
 

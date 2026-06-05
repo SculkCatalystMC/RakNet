@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -27,8 +27,7 @@ public:
     ~GridSectorizer();
 
     // _cellWidth, _cellHeight is the width and height of each cell in world units
-    // minX, minY, maxX, maxY are the world dimensions (can be changed to
-    // dynamically allocate later if needed)
+    // minX, minY, maxX, maxY are the world dimensions (can be changed to dynamically allocate later if needed)
     void Init(
         const float _maxCellWidth,
         const float _maxCellHeight,
@@ -46,8 +45,7 @@ public:
     // Removes a pointer, as above
     void RemoveEntry(void* entry, const float minX, const float minY, const float maxX, const float maxY);
 
-    // Adds and removes in one pass, more efficient than calling both functions
-    // consecutively
+    // Adds and removes in one pass, more efficient than calling both functions consecutively
     void MoveEntry(
         void*       entry,
         const float sourceMinX,
@@ -79,8 +77,7 @@ protected:
     int WorldToCellXOffsetAndClamped(const float input) const;
     int WorldToCellYOffsetAndClamped(const float input) const;
 
-    // Returns true or false if a position crosses cells in the grid.  If false,
-    // you don't need to move entries
+    // Returns true or false if a position crosses cells in the grid.  If false, you don't need to move entries
     bool PositionCrossesCells(
         const float originX,
         const float originY,
@@ -93,6 +90,7 @@ protected:
     float invCellWidth, invCellHeight;
     float gridWidth, gridHeight;
     int   gridCellWidthCount, gridCellHeightCount;
+
 
     // int gridWidth, gridHeight;
 

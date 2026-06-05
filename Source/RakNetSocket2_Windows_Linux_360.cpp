@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -30,6 +30,7 @@ RNS2SendResult RNS2_Windows_Linux_360::Send_Windows_Linux_360NoVDP(
         (void)file;
         (void)line;
 
+
         int oldTTL = -1;
         if (sendParameters->ttl > 0) {
             socklen_t opLen = sizeof(oldTTL);
@@ -46,6 +47,7 @@ RNS2SendResult RNS2_Windows_Linux_360::Send_Windows_Linux_360NoVDP(
                 );
             }
         }
+
 
         if (sendParameters->systemAddress.address.addr4.sin_family == AF_INET) {
             len = sendto__(
@@ -77,6 +79,7 @@ RNS2SendResult RNS2_Windows_Linux_360::Send_Windows_Linux_360NoVDP(
                 sendParameters->length
             );
         }
+
 
         if (oldTTL != -1) {
             setsockopt__(

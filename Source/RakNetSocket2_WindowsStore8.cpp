@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -43,18 +43,18 @@ public:
     // http://msdn.microsoft.com/en-us/library/windows/apps/hh755807.aspx
     property IOutputStream ^ outputStream;
     /*
-  {
-                   IOutputStream ^ get() {return outputStream;}
-   void set(IOutputStream ^ value) {outputStream = value;}
-  }
-           */
+       {
+           IOutputStream ^ get() {return outputStream;}
+           void set(IOutputStream ^ value) {outputStream = value;}
+       }
+       */
     property DataWriter ^ dataWriter;
     /*
-  {
-  DataWriter ^ get() {return dataWriter;}
-   void set(DataWriter ^ value) {dataWriter = value;}
-  }
-  */
+       {
+          DataWriter ^ get() {return dataWriter;}
+           void set(DataWriter ^ value) {dataWriter = value;}
+       }
+*/
 private:
 };
 
@@ -93,11 +93,9 @@ ListenerContext::ListenerContext(Windows::Networking::Sockets::DatagramSocket ^ 
 
 ListenerContext::~ListenerContext() {
     // The listener can be closed in two ways:
-    //  - explicit: by using delete operator (the listener is closed even if there
-    //  are outstanding references to it).
+    //  - explicit: by using delete operator (the listener is closed even if there are outstanding references to it).
     //  - implicit: by removing last reference to it (i.e. falling out-of-scope).
-    // In this case this is the last reference to the listener so both will yield
-    // the same result.
+    // In this case this is the last reference to the listener so both will yield the same result.
     delete listener;
     listener = nullptr;
 
@@ -117,7 +115,7 @@ OutputStreamAndDataWriter ^ ListenerContext::GetOutputStreamAndDataWriter(uint64
     // addr = ntohl(addr);
     char           buf[64];
     unsigned char* ucp = (unsigned char*)&addr;
-    snprintf(buf, sizeof(buf), "%d.%d.%d.%d", ucp[0] & 0xff, ucp[1] & 0xff, ucp[2] & 0xff, ucp[3] & 0xff);
+    sprintf(buf, "%d.%d.%d.%d", ucp[0] & 0xff, ucp[1] & 0xff, ucp[2] & 0xff, ucp[3] & 0xff);
     char portStr[32];
     _itoa(port, portStr, 10);
 
@@ -159,8 +157,8 @@ void ListenerContext::OnMessage(
     RNS2_WindowsStore8* rns2 = RNS2_WindowsStore8::GetRNS2FromDatagramSocket(socket);
     if (rns2 == 0) return;
 
-    // auto platformBuffer = ref new Platform::Array<BYTE>((unsigned char*)
-    // sendParameters->data, (UINT)sendParameters->length);
+    // auto platformBuffer = ref new Platform::Array<BYTE>((unsigned char*) sendParameters->data,
+    // (UINT)sendParameters->length);
     RNS2EventHandler* eventHandler   = rns2->GetEventHandler();
     RNS2RecvStruct*   recvFromStruct = eventHandler->AllocRNS2RecvStruct(_FILE_AND_LINE_);
 
@@ -175,57 +173,55 @@ void ListenerContext::OnMessage(
     char      ip[64];
     RakString rs2;
     rs2.FromWideChar(eventArguments->RemoteAddress->DisplayName->Data());
-    snprintf(ip, sizeof(ip), "%s", rs2.C_String());
+    strcpy(ip, rs2.C_String());
     recvFromStruct->systemAddress.address.addr4.sin_addr.s_addr = RNS2_WindowsStore8::WinRTInet_Addr(ip);
     char portStr[64];
     rs2.FromWideChar(eventArguments->RemotePort->Data());
-    snprintf(portStr, sizeof(portStr), "%s", rs2.C_String());
+    strcpy(portStr, rs2.C_String());
     recvFromStruct->systemAddress.SetPortHostOrder(atoi(portStr));
     recvFromStruct->timeRead = RakNet::GetTimeUS();
     recvFromStruct->socket   = rns2;
     eventHandler->OnRNS2Recv(recvFromStruct);
 
     /*
-  if (outputStream != nullptr)
-  {
-    EchoMessage(eventArguments);
-    return;
-  }
-
-
-  // We do not have an output stream yet so create one.
-  task<IOutputStream^>(socket->GetOutputStreamAsync(eventArguments->RemoteAddress,
-  eventArguments->RemotePort)).then([this, socket, eventArguments] (IOutputStream^
-  stream)
-  {
-    // It might happen that the OnMessage was invoked more than once before the
-  GetOutputStreamAsync completed.
-    // In this case we will end up with multiple streams - make sure we have just
-  one of it. EnterCriticalSection(&lock);
-
-    if (outputStream == nullptr)
+    if (outputStream != nullptr)
     {
-        outputStream = stream;
-        hostName = eventArguments->RemoteAddress;
-        port = eventArguments->RemotePort;
+        EchoMessage(eventArguments);
+        return;
     }
 
-    LeaveCriticalSection(&lock);
 
-    EchoMessage(eventArguments);
-  }).then([this, socket, eventArguments] (task<void> previousTask)
-  {
-    try
+    // We do not have an output stream yet so create one.
+    task<IOutputStream^>(socket->GetOutputStreamAsync(eventArguments->RemoteAddress,
+    eventArguments->RemotePort)).then([this, socket, eventArguments] (IOutputStream^ stream)
     {
-        // Try getting all exceptions from the continuation chain above this
-  point. previousTask.get();
-    }
-    catch (Exception^ exception)
+        // It might happen that the OnMessage was invoked more than once before the GetOutputStreamAsync completed.
+        // In this case we will end up with multiple streams - make sure we have just one of it.
+        EnterCriticalSection(&lock);
+
+        if (outputStream == nullptr)
+        {
+            outputStream = stream;
+            hostName = eventArguments->RemoteAddress;
+            port = eventArguments->RemotePort;
+        }
+
+        LeaveCriticalSection(&lock);
+
+        EchoMessage(eventArguments);
+    }).then([this, socket, eventArguments] (task<void> previousTask)
     {
-    //    NotifyUserFromAsyncThread("Getting an output stream failed with error: "
-  + exception->Message, NotifyType::ErrorMessage);
-    }
-  });
+        try
+        {
+            // Try getting all exceptions from the continuation chain above this point.
+            previousTask.get();
+        }
+        catch (Exception^ exception)
+        {
+        //    NotifyUserFromAsyncThread("Getting an output stream failed with error: " + exception->Message,
+    NotifyType::ErrorMessage);
+        }
+    });
     */
 }
 void ListenerContext::EchoMessage(DatagramSocketMessageReceivedEventArgs ^ eventArguments) {}
@@ -292,8 +288,8 @@ RNS2SendResult RNS2_WindowsStore8::Send(RNS2_SendParameters* sendParameters, con
         ref new Platform::Array<BYTE>((unsigned char*)sendParameters->data, (UINT)sendParameters->length);
     outputStreamAndDataWriter->dataWriter->WriteBytes(platformBuffer);
 
-    // Write the locally buffered data to the network. Please note that write
-    // operation will succeed
+
+    // Write the locally buffered data to the network. Please note that write operation will succeed
     // even if the server is not listening.
     task<unsigned int>(outputStreamAndDataWriter->dataWriter->StoreAsync()).then([&](task<unsigned int> writeTask) {
         try {
@@ -301,11 +297,9 @@ RNS2SendResult RNS2_WindowsStore8::Send(RNS2_SendParameters* sendParameters, con
             //       writeTask.get();
             //       SendOutput->Style =
             //       dynamic_cast<Windows::UI::Xaml::Style^>(rootPage->Resources->Lookup("StatusStyle"));
-            //       SendOutput->Text = "\"" + stringToSend + "\" sent
-            //       successfully";
+            //       SendOutput->Text = "\"" + stringToSend + "\" sent successfully";
         } catch (Exception ^ exception) {
-            //   rootPage->NotifyUser("Send failed with error: " +
-            //   exception->Message, NotifyType::ErrorMessage);
+            //   rootPage->NotifyUser("Send failed with error: " + exception->Message, NotifyType::ErrorMessage);
             OutputDebugStringW(exception->Message->Data());
         }
     });
@@ -326,16 +320,15 @@ void RNS2_WindowsStore8::DomainNameToIP(const char* domainName, char ip[65]) {
 
     //	DatagramSocket ^listener = ref new DatagramSocket();
 
-    //	task<void> bindOp(listener->BindServiceNameAsync(ref new
-    // Platform::String())); bindOp.wait();
+
+    //	task<void> bindOp(listener->BindServiceNameAsync(ref new Platform::String()));
+    // bindOp.wait();
 
     HostName ^ hostName = ref new HostName(ref new Platform::String(w_char));
-    // HostName ^hostName = ref new HostName(ref new
-    // Platform::String(L"microsoft.com")); HostName ^hostName = ref new
-    // HostName(ref new Platform::String(L"127.0.0.1")); task<
-    // Windows::Foundation::Collections::IVectorView<EndpointPair^>^ >
-    // op(listener->GetEndpointPairsAsync(hostName, L"42"));
-    // listener->GetEndpointPairsAsync(hostName, L"42");
+    // HostName ^hostName = ref new HostName(ref new Platform::String(L"microsoft.com"));
+    // HostName ^hostName = ref new HostName(ref new Platform::String(L"127.0.0.1"));
+    // task< Windows::Foundation::Collections::IVectorView<EndpointPair^>^ >
+    // op(listener->GetEndpointPairsAsync(hostName, L"42")); listener->GetEndpointPairsAsync(hostName, L"42");
     //  task< Windows::Foundation::Collections::IVectorView<EndpointPair^>^ >
     //  op(DatagramSocket::GetEndpointPairsAsync(hostName, L"42"));
 
@@ -354,7 +347,7 @@ void RNS2_WindowsStore8::DomainNameToIP(const char* domainName, char ip[65]) {
                 Platform::String ^ name = result2->GetAt(0)->RemoteHostName->DisplayName;
                 RakString rs2;
                 rs2.FromWideChar(name->Data());
-                snprintf(ip, 65, "%s", rs2.C_String());
+                strcpy(ip, rs2.C_String());
             } else {
                 ip[0] = 0;
             }
@@ -368,40 +361,41 @@ void RNS2_WindowsStore8::DomainNameToIP(const char* domainName, char ip[65]) {
     /*
     op->Completed = ref new AsyncOperationCompletedHandler<
     Windows::Foundation::Collections::IVectorView<EndpointPair^>^ >(
-            [](IAsyncOperation<
-    Windows::Foundation::Collections::IVectorView<EndpointPair^>^ >^ operation)
-         {
-            operation->GetResults();
+        [](IAsyncOperation< Windows::Foundation::Collections::IVectorView<EndpointPair^>^ >^ operation)
+             {
+                operation->GetResults();
 
-         });
-                     */
+             });
+             */
+
 
     //	RakSleep(10000);
     /*
     try
     {
-            op.wait();
+        op.wait();
     }
     catch (Exception^ exception)
-  {
-            int a=5;
-  }
+    {
+        int a=5;
+    }
     Windows::Foundation::Collections::IVectorView<EndpointPair^>^view = op.get();
     if (view->Size>0)
     {
-            Platform::String ^name = view->GetAt(0)->RemoteHostName->DisplayName;
-            RakString rs2;
-            rs2.FromWideChar(name->Data());
-            // legacy copy omitted in archived code path
+        Platform::String ^name = view->GetAt(0)->RemoteHostName->DisplayName;
+        RakString rs2;
+        rs2.FromWideChar(name->Data());
+        strcpy(ip, rs2.C_String());
     }
     else
     {
-            ip[0]=0;
+        ip[0]=0;
     }
     */
 
     rs.DeallocWideChar(w_char);
 }
+
 
 int RNS2_WindowsStore8::WinRTInet_Addr(const char* str) {
     int           parts[4];

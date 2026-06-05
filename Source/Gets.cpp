@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -16,10 +16,7 @@ extern "C" {
 #endif
 
 char* Gets(char* str, int num) {
-    if (fgets(str, num, stdin) == 0) {
-        if (num > 0) str[0] = 0;
-        return str;
-    }
+    fgets(str, num, stdin);
     if (str[0] == '\n' || str[0] == '\r') str[0] = 0;
 
     size_t len = strlen(str);

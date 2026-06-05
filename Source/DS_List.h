@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -11,9 +11,10 @@
 /// \file DS_List.h
 /// \internal
 /// \brief Array based list.
-/// \details Usually the Queue class is used instead, since it has all the same
-/// functionality and is only worse at random access.
+/// \details Usually the Queue class is used instead, since it has all the same functionality and is only worse at
+/// random access.
 ///
+
 
 #ifndef __LIST_H
 #define __LIST_H
@@ -26,15 +27,13 @@
 /// Maximum unsigned long
 static const unsigned int MAX_UNSIGNED_LONG = 4294967295U;
 
-/// The namespace DataStructures was only added to avoid compiler errors for
-/// commonly named data structures As these data structures are stand-alone, you
-/// can use them outside of RakNet for your own projects if you wish.
+/// The namespace DataStructures was only added to avoid compiler errors for commonly named data structures
+/// As these data structures are stand-alone, you can use them outside of RakNet for your own projects if you wish.
 namespace DataStructures {
 /// \brief Array based implementation of a list.
-/// \note ONLY USE THIS FOR SHALLOW COPIES.  I don't bother with operator= to
-/// improve performance.
+/// \note ONLY USE THIS FOR SHALLOW COPIES.  I don't bother with operator= to improve performance.
 template <class list_type>
-class RAK_DLL_EXPORT List {
+class RAKNET_API List {
 public:
     /// Default constructor
     List();
@@ -78,8 +77,8 @@ public:
     void Insert(const list_type& input, const char* file, unsigned int line);
 
     /// \brief Replace the value at \a position by \a input.
-    /// \details If the size of the list is less than @em position, it increase
-    /// the capacity of the list and fill slot with @em filler.
+    /// \details If the size of the list is less than @em position, it increase the capacity of
+    /// the list and fill slot with @em filler.
     /// \param[in] input The element to replace at position @em position.
     /// \param[in] filler The element use to fill new allocated capacity.
     /// \param[in] position The position of input in the list.
@@ -100,16 +99,14 @@ public:
     void RemoveAtIndex(const unsigned int position);
 
     /// \brief Delete the element at position \a position.
-    /// \note - swaps middle with end of list, only use if list order does not
-    /// matter
+    /// \note - swaps middle with end of list, only use if list order does not matter
     /// \param[in] position The index of the element to delete
     void RemoveAtIndexFast(const unsigned int position);
 
     /// \brief Delete the element at the end of the list.
     void RemoveFromEnd(const unsigned num = 1);
 
-    /// \brief Returns the index of the specified item or MAX_UNSIGNED_LONG if not
-    /// found.
+    /// \brief Returns the index of the specified item or MAX_UNSIGNED_LONG if not found.
     /// \param[in] input The element to check for
     /// \return The index or position of @em input in the list.
     /// \retval MAX_UNSIGNED_LONG The object is not in the list
@@ -152,6 +149,7 @@ List<list_type>::~List() {
     if (allocation_size > 0) RakNet::OP_DELETE_ARRAY(listArray, _FILE_AND_LINE_);
 }
 
+
 template <class list_type>
 List<list_type>::List(const List& original_copy) {
     // Allocate memory for copy
@@ -166,8 +164,7 @@ List<list_type>::List(const List& original_copy) {
             listArray[counter] = original_copy.listArray[counter];
 
         // Don't call constructors, assignment operators, etc.
-        // memcpy(listArray, original_copy.listArray,
-        // original_copy.list_size*sizeof(list_type));
+        // memcpy(listArray, original_copy.listArray, original_copy.list_size*sizeof(list_type));
 
         list_size = allocation_size = original_copy.list_size;
     }
@@ -191,8 +188,7 @@ List<list_type>& List<list_type>::operator=(const List& original_copy) {
             for (unsigned int counter = 0; counter < original_copy.list_size; ++counter)
                 listArray[counter] = original_copy.listArray[counter];
             // Don't call constructors, assignment operators, etc.
-            // memcpy(listArray, original_copy.listArray,
-            // original_copy.list_size*sizeof(list_type));
+            // memcpy(listArray, original_copy.listArray, original_copy.list_size*sizeof(list_type));
 
             list_size = allocation_size = original_copy.list_size;
         }
@@ -200,6 +196,7 @@ List<list_type>& List<list_type>::operator=(const List& original_copy) {
 
     return *this;
 }
+
 
 template <class list_type>
 inline list_type& List<list_type>::operator[](const unsigned int position) const {
@@ -265,14 +262,14 @@ void List<list_type>::Insert(const list_type& input, const unsigned int position
     for (unsigned int counter = list_size; counter != position; counter--) listArray[counter] = listArray[counter - 1];
 
     // Don't call constructors, assignment operators, etc.
-    // memmove(listArray+position+1, listArray+position,
-    // (list_size-position)*sizeof(list_type));
+    // memmove(listArray+position+1, listArray+position, (list_size-position)*sizeof(list_type));
 
     // Insert the new item at the correct spot
     listArray[position] = input;
 
     ++list_size;
 }
+
 
 template <class list_type>
 void List<list_type>::Insert(const list_type& input, const char* file, unsigned int line) {
@@ -372,8 +369,7 @@ void List<list_type>::RemoveAtIndex(const unsigned int position) {
         for (unsigned int counter = position; counter < list_size - 1; ++counter)
             listArray[counter] = listArray[counter + 1];
         // Don't call constructors, assignment operators, etc.
-        // memmove(listArray+position, listArray+position+1, (list_size-1-position)
-        // * sizeof(list_type));
+        // memmove(listArray+position, listArray+position+1, (list_size-1-position) * sizeof(list_type));
 
         RemoveFromEnd();
     }

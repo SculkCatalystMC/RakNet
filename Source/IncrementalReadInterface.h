@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -16,7 +16,7 @@
 
 namespace RakNet {
 
-class RAK_DLL_EXPORT IncrementalReadInterface {
+class RAKNET_API IncrementalReadInterface {
 public:
     IncrementalReadInterface() {}
     virtual ~IncrementalReadInterface() {}
@@ -24,10 +24,9 @@ public:
     /// Read part of a file into \a destination
     /// Return the number of bytes written. Return 0 when file is done.
     /// \param[in] filename Filename to read
-    /// \param[in] startReadBytes What offset from the start of the file to read
-    /// from
-    /// \param[in] numBytesToRead How many bytes to read. This is also how many
-    /// bytes have been allocated to preallocatedDestination
+    /// \param[in] startReadBytes What offset from the start of the file to read from
+    /// \param[in] numBytesToRead How many bytes to read. This is also how many bytes have been allocated to
+    /// preallocatedDestination
     /// \param[out] preallocatedDestination Write your data here
     /// \return The number of bytes read, or 0 if none
     virtual unsigned int GetFilePart(

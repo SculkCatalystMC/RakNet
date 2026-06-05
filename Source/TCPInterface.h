@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -9,9 +9,9 @@
  */
 
 /// \file
-/// \brief A simple TCP based server allowing sends and receives.  Can be
-/// connected by any TCP client, including telnet.
+/// \brief A simple TCP based server allowing sends and receives.  Can be connected by any TCP client, including telnet.
 ///
+
 
 #include "NativeFeatureIncludes.h"
 #if _RAKNET_SUPPORT_TCPInterface == 1
@@ -46,9 +46,8 @@ namespace RakNet {
 struct RemoteClient;
 
 /// \internal
-/// \brief As the name says, a simple multithreaded TCP server.  Used by
-/// TelnetTransport
-class RAK_DLL_EXPORT TCPInterface {
+/// \brief As the name says, a simple multithreaded TCP server.  Used by TelnetTransport
+class RAKNET_API TCPInterface {
 public:
     // GetInstance() and DestroyInstance(instance*)
     STATIC_FACTORY_DECLARATIONS(TCPInterface)
@@ -60,13 +59,11 @@ public:
     /// Starts the TCP server on the indicated port
     /// \param[in] port Which port to listen on.
     /// \param[in] maxIncomingConnections Max incoming connections we will accept
-    /// \param[in] maxConnections Max total connections, which should be >=
-    /// maxIncomingConnections
-    /// \param[in] threadPriority Passed to the thread creation routine. Use
-    /// THREAD_PRIORITY_NORMAL for Windows. For Linux based systems, you MUST pass
-    /// something reasonable based on the thread priorities for your application.
-    /// \param[in] socketFamily IP version: For IPV4, use AF_INET (default). For
-    /// IPV6, use AF_INET6. To autoselect, use AF_UNSPEC.
+    /// \param[in] maxConnections Max total connections, which should be >= maxIncomingConnections
+    /// \param[in] threadPriority Passed to the thread creation routine. Use THREAD_PRIORITY_NORMAL for Windows. For
+    /// Linux based systems, you MUST pass something reasonable based on the thread priorities for your application.
+    /// \param[in] socketFamily IP version: For IPV4, use AF_INET (default). For IPV6, use AF_INET6. To autoselect, use
+    /// AF_UNSPEC.
     bool Start(
         unsigned short port,
         unsigned short maxIncomingConnections,
@@ -89,8 +86,7 @@ public:
     );
 
 #if OPEN_SSL_CLIENT_SUPPORT == 1
-    /// Start SSL on an existing connection, notified with
-    /// HasCompletedConnectionAttempt
+    /// Start SSL on an existing connection, notified with HasCompletedConnectionAttempt
     void StartSSLClient(SystemAddress systemAddress);
 
     /// Was SSL started on this socket?
@@ -109,8 +105,7 @@ public:
         bool                 broadcast
     );
 
-    // Get how many bytes are waiting to be sent. If too many, you may want to
-    // skip sending
+    // Get how many bytes are waiting to be sent. If too many, you may want to skip sending
     unsigned int GetOutgoingDataBufferSize(SystemAddress systemAddress) const;
 
     /// Returns if Receive() will return data
@@ -126,13 +121,11 @@ public:
     /// Deallocates a packet returned by Receive
     void DeallocatePacket(Packet* packet);
 
-    /// Fills the array remoteSystems with the SystemAddress of all the systems we
-    /// are connected to
-    /// \param[out] remoteSystems An array of SystemAddress structures to be
-    /// filled with the SystemAddresss of the systems we are connected to. Pass 0
-    /// to remoteSystems to only get the number of systems we are connected to
-    /// \param[in, out] numberOfSystems As input, the size of remoteSystems array.
-    /// As output, the number of elements put into the array
+    /// Fills the array remoteSystems with the SystemAddress of all the systems we are connected to
+    /// \param[out] remoteSystems An array of SystemAddress structures to be filled with the SystemAddresss of the
+    /// systems we are connected to. Pass 0 to remoteSystems to only get the number of systems we are connected to
+    /// \param[in, out] numberOfSystems As input, the size of remoteSystems array.  As output, the number of elements
+    /// put into the array
     void GetConnectionList(SystemAddress* remoteSystems, unsigned short* numberOfSystems) const;
 
     /// Returns just the number of connections we have
@@ -202,19 +195,17 @@ protected:
     /*
     struct OutgoingMessage
     {
-            unsigned char* data;
-            SystemAddress systemAddress;
-            bool broadcast;
-            unsigned int length;
+        unsigned char* data;
+        SystemAddress systemAddress;
+        bool broadcast;
+        unsigned int length;
     };
     */
-    //	DataStructures::SingleProducerConsumer<OutgoingMessage>
-    // outgoingMessages; 	DataStructures::SingleProducerConsumer<Packet>
-    // incomingMessages; 	DataStructures::SingleProducerConsumer<SystemAddress>
-    // newIncomingConnections, lostConnections, requestedCloseConnections;
-    //	DataStructures::SingleProducerConsumer<RemoteClient*> newRemoteClients;
-    //	DataStructures::ThreadsafeAllocatingQueue<OutgoingMessage>
-    // outgoingMessages;
+    //	DataStructures::SingleProducerConsumer<OutgoingMessage> outgoingMessages;
+    //	DataStructures::SingleProducerConsumer<Packet> incomingMessages;
+    //	DataStructures::SingleProducerConsumer<SystemAddress> newIncomingConnections, lostConnections,
+    // requestedCloseConnections; 	DataStructures::SingleProducerConsumer<RemoteClient*> newRemoteClients;
+    //	DataStructures::ThreadsafeAllocatingQueue<OutgoingMessage> outgoingMessages;
     DataStructures::ThreadsafeAllocatingQueue<Packet>        incomingMessages;
     DataStructures::ThreadsafeAllocatingQueue<SystemAddress> newIncomingConnections, lostConnections,
         requestedCloseConnections;
@@ -227,11 +218,12 @@ protected:
     DataStructures::List<__TCPSOCKET__> blockingSocketList;
     SimpleMutex                         blockingSocketListMutex;
 
+
     friend RAK_THREAD_DECLARATION(UpdateTCPInterfaceLoop);
     friend RAK_THREAD_DECLARATION(ConnectionAttemptLoop);
 
-    //	void DeleteRemoteClient(RemoteClient *remoteClient, fd_set
-    //*exceptionFD); 	void InsertRemoteClient(RemoteClient* remoteClient);
+    //	void DeleteRemoteClient(RemoteClient *remoteClient, fd_set *exceptionFD);
+    //	void InsertRemoteClient(RemoteClient* remoteClient);
     __TCPSOCKET__
     SocketConnect(const char* host, unsigned short remotePort, unsigned short socketFamily, const char* bindAddress);
 

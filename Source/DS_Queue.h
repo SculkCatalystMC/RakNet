@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -13,6 +13,7 @@
 /// \brief A queue used by RakNet.
 ///
 
+
 #ifndef __QUEUE_H
 #define __QUEUE_H
 
@@ -21,24 +22,22 @@
 #include "RakAssert.h"
 #include "RakMemoryOverride.h"
 
-/// The namespace DataStructures was only added to avoid compiler errors for
-/// commonly named data structures As these data structures are stand-alone, you
-/// can use them outside of RakNet for your own projects if you wish.
+/// The namespace DataStructures was only added to avoid compiler errors for commonly named data structures
+/// As these data structures are stand-alone, you can use them outside of RakNet for your own projects if you wish.
 namespace DataStructures {
 /// \brief A queue implemented as an array with a read and write index.
 template <class queue_type>
-class RAK_DLL_EXPORT Queue {
+class RAKNET_API Queue {
 public:
     Queue();
     ~Queue();
     Queue(Queue& original_copy);
-    bool        operator=(const Queue& original_copy);
-    void        Push(const queue_type& input, const char* file, unsigned int line);
-    void        PushAtHead(const queue_type& input, unsigned index, const char* file, unsigned int line);
-    queue_type& operator[](unsigned int position) const; // Not a normal thing you do with a queue
-                                                         // but can be used for efficiency
-    void RemoveAtIndex(unsigned int position);           // Not a normal thing you do with a
-                                                         // queue but can be used for efficiency
+    bool operator=(const Queue& original_copy);
+    void Push(const queue_type& input, const char* file, unsigned int line);
+    void PushAtHead(const queue_type& input, unsigned index, const char* file, unsigned int line);
+    queue_type&
+    operator[](unsigned int position) const;   // Not a normal thing you do with a queue but can be used for efficiency
+    void RemoveAtIndex(unsigned int position); // Not a normal thing you do with a queue but can be used for efficiency
     inline queue_type Peek(void) const;
     inline queue_type PeekTail(void) const;
     inline queue_type Pop(void);
@@ -64,6 +63,7 @@ private:
     unsigned int allocation_size;
 };
 
+
 template <class queue_type>
 inline unsigned int Queue<queue_type>::Size(void) const {
     if (head <= tail) return tail - head;
@@ -83,8 +83,7 @@ inline unsigned int Queue<queue_type>::AllocationSize(void) const {
 template <class queue_type>
 Queue<queue_type>::Queue() {
     // allocation_size = 16;
-    // array = RakNet::OP_NEW_ARRAY<queue_type>(allocation_size, _FILE_AND_LINE_
-    // );
+    // array = RakNet::OP_NEW_ARRAY<queue_type>(allocation_size, _FILE_AND_LINE_ );
     allocation_size = 0;
     array           = 0;
     head            = 0;
@@ -171,6 +170,7 @@ void Queue<queue_type>::PushAtHead(const queue_type& input, unsigned index, cons
 
     array[trueWriteIndex] = input;
 }
+
 
 template <class queue_type>
 inline queue_type Queue<queue_type>::Peek(void) const {
@@ -302,8 +302,7 @@ void Queue<queue_type>::Compress(const char* file, unsigned int line) {
 
     newAllocationSize = 1;
     while (newAllocationSize <= Size())
-        newAllocationSize <<= 1; // Must be a better way to do this but I'm too dumb
-                                 // to figure it out quickly :)
+        newAllocationSize <<= 1; // Must be a better way to do this but I'm too dumb to figure it out quickly :)
 
     new_array = RakNet::OP_NEW_ARRAY<queue_type>(newAllocationSize, file, line);
 

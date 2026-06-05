@@ -1,6 +1,6 @@
 /**
- * Original file by the_viking, fixed by R√¥mulo Fernandes, fixed by Emmanuel
- * Nars Should emulate windows finddata structure
+ * Original file by the_viking, fixed by R√¥mulo Fernandes, fixed by Emmanuel Nars
+ * Should emulate windows finddata structure
  */
 #if (defined(__GNUC__) || defined(__GCCXML__)) && !defined(_WIN32)
 #include "_FindFirst.h"
@@ -9,6 +9,7 @@
 #include <sys/stat.h>
 
 #include <fnmatch.h>
+
 
 static DataStructures::List<_findinfo_t*> fileInfo;
 
@@ -54,6 +55,7 @@ long _findfirst(const char* name, _finddata_t* f) {
     else return ret;
 }
 
+
 int _findnext(long h, _finddata_t* f) {
     RakAssert(h >= 0 && h < (long)fileInfo.Size());
     if (h < 0 || h >= (long)fileInfo.Size()) return -1;
@@ -94,6 +96,7 @@ int _findnext(long h, _finddata_t* f) {
 
     return -1;
 }
+
 
 /**
  * _findclose - equivalent

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -89,11 +89,9 @@ bool CCRakNetSlidingWindow::ShouldSendACKs(CCTimeType curTime, CCTimeType estima
     CCTimeType rto = GetSenderRTOForACK();
     (void)estimatedTimeToNextTick;
 
-    // iphone crashes on comparison between double and int64
-    // http://www.jenkinssoftware.com/forum/index.php?topic=2717.0
+    // iphone crashes on comparison between double and int64 http://www.jenkinssoftware.com/forum/index.php?topic=2717.0
     if (rto == (CCTimeType)UNSET_TIME_US) {
-        // Unknown how long until the remote system will retransmit, so better send
-        // right away
+        // Unknown how long until the remote system will retransmit, so better send right away
         return true;
     }
 
@@ -145,8 +143,8 @@ bool CCRakNetSlidingWindow::OnGotPacket(
         *skippedMessageCount = datagramSequenceNumber - expectedNextSequenceNumber;
         // Sanity check, just use timeout resend if this was really valid
         if (*skippedMessageCount > 1000) {
-            // During testing, the nat punchthrough server got 51200 on the first
-            // packet. I have no idea where this comes from, but has happened twice
+            // During testing, the nat punchthrough server got 51200 on the first packet. I have no idea where this
+            // comes from, but has happened twice
             if (*skippedMessageCount > (uint32_t)50000) return false;
             *skippedMessageCount = 1000;
         }
@@ -163,10 +161,8 @@ void CCRakNetSlidingWindow::OnResend(CCTimeType curTime, RakNet::TimeUS nextActi
     (void)nextActionTime;
 
     if (_isContinuousSend && backoffThisBlock == false && cwnd > MAXIMUM_MTU_INCLUDING_UDP_HEADER * 2) {
-        // Spec says 1/2 cwnd, but it never recovers because cwnd increases too
-        // slowly
-        // ssThresh=cwnd-8.0 *
-        // (MAXIMUM_MTU_INCLUDING_UDP_HEADER*MAXIMUM_MTU_INCLUDING_UDP_HEADER/cwnd);
+        // Spec says 1/2 cwnd, but it never recovers because cwnd increases too slowly
+        // ssThresh=cwnd-8.0 * (MAXIMUM_MTU_INCLUDING_UDP_HEADER*MAXIMUM_MTU_INCLUDING_UDP_HEADER/cwnd);
         ssThresh = cwnd / 2;
         if (ssThresh < MAXIMUM_MTU_INCLUDING_UDP_HEADER) ssThresh = MAXIMUM_MTU_INCLUDING_UDP_HEADER;
         cwnd = MAXIMUM_MTU_INCLUDING_UDP_HEADER;
@@ -293,6 +289,7 @@ CCTimeType CCRakNetSlidingWindow::GetRTOForRetransmission(unsigned char timesSen
     const CCTimeType additionalVariance = 30000;
 #endif
 
+
     if (estimatedRTT == UNSET_TIME_US) return maxThreshold;
 
     // double u=1.0f;
@@ -325,14 +322,14 @@ double CCRakNetSlidingWindow::GetRTT(void) const {
 bool CCRakNetSlidingWindow::GreaterThan(DatagramSequenceNumberType a, DatagramSequenceNumberType b) {
     // a > b?
     const DatagramSequenceNumberType halfSpan =
-        static_cast<DatagramSequenceNumberType>(0xFFFFFFFFu) / static_cast<DatagramSequenceNumberType>(2);
+        (DatagramSequenceNumberType)(((DatagramSequenceNumberType)(const uint32_t)-1) / (DatagramSequenceNumberType)2);
     return b != a && b - a > halfSpan;
 }
 // ----------------------------------------------------------------------------------------------------------------------------
 bool CCRakNetSlidingWindow::LessThan(DatagramSequenceNumberType a, DatagramSequenceNumberType b) {
     // a < b?
     const DatagramSequenceNumberType halfSpan =
-        static_cast<DatagramSequenceNumberType>(0xFFFFFFFFu) / static_cast<DatagramSequenceNumberType>(2);
+        ((DatagramSequenceNumberType)(const uint32_t)-1) / (DatagramSequenceNumberType)2;
     return b != a && b - a < halfSpan;
 }
 // ----------------------------------------------------------------------------------------------------------------------------

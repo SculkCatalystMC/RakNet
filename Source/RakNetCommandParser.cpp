@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -32,8 +32,7 @@ RakNetCommandParser::RakNetCommandParser() {
     RegisterCommand(
         4,
         "Startup",
-        "( unsigned int maxConnections, unsigned short localPort, "
-        "const char *forceHostAddress );"
+        "( unsigned int maxConnections, unsigned short localPort, const char *forceHostAddress );"
     );
     RegisterCommand(0, "InitializeSecurity", "();");
     RegisterCommand(0, "DisableSecurity", "( void );");
@@ -45,8 +44,7 @@ RakNetCommandParser::RakNetCommandParser() {
     RegisterCommand(
         4,
         "Connect",
-        "( const char* host, unsigned short remotePort, const char "
-        "*passwordData, int passwordDataLength );"
+        "( const char* host, unsigned short remotePort, const char *passwordData, int passwordDataLength );"
     );
     RegisterCommand(2, "Disconnect", "( unsigned int blockDuration, unsigned char orderingChannel=0 );");
     RegisterCommand(0, "IsActive", "( void ) const;");
@@ -54,8 +52,7 @@ RakNetCommandParser::RakNetCommandParser() {
     RegisterCommand(
         3,
         "CloseConnection",
-        "( const SystemAddress target, bool sendDisconnectionNotification, "
-        "unsigned char orderingChannel=0 );"
+        "( const SystemAddress target, bool sendDisconnectionNotification, unsigned char orderingChannel=0 );"
     );
     RegisterCommand(2, "IsConnected", "( );");
     RegisterCommand(1, "GetIndexFromSystemAddress", "( const SystemAddress systemAddress );");
@@ -68,8 +65,7 @@ RakNetCommandParser::RakNetCommandParser() {
     RegisterCommand(
         3,
         "Ping2",
-        "( const char* host, unsigned short remotePort, bool "
-        "onlyReplyOnAcceptingConnections );"
+        "( const char* host, unsigned short remotePort, bool onlyReplyOnAcceptingConnections );"
     );
     RegisterCommand(1, "GetAveragePing", "( const SystemAddress systemAddress );");
     RegisterCommand(1, "GetLastPing", "( const SystemAddress systemAddress ) const;");
@@ -87,8 +83,7 @@ RakNetCommandParser::RakNetCommandParser() {
     RegisterCommand(
         4,
         "AdvertiseSystem",
-        "( const char *host, unsigned short remotePort, const char "
-        "*data, int dataLength );"
+        "( const char *host, unsigned short remotePort, const char *data, int dataLength );"
     );
     RegisterCommand(2, "SetIncomingPassword", "( const char* passwordData, int passwordDataLength );");
     RegisterCommand(0, "GetIncomingPassword", "( void );");
@@ -112,7 +107,7 @@ bool RakNetCommandParser::OnCommand(
     if (strcmp(command, "Startup") == 0) {
         RakNet::SocketDescriptor socketDescriptor((unsigned short)atoi(parameterList[1]), parameterList[2]);
         ReturnResult(
-            static_cast<int>(peer->Startup((unsigned short)atoi(parameterList[0]), &socketDescriptor, 1)),
+            peer->Startup((unsigned short)atoi(parameterList[0]), &socketDescriptor, 1),
             command,
             transport,
             systemAddress
@@ -226,8 +221,8 @@ bool RakNetCommandParser::OnCommand(
     /*
     else if (strcmp(command, "SetMTUSize")==0)
     {
-            ReturnResult(peer->SetMTUSize(atoi(parameterList[0]),
-    UNASSIGNED_SYSTEM_ADDRESS), command, transport, systemAddress);
+        ReturnResult(peer->SetMTUSize(atoi(parameterList[0]), UNASSIGNED_SYSTEM_ADDRESS), command, transport,
+    systemAddress);
     }
     */
     else if (strcmp(command, "GetMTUSize") == 0) {

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -8,77 +8,98 @@
  *
  */
 
+
 #include "EmptyHeader.h"
+
+#ifndef _WIN32
+#include <netdb.h>
+#endif
 
 #ifdef RAKNET_SOCKET_2_INLINE_FUNCTIONS
 
 #ifndef RAKNETSOCKET2_BERKLEY_NATIVE_CLIENT_CPP
 #define RAKNETSOCKET2_BERKLEY_NATIVE_CLIENT_CPP
 
-// Every platform except windows store 8 and native client supports Berkley
-// sockets
+// Every platform except windows store 8 and native client supports Berkley sockets
 #if !defined(WINDOWS_STORE_RT)
-
-#if !defined(_WIN32)
-#include <netdb.h>
-#endif
 
 #include "Itoa.h"
 
 // Shared on most platforms, but excluded from the listed
 
+
 void DomainNameToIP_Berkley_IPV4And6(const char* domainName, char ip[65]) {
 #if RAKNET_SUPPORT_IPV6 == 1
-    struct addrinfo hints, *res, *p;
-    int             status;
-    memset(&hints, 0, sizeof hints);
-    hints.ai_family   = AF_UNSPEC; // AF_INET or AF_INET6 to force version
-    hints.ai_socktype = SOCK_DGRAM;
+    // Ensure the output buffer is always initialized.
+    const size_t IP_BUFFER_SIZE = 65;
+    memset(ip, 0, IP_BUFFER_SIZE);
 
-    if ((status = getaddrinfo(domainName, NULL, &hints, &res)) != 0) {
-        memset(ip, 0, 65);
+    if (domainName == nullptr || domainName[0] == '\0') {
         return;
     }
 
-    p = res;
-    // get the pointer to the address itself,
-    // different fields in IPv4 and IPv6:
-    if (p->ai_family == AF_INET) {
-        struct sockaddr_in* ipv4 = (struct sockaddr_in*)p->ai_addr;
-        if (inet_ntop(AF_INET, &(ipv4->sin_addr), ip, 65) == 0) {
-            memset(ip, 0, 65 * sizeof(char));
-        }
-    } else {
-        // TODO - test
-        struct sockaddr_in6* ipv6 = (struct sockaddr_in6*)p->ai_addr;
-        if (inet_ntop(AF_INET6, &(ipv6->sin6_addr), ip, 65) == 0) {
-            memset(ip, 0, 65 * sizeof(char));
-        }
+    struct addrinfo hints, *res = nullptr, *p = nullptr;
+    int             status;
+
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family   = AF_UNSPEC; // Support both IPv4 and IPv6.
+    hints.ai_socktype = SOCK_DGRAM;
+    hints.ai_flags    = AI_ADDRCONFIG; // Return address families available on this host.
+
+    status = getaddrinfo(domainName, NULL, &hints, &res);
+    if (status != 0 || res == nullptr) {
+        return;
     }
-    freeaddrinfo(res); // free the linked list
+
+    // Iterate all returned addresses.
+    for (p = res; p != nullptr; p = p->ai_next) {
+        if (p->ai_family == AF_INET) {
+            // IPv4 handling.
+            struct sockaddr_in* ipv4 = (struct sockaddr_in*)p->ai_addr;
+            inet_ntop(AF_INET, &(ipv4->sin_addr), ip, IP_BUFFER_SIZE);
+            break; // Use the first IPv4 address.
+        }
+#if RAKNET_SUPPORT_IPV6 == 1
+        else if (p->ai_family == AF_INET6) {
+            // IPv6 handling.
+            struct sockaddr_in6* ipv6 = (struct sockaddr_in6*)p->ai_addr;
+            inet_ntop(AF_INET6, &(ipv6->sin6_addr), ip, IP_BUFFER_SIZE);
+            break; // Use the first IPv6 address.
+        }
+#endif
+    }
+
+    freeaddrinfo(res);
 #else
+    // Fallback when IPv6 is not enabled.
     (void)domainName;
-    (void)ip;
-#endif // #if RAKNET_SUPPORT_IPV6==1
+    memset(ip, 0, 65);
+#endif
 }
+
 
 void DomainNameToIP_Berkley_IPV4(const char* domainName, char ip[65]) {
-    struct addrinfo hints, *res = 0;
-    memset(&hints, 0, sizeof(hints));
-    hints.ai_family   = AF_INET;
-    hints.ai_socktype = SOCK_DGRAM;
+    static struct in_addr addr;
+    memset(&addr, 0, sizeof(in_addr));
 
-    if (getaddrinfo(domainName, NULL, &hints, &res) != 0 || res == 0 || res->ai_addr == 0) {
+    // Use inet_addr instead? What is the difference?
+    struct hostent* phe = gethostbyname(domainName);
+
+    if (phe == 0 || phe->h_addr_list[0] == 0) {
+        // cerr << "Yow! Bad host lookup." << endl;
         memset(ip, 0, 65 * sizeof(char));
         return;
     }
 
-    const struct sockaddr_in* ipv4 = reinterpret_cast<const struct sockaddr_in*>(res->ai_addr);
-    if (inet_ntop(AF_INET, &(ipv4->sin_addr), ip, 65) == 0) {
+    if (phe->h_addr_list[0] == 0) {
         memset(ip, 0, 65 * sizeof(char));
+        return;
     }
-    freeaddrinfo(res);
+
+    memcpy(&addr, phe->h_addr_list[0], sizeof(struct in_addr));
+    strcpy(ip, inet_ntoa(addr));
 }
+
 
 void DomainNameToIP_Berkley(const char* domainName, char ip[65]) {
 #if RAKNET_SUPPORT_IPV6 == 1
@@ -87,6 +108,7 @@ void DomainNameToIP_Berkley(const char* domainName, char ip[65]) {
     return DomainNameToIP_Berkley_IPV4(domainName, ip);
 #endif
 }
+
 
 #endif // !defined(WINDOWS_STORE_RT) && !defined(__native_client__)
 

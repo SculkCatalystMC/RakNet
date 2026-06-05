@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -28,7 +28,7 @@
 namespace DataStructures {
 
 template <class structureType>
-class RAK_DLL_EXPORT ThreadsafeAllocatingQueue {
+class RAKNET_API ThreadsafeAllocatingQueue {
 public:
     // Queue operations
     void           Push(structureType* s);
@@ -156,6 +156,7 @@ unsigned int ThreadsafeAllocatingQueue<structureType>::Size(void) {
 }
 
 } // namespace DataStructures
+
 
 // #if defined(RMO_NEW_UNDEF_ALLOCATING_QUEUE)
 // #pragma pop_macro("new")

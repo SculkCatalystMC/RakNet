@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -12,6 +12,7 @@
 /// \internal
 /// \brief A queue implemented as a linked list.
 ///
+
 
 #ifndef __RANGE_LIST_H
 #define __RANGE_LIST_H
@@ -34,6 +35,7 @@ struct RangeNode {
     range_type maxIndex;
 };
 
+
 template <class range_type>
 int RangeNodeComp(const range_type& a, const RangeNode<range_type>& b) {
     if (a < b.minIndex) return -1;
@@ -42,7 +44,7 @@ int RangeNodeComp(const range_type& a, const RangeNode<range_type>& b) {
 }
 
 template <class range_type>
-class RAK_DLL_EXPORT RangeList {
+class RAKNET_API RangeList {
 public:
     RangeList();
     ~RangeList();
@@ -71,8 +73,7 @@ RangeList<range_type>::Serialize(RakNet::BitStream* in, RakNet::BitSize_t maxBit
         unsigned char minEqualsMax;
         if (ranges[i].minIndex == ranges[i].maxIndex) minEqualsMax = 1;
         else minEqualsMax = 0;
-        tempBS.Write(minEqualsMax); // Use one byte, intead of one bit, for speed,
-                                    // as this is done a lot
+        tempBS.Write(minEqualsMax); // Use one byte, intead of one bit, for speed, as this is done a lot
         tempBS.Write(ranges[i].minIndex);
         bitsWritten += sizeof(range_type) * 8 + 8;
         if (ranges[i].minIndex != ranges[i].maxIndex) {
@@ -88,8 +89,7 @@ RangeList<range_type>::Serialize(RakNet::BitStream* in, RakNet::BitSize_t maxBit
     bitsWritten += in->GetWriteOffset() - before;
     //	RAKNET_DEBUG_PRINTF("%i ", in->GetNumberOfBitsUsed());
     in->Write(&tempBS, tempBS.GetNumberOfBitsUsed());
-    //	RAKNET_DEBUG_PRINTF("%i %i \n",
-    // tempBS.GetNumberOfBitsUsed(),in->GetNumberOfBitsUsed());
+    //	RAKNET_DEBUG_PRINTF("%i %i \n", tempBS.GetNumberOfBitsUsed(),in->GetNumberOfBitsUsed());
 
     if (clearSerialized && countWritten) {
         unsigned rangeSize = ranges.Size();
@@ -118,6 +118,7 @@ bool RangeList<range_type>::Deserialize(RakNet::BitStream* out) {
             if (out->Read(max) == false) return false;
             if (max < min) return false;
         } else max = min;
+
 
         ranges.InsertAtEnd(RangeNode<range_type>(min, max), _FILE_AND_LINE_);
     }

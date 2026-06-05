@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -32,6 +32,7 @@ int _strnicmp(const char* s1, const char* s2, size_t n);
 #ifndef __APPLE__
 char* _strlwr(char* str); // this won't compile on OSX for some reason
 #endif
+
 
 #endif
 #endif

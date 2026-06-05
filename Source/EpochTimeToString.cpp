@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -7,6 +7,7 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  *
  */
+
 
 #include "EpochTimeToString.h"
 #include "FormatString.h"
@@ -23,17 +24,10 @@ char* EpochTimeToString(long long time) {
 
     if (++textIndex == 4) textIndex = 0;
 
-    time_t t = time;
-#if defined(_WIN32)
-    struct tm timeinfo;
-    localtime_s(&timeinfo, &t);
-    strftime(text[textIndex], 64, "%c.", &timeinfo);
-#else
-    struct tm  timeinfo;
-    struct tm* timeinfoPtr = localtime_r(&t, &timeinfo);
-    if (timeinfoPtr) strftime(text[textIndex], 64, "%c.", timeinfoPtr);
-    else text[textIndex][0] = 0;
-#endif
+    struct tm* timeinfo;
+    time_t     t = time;
+    timeinfo     = localtime(&t);
+    strftime(text[textIndex], 64, "%c.", timeinfo);
 
     /*
     time_t
@@ -42,10 +36,9 @@ char* EpochTimeToString(long long time) {
     newtime = _localtime64(& time);
     asctime_s( text[textIndex], sizeof(text[textIndex]), newtime );
 
-    while (text[textIndex][0] && (text[textIndex][strlen(text[textIndex])-1]=='\n'
-    || text[textIndex][strlen(text[textIndex])-1]=='\r'))
-            text[textIndex][strlen(text[textIndex])-1]=0;
-            */
+    while (text[textIndex][0] && (text[textIndex][strlen(text[textIndex])-1]=='\n' ||
+    text[textIndex][strlen(text[textIndex])-1]=='\r')) text[textIndex][strlen(text[textIndex])-1]=0;
+        */
 
     return text[textIndex];
 }

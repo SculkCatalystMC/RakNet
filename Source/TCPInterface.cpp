@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -8,19 +8,21 @@
  *
  */
 
+
 #include "NativeFeatureIncludes.h"
 #if _RAKNET_SUPPORT_TCPInterface == 1
 
 /// \file
-/// \brief A simple TCP based server allowing sends and receives.  Can be
-/// connected to by a telnet client.
+/// \brief A simple TCP based server allowing sends and receives.  Can be connected to by a telnet client.
 ///
+
 
 #include "TCPInterface.h"
 #ifdef _WIN32
 #if !defined(WINDOWS_STORE_RT)
 typedef int socklen_t;
 #endif
+
 
 #else
 #include <pthread.h>
@@ -50,14 +52,6 @@ namespace RakNet {
 RAK_THREAD_DECLARATION(UpdateTCPInterfaceLoop);
 RAK_THREAD_DECLARATION(ConnectionAttemptLoop);
 } // namespace RakNet
-
-namespace {
-#if RAKNET_SUPPORT_IPV6 != 1
-bool ParseIpv4Address(const char* text, in_addr* outAddress) {
-    return inet_pton(AF_INET, text, outAddress) == 1;
-}
-#endif
-}
 #ifdef _MSC_VER
 #pragma warning(push)
 #endif
@@ -113,7 +107,9 @@ bool TCPInterface::CreateListenSocket(
     memset(&serverAddress, 0, sizeof(sockaddr_in));
     serverAddress.sin_family = AF_INET;
     if (bindAddress && bindAddress[0]) {
-        if (!ParseIpv4Address(bindAddress, &serverAddress.sin_addr)) return false;
+
+
+        serverAddress.sin_addr.s_addr = inet_addr__(bindAddress);
 
     } else serverAddress.sin_addr.s_addr = INADDR_ANY;
 
@@ -192,8 +188,10 @@ bool TCPInterface::Start(
 
     if (threadPriority == -99999) {
 
+
 #if defined(_WIN32)
         threadPriority = 0;
+
 
 #else
         threadPriority = 1000;
@@ -206,6 +204,7 @@ bool TCPInterface::Start(
     remoteClientsLength = maxConnections;
     remoteClients       = RakNet::OP_NEW_ARRAY<RemoteClient>(maxConnections, _FILE_AND_LINE_);
 
+
     listenSocket = 0;
     if (maxIncomingConnections > 0) {
 #if defined(WINDOWS_STORE_RT)
@@ -215,10 +214,13 @@ bool TCPInterface::Start(
 #endif
     }
 
+
     // Start the update thread
     int errorCode;
 
+
     errorCode = RakNet::RakThread::Create(UpdateTCPInterfaceLoop, this, threadPriority);
+
 
     if (errorCode != 0) return false;
 
@@ -302,6 +304,7 @@ void TCPInterface::Stop(void) {
     activeSSLConnections.Clear(false, _FILE_AND_LINE_);
 #endif
 
+
 #endif // __native_client__
 }
 SystemAddress TCPInterface::Connect(
@@ -362,15 +365,14 @@ SystemAddress TCPInterface::Connect(
         ThisPtrPlusSysAddr* s = RakNet::OP_NEW<ThisPtrPlusSysAddr>(_FILE_AND_LINE_);
         s->systemAddress.FromStringExplicitPort(host, remotePort);
         s->systemAddress.systemIndex = (SystemIndex)newRemoteClientIndex;
-        if (bindAddress) {
-            snprintf(s->bindAddress, sizeof(s->bindAddress), "%s", bindAddress);
-        }
+        if (bindAddress) strcpy(s->bindAddress, bindAddress);
         else s->bindAddress[0] = 0;
         s->tcpInterface = this;
         s->socketFamily = socketFamily;
 
         // Start the connection thread
         int errorCode;
+
 
         errorCode = RakNet::RakThread::Create(ConnectionAttemptLoop, s, threadPriority);
 
@@ -444,6 +446,7 @@ bool TCPInterface::SendList(
         }
     }
 
+
     return true;
 }
 bool TCPInterface::ReceiveHasPackets(void) {
@@ -470,6 +473,7 @@ Packet* TCPInterface::Receive(void) {
         }
     }
 
+
     return outgoingPacket;
 }
 Packet* TCPInterface::ReceiveInt(void) {
@@ -480,6 +484,7 @@ Packet* TCPInterface::ReceiveInt(void) {
     if (tailPush.IsEmpty() == false) return tailPush.Pop();
     return 0;
 }
+
 
 void TCPInterface::AttachPlugin(PluginInterface2* plugin) {
     if (messageHandlerList.GetIndexOf(plugin) == MAX_UNSIGNED_LONG) {
@@ -515,16 +520,17 @@ void TCPInterface::CloseConnection(SystemAddress systemAddress) {
         remoteClients[systemAddress.systemIndex].SetActive(false);
         remoteClients[systemAddress.systemIndex].isActiveMutex.Unlock();
     } else {
-        for (int clientIndex = 0; clientIndex < remoteClientsLength; clientIndex++) {
-            remoteClients[clientIndex].isActiveMutex.Lock();
-            if (remoteClients[clientIndex].isActive && remoteClients[clientIndex].systemAddress == systemAddress) {
+        for (int j = 0; j < remoteClientsLength; j++) {
+            remoteClients[j].isActiveMutex.Lock();
+            if (remoteClients[j].isActive && remoteClients[j].systemAddress == systemAddress) {
                 remoteClients[systemAddress.systemIndex].SetActive(false);
-                remoteClients[clientIndex].isActiveMutex.Unlock();
+                remoteClients[j].isActiveMutex.Unlock();
                 break;
             }
-            remoteClients[clientIndex].isActiveMutex.Unlock();
+            remoteClients[j].isActiveMutex.Unlock();
         }
     }
+
 
 #if OPEN_SSL_CLIENT_SUPPORT == 1
     unsigned index = activeSSLConnections.GetIndexOf(systemAddress);
@@ -677,12 +683,12 @@ __TCPSOCKET__ TCPInterface::SocketConnect(
 
 #if RAKNET_SUPPORT_IPV6 != 1
     sockaddr_in serverAddress;
-    struct addrinfo  hints;
-    struct addrinfo* result = 0;
-    memset(&hints, 0, sizeof(hints));
-    hints.ai_family   = AF_INET;
-    hints.ai_socktype = SOCK_STREAM;
-    if (getaddrinfo(host, NULL, &hints, &result) != 0 || result == 0 || result->ai_addr == 0) return 0;
+
+
+    struct hostent* server;
+    server = gethostbyname(host);
+    if (server == NULL) return 0;
+
 
 #if defined(WINDOWS_STORE_RT)
     __TCPSOCKET__ sockfd = WinRTCreateStreamSocket(AF_INET, SOCK_STREAM, 0);
@@ -695,20 +701,20 @@ __TCPSOCKET__ TCPInterface::SocketConnect(
     serverAddress.sin_family = AF_INET;
     serverAddress.sin_port   = htons(remotePort);
 
+
     if (bindAddress && bindAddress[0]) {
-        if (!ParseIpv4Address(bindAddress, &serverAddress.sin_addr)) {
-            closesocket__(sockfd);
-            return 0;
-        }
+
+
+        serverAddress.sin_addr.s_addr = inet_addr__(bindAddress);
 
     } else serverAddress.sin_addr.s_addr = INADDR_ANY;
 
     int sock_opt = 1024 * 256;
     setsockopt__(sockfd, SOL_SOCKET, SO_RCVBUF, (char*)&sock_opt, sizeof(sock_opt));
 
-    const sockaddr_in* resolvedAddress = reinterpret_cast<const sockaddr_in*>(result->ai_addr);
-    memcpy(&serverAddress.sin_addr, &resolvedAddress->sin_addr, sizeof(serverAddress.sin_addr));
-    freeaddrinfo(result);
+
+    memcpy((char*)&serverAddress.sin_addr.s_addr, (char*)server->h_addr, server->h_length);
+
 
     blockingSocketListMutex.Lock();
     blockingSocketList.Insert(sockfd, _FILE_AND_LINE_);
@@ -721,18 +727,18 @@ __TCPSOCKET__ TCPInterface::SocketConnect(
     (void)bindAddress;
 
     struct addrinfo hints, *res;
-    __TCPSOCKET__   sockfd;
+    int             sockfd;
     memset(&hints, 0, sizeof hints);
     hints.ai_family   = socketFamily;
     hints.ai_socktype = SOCK_STREAM;
     char portStr[32];
     Itoa(remotePort, portStr, 10);
     getaddrinfo(host, portStr, &hints, &res);
-    sockfd = socket__(res->ai_family, res->ai_socktype, res->ai_protocol);
+    sockfd = (int)socket__(res->ai_family, res->ai_socktype, res->ai_protocol);
     blockingSocketListMutex.Lock();
     blockingSocketList.Insert(sockfd, _FILE_AND_LINE_);
     blockingSocketListMutex.Unlock();
-    connectResult = connect__(sockfd, res->ai_addr, static_cast<int>(res->ai_addrlen));
+    connectResult = connect__(sockfd, res->ai_addr, (int)res->ai_addrlen);
     freeaddrinfo(res); // free the linked-list
 
 #endif // #if RAKNET_SUPPORT_IPV6!=1
@@ -754,19 +760,19 @@ __TCPSOCKET__ TCPInterface::SocketConnect(
 
 RAK_THREAD_DECLARATION(RakNet::ConnectionAttemptLoop) {
 
+
     TCPInterface::ThisPtrPlusSysAddr* s = (TCPInterface::ThisPtrPlusSysAddr*)arguments;
+
 
     SystemAddress  systemAddress        = s->systemAddress;
     TCPInterface*  tcpInterface         = s->tcpInterface;
     int            newRemoteClientIndex = systemAddress.systemIndex;
     unsigned short socketFamily         = s->socketFamily;
-    char           bindAddress[64];
-    memcpy(bindAddress, s->bindAddress, sizeof(bindAddress));
     RakNet::OP_DELETE(s, _FILE_AND_LINE_);
 
     char str1[64];
     systemAddress.ToString(false, str1);
-    __TCPSOCKET__ sockfd = tcpInterface->SocketConnect(str1, systemAddress.GetPort(), socketFamily, bindAddress);
+    __TCPSOCKET__ sockfd = tcpInterface->SocketConnect(str1, systemAddress.GetPort(), socketFamily, s->bindAddress);
     if (sockfd == 0) {
         tcpInterface->remoteClients[newRemoteClientIndex].isActiveMutex.Lock();
         tcpInterface->remoteClients[newRemoteClientIndex].SetActive(false);
@@ -788,12 +794,15 @@ RAK_THREAD_DECLARATION(RakNet::ConnectionAttemptLoop) {
         tcpInterface->completedConnectionAttemptMutex.Unlock();
     }
 
+
     return 0;
 }
 
 RAK_THREAD_DECLARATION(RakNet::UpdateTCPInterfaceLoop) {
 
+
     TCPInterface* sts = (TCPInterface*)arguments;
+
 
     //	const int BUFF_SIZE=8096;
     const unsigned int BUFF_SIZE = 1048576;
@@ -815,9 +824,11 @@ RAK_THREAD_DECLARATION(RakNet::UpdateTCPInterfaceLoop) {
     __TCPSOCKET__ newSock;
     int           selectResult;
 
+
     timeval tv;
     tv.tv_sec  = 0;
     tv.tv_usec = 30000;
+
 
     while (sts->isStarted.GetValue() > 0) {
 #if OPEN_SSL_CLIENT_SUPPORT == 1
@@ -840,12 +851,15 @@ RAK_THREAD_DECLARATION(RakNet::UpdateTCPInterfaceLoop) {
         }
 #endif
 
+
         __TCPSOCKET__ largestDescriptor = 0; // see select__()'s first parameter's documentation under linux
+
 
         // Linux' select__() implementation changes the timeout
 
         tv.tv_sec  = 0;
         tv.tv_usec = 30000;
+
 
 #ifdef _MSC_VER
 #pragma warning(disable : 4127) // warning C4127: conditional expression is constant
@@ -866,8 +880,8 @@ RAK_THREAD_DECLARATION(RakNet::UpdateTCPInterfaceLoop) {
             for (i = 0; i < (unsigned int)sts->remoteClientsLength; i++) {
                 sts->remoteClients[i].isActiveMutex.Lock();
                 if (sts->remoteClients[i].isActive) {
-                    // calling FD_ISSET with -1 as socket (that�s what 0 is set to)
-                    // produces a bus error under Linux 64-Bit
+                    // calling FD_ISSET with -1 as socket (that�s what 0 is set to) produces a bus error under Linux
+                    // 64-Bit
                     __TCPSOCKET__ socketCopy = sts->remoteClients[i].socket;
                     if (socketCopy != 0) {
                         FD_SET(socketCopy, &readFD);
@@ -884,7 +898,9 @@ RAK_THREAD_DECLARATION(RakNet::UpdateTCPInterfaceLoop) {
 #pragma warning(disable : 4244) // warning C4127: conditional expression is constant
 #endif
 
+
             selectResult = (int)select__(largestDescriptor + 1, &readFD, &writeFD, &exceptionFD, &tv);
+
 
             if (selectResult <= 0) break;
 
@@ -914,8 +930,7 @@ RAK_THREAD_DECLARATION(RakNet::UpdateTCPInterfaceLoop) {
                                     sizeof(sockaddr_in)
                                 );
                                 //	sts->remoteClients[newRemoteClientIndex].systemAddress.address.addr4.sin_port=ntohs(
-                                // sts->remoteClients[newRemoteClientIndex].systemAddress.address.addr4.sin_port
-                                //);
+                                // sts->remoteClients[newRemoteClientIndex].systemAddress.address.addr4.sin_port );
                             } else {
                                 memcpy(
                                     &sts->remoteClients[newRemoteClientIndex].systemAddress.address.addr6,
@@ -923,13 +938,13 @@ RAK_THREAD_DECLARATION(RakNet::UpdateTCPInterfaceLoop) {
                                     sizeof(sockaddr_in6)
                                 );
                                 //	sts->remoteClients[newRemoteClientIndex].systemAddress.address.addr6.sin6_port=ntohs(
-                                // sts->remoteClients[newRemoteClientIndex].systemAddress.address.addr6.sin6_port
-                                //);
+                                // sts->remoteClients[newRemoteClientIndex].systemAddress.address.addr6.sin6_port );
                             }
 
 #endif // #if RAKNET_SUPPORT_IPV6!=1
                             sts->remoteClients[newRemoteClientIndex].SetActive(true);
                             sts->remoteClients[newRemoteClientIndex].isActiveMutex.Unlock();
+
 
                             SystemAddress* newConnectionSystemAddress =
                                 sts->newIncomingConnections.Allocate(_FILE_AND_LINE_);
@@ -964,8 +979,8 @@ RAK_THREAD_DECLARATION(RakNet::UpdateTCPInterfaceLoop) {
                         i++;
                         continue;
                     }
-                    // calling FD_ISSET with -1 as socket (that�s what 0 is set to)
-                    // produces a bus error under Linux 64-Bit
+                    // calling FD_ISSET with -1 as socket (that�s what 0 is set to) produces a bus error under Linux
+                    // 64-Bit
                     __TCPSOCKET__ socketCopy = sts->remoteClients[i].socket;
                     if (socketCopy == 0) {
                         i++;
@@ -974,19 +989,15 @@ RAK_THREAD_DECLARATION(RakNet::UpdateTCPInterfaceLoop) {
 
                     if (FD_ISSET(socketCopy, &exceptionFD)) {
                         // #ifdef _DO_PRINTF
-                        // 						if
-                        // (sts->listenSocket!=-1)
+                        // 						if (sts->listenSocket!=-1)
                         // 						{
                         // 							int err;
-                        // 							int errlen =
-                        // sizeof(err);
-                        // getsockopt__(sts->listenSocket, SOL_SOCKET, SO_ERROR,(char*)&err,
-                        // &errlen);
-                        // in_addr in;
-                        // in.s_addr = sts->remoteClients[i].systemAddress.binaryAddress;
-						// 							RAKNET_DEBUG_PRINTF("Socket
-                        // error %i on <peer>:%i\n", err,
-                        // sts->remoteClients[i].systemAddress.GetPort() );
+                        // 							int errlen = sizeof(err);
+                        // 							getsockopt__(sts->listenSocket, SOL_SOCKET, SO_ERROR,(char*)&err,
+                        // &errlen); 							in_addr in; 							in.s_addr =
+                        // sts->remoteClients[i].systemAddress.binaryAddress;
+                        // RAKNET_DEBUG_PRINTF("Socket error %i on %s:%i\n", err,inet_ntoa( in
+                        // ), sts->remoteClients[i].systemAddress.GetPort() );
                         // 						}
                         //
                         // #endif
@@ -1002,6 +1013,7 @@ RAK_THREAD_DECLARATION(RakNet::UpdateTCPInterfaceLoop) {
                             // if recv returns 0 this was a graceful close
                             len = sts->remoteClients[i].Recv(data, BUFF_SIZE);
 
+
                             // removeme
                             // 								data[len]=0;
                             // 								printf(data);
@@ -1010,24 +1022,24 @@ RAK_THREAD_DECLARATION(RakNet::UpdateTCPInterfaceLoop) {
                                 incomingMessage       = sts->incomingMessages.Allocate(_FILE_AND_LINE_);
                                 incomingMessage->data = (unsigned char*)rakMalloc_Ex(len + 1, _FILE_AND_LINE_);
                                 memcpy(incomingMessage->data, data, len);
-                                incomingMessage->data[len] = 0; // Null terminate this so we can print it out as regular
-                                                                // strings.  This is different from RakNet which does
-                                                                // not do this.
+                                incomingMessage->data[len] =
+                                    0; // Null terminate this so we can print it out as regular strings.  This is
+                                       // different from RakNet which does not do this.
                                 // printf("RECV: %s\n",incomingMessage->data);
                                 /*
                                 if (1)
                                 {
-                                        static FILE *fp=0;
-                                        if (fp==0)
-                                        {
-                                                fp = fopen("tcpRcv.txt", "wb");
-                                        }
-                                        fwrite(data,1,len,fp);
+                                    static FILE *fp=0;
+                                    if (fp==0)
+                                    {
+                                        fp = fopen("tcpRcv.txt", "wb");
+                                    }
+                                    fwrite(data,1,len,fp);
                                 }
                                 */
-                                incomingMessage->length     = len;
-                                incomingMessage->deleteData = true; // actually means came from SPSC, rather than
-                                                                    // AllocatePacket
+                                incomingMessage->length = len;
+                                incomingMessage->deleteData =
+                                    true; // actually means came from SPSC, rather than AllocatePacket
                                 incomingMessage->systemAddress = sts->remoteClients[i].systemAddress;
                                 sts->incomingMessages.Push(incomingMessage);
                             } else {
@@ -1079,6 +1091,7 @@ RAK_THREAD_DECLARATION(RakNet::UpdateTCPInterfaceLoop) {
     sts->threadRunning.Decrement();
 
     rakFree_Ex(data, _FILE_AND_LINE_);
+
 
     return 0;
 }
@@ -1142,9 +1155,8 @@ bool RemoteClient::InitSSL(SSL_CTX* ctx, SSL_METHOD* meth) {
         ssl = 0;
         return false;
     } else if (res == 0) {
-        // The TLS/SSL handshake was not successful but was shut down controlled and
-        // by the specifications of the TLS/SSL protocol. Call SSL_get_error() with
-        // the return value ret to find out the reason.
+        // The TLS/SSL handshake was not successful but was shut down controlled and by the specifications of the
+        // TLS/SSL protocol. Call SSL_get_error() with the return value ret to find out the reason.
         int err = SSL_get_error(ssl, res);
         switch (err) {
         case SSL_ERROR_NONE:

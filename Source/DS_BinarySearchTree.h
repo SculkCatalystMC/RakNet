@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -13,6 +13,7 @@
 /// \brief A binary search tree, and an AVL balanced BST derivation.
 ///
 
+
 #ifndef __BINARY_SEARCH_TREE_H
 #define __BINARY_SEARCH_TREE_H
 
@@ -20,13 +21,13 @@
 #include "Export.h"
 #include "RakMemoryOverride.h"
 
+
 #ifdef _MSC_VER
 #pragma warning(push)
 #endif
 
-/// The namespace DataStructures was only added to avoid compiler errors for
-/// commonly named data structures As these data structures are stand-alone, you
-/// can use them outside of RakNet for your own projects if you wish.
+/// The namespace DataStructures was only added to avoid compiler errors for commonly named data structures
+/// As these data structures are stand-alone, you can use them outside of RakNet for your own projects if you wish.
 namespace DataStructures {
 /**
  * \brief A binary search tree and an AVL balanced binary search tree.
@@ -39,36 +40,26 @@ namespace DataStructures {
  *
  * AVLBalancedBinarySearchTree<TYPE>
  *
- * Use the AVL balanced tree if you want the tree to be balanced after every
- * deletion and addition.  This avoids the potential worst case scenario where
- * ordered input to a binary search tree gives linear search time results.  It's
- * not needed if input will be evenly distributed, in which case the search time
- * is O (log n).  The search time for the AVL balanced binary tree is O (log n)
- * irregardless of input.
+ * Use the AVL balanced tree if you want the tree to be balanced after every deletion and addition.  This avoids the
+ * potential worst case scenario where ordered input to a binary search tree gives linear search time results.  It's not
+ * needed if input will be evenly distributed, in which case the search time is O (log n).  The search time for the AVL
+ * balanced binary tree is O (log n) irregardless of input.
  *
  * Has the following member functions
- * unsigned int Height(<index>) - Returns the height of the tree at the optional
- * specified starting index.  Default is the root add(element) - adds an element
- * to the BinarySearchTree bool del(element) - deletes the node containing
- * element if the element is in the tree as defined by a comparison with the ==
- * operator.  Returns true on success, false if the element is not found bool
- * IsInelement) - returns true if element is in the tree as defined by a
- * comparison with the == operator.  Otherwise returns false
- * DisplayInorder(array) - Fills an array with an inorder search of the elements
- * in the tree.  USER IS REPONSIBLE FOR ALLOCATING THE ARRAY!.
- * DisplayPreorder(array) - Fills an array with an preorder search of the
- * elements in the tree.  USER IS REPONSIBLE FOR ALLOCATING THE ARRAY!.
- * DisplayPostorder(array) - Fills an array with an postorder search of the
- * elements in the tree. USER IS REPONSIBLE FOR ALLOCATING THE ARRAY!.
- * DisplayBreadthFirstSearch(array) - Fills an array with a breadth first search
- * of the elements in the tree.  USER IS REPONSIBLE FOR ALLOCATING THE ARRAY!.
- * clear - Destroys the tree.  Same as calling the destructor
- * unsigned int Height() - Returns the height of the tree
- * unsigned int size() - returns the size of the BinarySearchTree
- * GetPointerToNode(element) - returns a pointer to the comparision element in
- * the tree, allowing for direct modification when necessary with complex data
- * types. Be warned, it is possible to corrupt the tree if the element used for
- * comparisons is modified.  Returns NULL if the item is not found
+ * unsigned int Height(<index>) - Returns the height of the tree at the optional specified starting index.  Default is
+ * the root add(element) - adds an element to the BinarySearchTree bool del(element) - deletes the node containing
+ * element if the element is in the tree as defined by a comparison with the == operator.  Returns true on success,
+ * false if the element is not found bool IsInelement) - returns true if element is in the tree as defined by a
+ * comparison with the == operator.  Otherwise returns false DisplayInorder(array) - Fills an array with an inorder
+ * search of the elements in the tree.  USER IS REPONSIBLE FOR ALLOCATING THE ARRAY!. DisplayPreorder(array) - Fills an
+ * array with an preorder search of the elements in the tree.  USER IS REPONSIBLE FOR ALLOCATING THE ARRAY!.
+ * DisplayPostorder(array) - Fills an array with an postorder search of the elements in the tree. USER IS REPONSIBLE FOR
+ * ALLOCATING THE ARRAY!. DisplayBreadthFirstSearch(array) - Fills an array with a breadth first search of the elements
+ * in the tree.  USER IS REPONSIBLE FOR ALLOCATING THE ARRAY!. clear - Destroys the tree.  Same as calling the
+ * destructor unsigned int Height() - Returns the height of the tree unsigned int size() - returns the size of the
+ * BinarySearchTree GetPointerToNode(element) - returns a pointer to the comparision element in the tree, allowing for
+ * direct modification when necessary with complex data types. Be warned, it is possible to corrupt the tree if the
+ * element used for comparisons is modified.  Returns NULL if the item is not found
  *
  *
  * EXAMPLE
@@ -83,8 +74,7 @@ namespace DataStructures {
  * array[1]; // returns 10
  * array[2]; // returns 15
  * @endcode
- * compress - reallocates memory to fit the number of elements.  Best used when
- * the number of elements decreases
+ * compress - reallocates memory to fit the number of elements.  Best used when the number of elements decreases
  *
  * clear - empties the BinarySearchTree and returns storage
  * The assignment and copy constructors are defined
@@ -103,7 +93,7 @@ namespace DataStructures {
  *
  */
 template <class BinarySearchTreeType>
-class RAK_DLL_EXPORT BinarySearchTree {
+class RAKNET_API BinarySearchTree {
 
 public:
     struct node {
@@ -131,9 +121,7 @@ public:
 protected:
     node* root;
 
-    enum class DirectionTypes : unsigned char { NOT_FOUND, LEFT, RIGHT, ROOT };
-    using enum DirectionTypes;
-    DirectionTypes direction;
+    enum Direction_Types { NOT_FOUND, LEFT, RIGHT, ROOT } direction;
     unsigned int HeightRecursive(node* current);
     unsigned int BinarySearchTree_size;
     node*&       Find(const BinarySearchTreeType& element, node** parent);
@@ -144,7 +132,7 @@ protected:
 
 /// An AVLBalancedBinarySearchTree is a binary tree that is always balanced
 template <class BinarySearchTreeType>
-class RAK_DLL_EXPORT AVLBalancedBinarySearchTree : public BinarySearchTree<BinarySearchTreeType> {
+class RAKNET_API AVLBalancedBinarySearchTree : public BinarySearchTree<BinarySearchTreeType> {
 
 public:
     AVLBalancedBinarySearchTree() {}
@@ -263,8 +251,7 @@ void AVLBalancedBinarySearchTree<BinarySearchTreeType>::RotateRight(
       D
 
 
-      <Leave all other branches branches AS-IS whether they point to another node
-      or simply 0>
+      <Leave all other branches branches AS-IS whether they point to another node or simply 0>
 
     */
 
@@ -291,9 +278,8 @@ template <class BinarySearchTreeType>
 void AVLBalancedBinarySearchTree<BinarySearchTreeType>::DoubleRotateRight(
     typename BinarySearchTree<BinarySearchTreeType>::node* A
 ) {
-    // The left side of the left child must be higher for the tree to balance with
-    // a right rotation.  If it isn't, rotate it left before the normal rotation
-    // so it is.
+    // The left side of the left child must be higher for the tree to balance with a right rotation.  If it isn't,
+    // rotate it left before the normal rotation so it is.
     RotateLeft(A->left->right);
     RotateRight(A->left);
 }
@@ -329,8 +315,7 @@ void AVLBalancedBinarySearchTree<BinarySearchTreeType>::RotateLeft(
       D
 
 
-      <Leave all other branches branches AS-IS whether they point to another node
-      or simply 0>
+      <Leave all other branches branches AS-IS whether they point to another node or simply 0>
 
     */
 
@@ -357,9 +342,8 @@ template <class BinarySearchTreeType>
 void AVLBalancedBinarySearchTree<BinarySearchTreeType>::DoubleRotateLeft(
     typename BinarySearchTree<BinarySearchTreeType>::node* A
 ) {
-    // The left side of the right child must be higher for the tree to balance
-    // with a left rotation.  If it isn't, rotate it right before the normal
-    // rotation so it is.
+    // The left side of the right child must be higher for the tree to balance with a left rotation.  If it isn't,
+    // rotate it right before the normal rotation so it is.
     RotateRight(A->right->left);
     RotateLeft(A->right);
 }
@@ -465,6 +449,7 @@ typename BinarySearchTree<BinarySearchTreeType>::node*& BinarySearchTree<BinaryS
         }
     }
 
+
     this->direction = this->NOT_FOUND;
     return current  = 0;
 }
@@ -477,8 +462,7 @@ BinarySearchTree<BinarySearchTreeType>::FindParent(const BinarySearchTreeType& e
     return parent;
 }
 
-// Performs a series of value swaps starting with current to fix the tree if
-// needed
+// Performs a series of value swaps starting with current to fix the tree if needed
 template <class BinarySearchTreeType>
 void BinarySearchTree<BinarySearchTreeType>::FixTree(typename BinarySearchTree::node* current) {
     BinarySearchTreeType temp;
@@ -536,8 +520,9 @@ BinarySearchTree<BinarySearchTreeType>::Del(const BinarySearchTreeType& input, c
         RakNet::OP_DELETE(node_to_delete, file, line);
         BinarySearchTree_size--;
         return parent;
-    } else if ((current->right) != 0 && (current->left) == 0) // Node has only one child, delete it and
-                                                              // cause the parent to point to that child
+    } else if ((current->right) != 0
+               && (current->left)
+                      == 0) // Node has only one child, delete it and cause the parent to point to that child
     {
 
         if (parent) {
@@ -555,8 +540,9 @@ BinarySearchTree<BinarySearchTreeType>::Del(const BinarySearchTreeType& input, c
         BinarySearchTree_size--;
 
         return parent;
-    } else if ((current->right) == 0 && (current->left) != 0) // Node has only one child, delete it and
-                                                              // cause the parent to point to that child
+    } else if ((current->right) == 0
+               && (current->left)
+                      != 0) // Node has only one child, delete it and cause the parent to point to that child
     {
 
         if (parent) {
@@ -578,8 +564,8 @@ BinarySearchTree<BinarySearchTreeType>::Del(const BinarySearchTreeType& input, c
     {
         parent    = current;
         direction = RIGHT;
-        current   = current->right; // Must have a right branch because the if statements
-                                    // above indicated that it has 2 branches
+        current =
+            current->right; // Must have a right branch because the if statements above indicated that it has 2 branches
 
         while (current->left) {
             direction = LEFT;
@@ -587,8 +573,8 @@ BinarySearchTree<BinarySearchTreeType>::Del(const BinarySearchTreeType& input, c
             current   = current->left;
         }
 
-        // Replace the value held by the node to RakNet::OP_DELETE(with the value
-        // pointed to by current, _FILE_AND_LINE_);
+        // Replace the value held by the node to RakNet::OP_DELETE(with the value pointed to by current,
+        // _FILE_AND_LINE_);
         *(node_to_delete->item) = *(current->item);
 
         // Delete current.
@@ -630,10 +616,8 @@ BinarySearchTree<BinarySearchTreeType>::Add(const BinarySearchTreeType& input, c
 
     // Add the new element to the tree according to the following alogrithm:
     // 1.  If the current node is empty add the new leaf
-    // 2.  If the element is less than the current node then go down the left
-    // branch
-    // 3.  If the element is greater than the current node then go down the right
-    // branch
+    // 2.  If the element is less than the current node then go down the left branch
+    // 3.  If the element is greater than the current node then go down the right branch
 
     if (BinarySearchTree_size == 0) {
         BinarySearchTree_size = 1;
@@ -693,8 +677,8 @@ BinarySearchTree<BinarySearchTreeType>::Add(const BinarySearchTreeType& input, c
             }
 
             else
-                return 0; // ((input == current->item) == true) which is not allowed
-                          // since the tree only takes discrete values.  Do nothing
+                return 0; // ((input == current->item) == true) which is not allowed since the tree only takes discrete
+                          // values.  Do nothing
         }
     }
 }
@@ -707,6 +691,7 @@ bool BinarySearchTree<BinarySearchTreeType>::IsIn(const BinarySearchTreeType& in
     if (direction != NOT_FOUND) return true;
     else return false;
 }
+
 
 template <class BinarySearchTreeType>
 void BinarySearchTree<BinarySearchTreeType>::DisplayInorder(BinarySearchTreeType* return_array) {
@@ -724,11 +709,12 @@ void BinarySearchTree<BinarySearchTreeType>::DisplayInorder(BinarySearchTreeType
         return;
     }
 
+
     direction = ROOT; // Reset the direction
 
     while (index != BinarySearchTree_size) {
-        // direction is set by the find function and holds the direction of the
-        // parent to the last node visited.  It is used to prevent revisiting nodes
+        // direction is set by the find function and holds the direction of the parent to the last node visited.  It is
+        // used to prevent revisiting nodes
 
         if ((current->left != 0) && (direction != LEFT) && (direction != RIGHT)) {
             //  Go left if the following 2 conditions are true
@@ -741,9 +727,9 @@ void BinarySearchTree<BinarySearchTreeType>::DisplayInorder(BinarySearchTreeType
         }
 
         else if ((direction != RIGHT) && (just_printed == false)) {
-            // Otherwise, print the current node if the following 3 conditions are
-            // true: I did not just move up from a right child I did not print this
-            // ndoe last cycle
+            // Otherwise, print the current node if the following 3 conditions are true:
+            // I did not just move up from a right child
+            // I did not print this ndoe last cycle
 
             return_array[index++] = *(current->item);
             just_printed          = true;
@@ -783,12 +769,13 @@ void BinarySearchTree<BinarySearchTreeType>::DisplayPreorder(BinarySearchTreeTyp
         return;
     }
 
+
     direction             = ROOT; // Reset the direction
     return_array[index++] = *(current->item);
 
     while (index != BinarySearchTree_size) {
-        // direction is set by the find function and holds the direction of the
-        // parent to the last node visited.  It is used to prevent revisiting nodes
+        // direction is set by the find function and holds the direction of the parent to the last node visited.  It is
+        // used to prevent revisiting nodes
 
         if ((current->left != 0) && (direction != LEFT) && (direction != RIGHT)) {
 
@@ -829,6 +816,7 @@ inline void BinarySearchTree<BinarySearchTreeType>::DisplayPostorder(BinarySearc
     DisplayPostorderRecursive(root, return_array, index);
 }
 
+
 // Recursively do a postorder traversal
 template <class BinarySearchTreeType>
 void BinarySearchTree<BinarySearchTreeType>::DisplayPostorderRecursive(
@@ -842,6 +830,7 @@ void BinarySearchTree<BinarySearchTreeType>::DisplayPostorderRecursive(
 
     return_array[index++] = *(current->item);
 }
+
 
 template <class BinarySearchTreeType>
 void BinarySearchTree<BinarySearchTreeType>::DisplayBreadthFirstSearch(BinarySearchTreeType* return_array) {
@@ -881,6 +870,7 @@ void BinarySearchTree<BinarySearchTreeType>::DisplayBreadthFirstSearch(BinarySea
     }
 }
 
+
 template <class BinarySearchTreeType>
 BinarySearchTree<BinarySearchTreeType>::BinarySearchTree(const BinarySearchTree& original_copy) {
     typename BinarySearchTree::node* current;
@@ -888,8 +878,8 @@ BinarySearchTree<BinarySearchTreeType>::BinarySearchTree(const BinarySearchTree&
     // Put the children of the current node into the queue
     // Pop the queue, put its children into the queue, repeat until queue is empty
 
-    // This is a copy of the constructor.  A bug in Visual C++ made it so if I
-    // just put the constructor call here the variable assignments were ignored.
+    // This is a copy of the constructor.  A bug in Visual C++ made it so if I just put the constructor call here the
+    // variable assignments were ignored.
     BinarySearchTree_size = 0;
     root                  = 0;
 
@@ -930,11 +920,12 @@ BinarySearchTree<BinarySearchTreeType>::operator=(const BinarySearchTree& origin
 
     Clear(_FILE_AND_LINE_); // Remove the current tree
 
-    // This is a copy of the constructor.  A bug in Visual C++ made it so if I
-    // just put the constructor call here the variable assignments were ignored.
+    // This is a copy of the constructor.  A bug in Visual C++ made it so if I just put the constructor call here the
+    // variable assignments were ignored.
     BinarySearchTree_size = 0;
 
     root = 0;
+
 
     // Copy the tree using a breadth first search
     // Put the children of the current node into the queue

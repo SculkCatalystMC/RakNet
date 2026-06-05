@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -11,13 +11,16 @@
 /// \file
 ///
 
+
 #include "SimpleMutex.h"
 #include "RakAssert.h"
 
 using namespace RakNet;
 
+
 SimpleMutex::SimpleMutex() //: isInitialized(false)
 {
+
 
     // Prior implementation of Initializing in Lock() was not threadsafe
     Init();
@@ -29,6 +32,7 @@ SimpleMutex::~SimpleMutex() {
 #ifdef _WIN32
     //	CloseHandle(hMutex);
     DeleteCriticalSection(&criticalSection);
+
 
 #else
     pthread_mutex_destroy(&hMutex);
@@ -66,9 +70,8 @@ void SimpleMutex::Lock(void) {
     // Process any inserts in messageBuffer.
     // ...
     // Display the string.
-    //MessageBox( NULL, (LPCTSTR)messageBuffer, "Error", MB_OK |
-    MB_ICONINFORMATION ); RAKNET_DEBUG_PRINTF("SimpleMutex error: %s",
-    messageBuffer);
+    //MessageBox( NULL, (LPCTSTR)messageBuffer, "Error", MB_OK | MB_ICONINFORMATION );
+    RAKNET_DEBUG_PRINTF("SimpleMutex error: %s", messageBuffer);
     // Free the buffer.
     LocalFree( messageBuffer );
 
@@ -77,6 +80,7 @@ void SimpleMutex::Lock(void) {
     RakAssert(d==WAIT_OBJECT_0);
     */
     EnterCriticalSection(&criticalSection);
+
 
 #else
     int error = pthread_mutex_lock(&hMutex);
@@ -92,6 +96,7 @@ void SimpleMutex::Unlock(void) {
     //	ReleaseMutex(hMutex);
     LeaveCriticalSection(&criticalSection);
 
+
 #else
     int error = pthread_mutex_unlock(&hMutex);
     (void)error;
@@ -106,6 +111,7 @@ void SimpleMutex::Init(void) {
     //	hMutex = CreateMutex(NULL, FALSE, 0);
     //	RakAssert(hMutex);
     InitializeCriticalSection(&criticalSection);
+
 
 #else
     int error = pthread_mutex_init(&hMutex, 0);

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -10,6 +10,7 @@
 
 /// \file DS_BPlusTree.h
 ///
+
 
 #ifndef __B_PLUS_TREE_CPP
 #define __B_PLUS_TREE_CPP
@@ -34,14 +35,13 @@
 
 #include "RakMemoryOverride.h"
 
-/// The namespace DataStructures was only added to avoid compiler errors for
-/// commonly named data structures As these data structures are stand-alone, you
-/// can use them outside of RakNet for your own projects if you wish.
+/// The namespace DataStructures was only added to avoid compiler errors for commonly named data structures
+/// As these data structures are stand-alone, you can use them outside of RakNet for your own projects if you wish.
 namespace DataStructures {
 /// Used in the BPlusTree.  Used for both leaf and index nodes.
 /// Don't use a constructor or destructor, due to the memory pool I am using
 template <class KeyType, class DataType, int order>
-struct RAK_DLL_EXPORT Page {
+struct RAKNET_API Page {
     // We use the same data structure for both leaf and index nodes.
     // It uses a little more memory for index nodes but reduces
     // memory fragmentation, allocations, and deallocations.
@@ -49,15 +49,13 @@ struct RAK_DLL_EXPORT Page {
 
     // Used for both leaf and index nodes.
     // For a leaf it means the number of elements in data
-    // For an index it means the number of keys and is one less than the number of
-    // children pointers.
+    // For an index it means the number of keys and is one less than the number of children pointers.
     int size;
 
     // Used for both leaf and index nodes.
     KeyType keys[order];
 
-    // Used only for leaf nodes.  Data is the actual data, while next is the
-    // pointer to the next leaf (for B+)
+    // Used only for leaf nodes.  Data is the actual data, while next is the pointer to the next leaf (for B+)
     DataType                        data[order];
     Page<KeyType, DataType, order>* next;
     Page<KeyType, DataType, order>* previous;
@@ -69,12 +67,12 @@ struct RAK_DLL_EXPORT Page {
 /// A BPlus tree
 /// Written with efficiency and speed in mind.
 template <class KeyType, class DataType, int order>
-class RAK_DLL_EXPORT BPlusTree {
+class RAKNET_API BPlusTree {
 public:
     struct ReturnAction {
         KeyType key1;
         KeyType key2;
-        enum class Action : unsigned char {
+        enum {
             NO_ACTION,
             REPLACE_KEY1_WITH_KEY2,
             PUSH_KEY_TO_PARENT,
@@ -195,7 +193,7 @@ bool BPlusTree<KeyType, DataType, order>::Delete(const KeyType key, DataType& ou
     if (root == 0) return false;
 
     ReturnAction returnAction;
-    returnAction.action = ReturnAction::Action::NO_ACTION;
+    returnAction.action = ReturnAction::NO_ACTION;
     int  childIndex;
     bool underflow = false;
     if (root == leftmostLeaf) {
@@ -248,16 +246,15 @@ bool BPlusTree<KeyType, DataType, order>::FindDeleteRebalance(
         if (branchIndex < cur->size) rightRootKey = cur->keys[branchIndex]; // Shift right to left
         else rightRootKey = cur->keys[branchIndex - 1];                     // Shift center to left
 
-        if (returnAction->action == ReturnAction::Action::SET_BRANCH_KEY && branchIndex != childIndex) {
-            returnAction->action  = ReturnAction::Action::NO_ACTION;
+        if (returnAction->action == ReturnAction::SET_BRANCH_KEY && branchIndex != childIndex) {
+            returnAction->action  = ReturnAction::NO_ACTION;
             cur->keys[childIndex] = returnAction->key1;
 
             if (branchIndex < cur->size) rightRootKey = cur->keys[branchIndex]; // Shift right to left
             else rightRootKey = cur->keys[branchIndex - 1];                     // Shift center to left
         }
     } else {
-        // If child is a leaf, get the index of the key.  If the item is not found,
-        // cancel delete.
+        // If child is a leaf, get the index of the key.  If the item is not found, cancel delete.
         if (GetIndexOf(key, cur->children[branchIndex], &childIndex) == false) return false;
 
         // Delete:
@@ -269,7 +266,7 @@ bool BPlusTree<KeyType, DataType, order>::FindDeleteRebalance(
             if (branchIndex > 0) cur->keys[branchIndex - 1] = cur->children[branchIndex]->keys[0];
 
             if (branchIndex == 0) {
-                returnAction->action = ReturnAction::Action::SET_BRANCH_KEY;
+                returnAction->action = ReturnAction::SET_BRANCH_KEY;
                 returnAction->key1   = cur->children[0]->keys[0];
             }
         }
@@ -330,8 +327,7 @@ bool BPlusTree<KeyType, DataType, order>::FixUnderflow(
             dest->keys[dest->size] = source->keys[0];
             dest->data[dest->size] = source->data[0];
 
-            // The first key in the leaf after shifting is the parent key for the
-            // right branch
+            // The first key in the leaf after shifting is the parent key for the right branch
             cur->keys[branchIndex] = source->keys[1];
 
 #ifdef _MSC_VER
@@ -339,13 +335,13 @@ bool BPlusTree<KeyType, DataType, order>::FixUnderflow(
 #endif
             if (order <= 3 && dest->size == 0) {
                 if (branchIndex == 0) {
-                    returnAction->action = ReturnAction::Action::SET_BRANCH_KEY;
+                    returnAction->action = ReturnAction::SET_BRANCH_KEY;
                     returnAction->key1   = dest->keys[0];
                 } else cur->keys[branchIndex - 1] = cur->children[branchIndex]->keys[0];
             }
         } else {
-            if (returnAction->action == ReturnAction::Action::NO_ACTION) {
-                returnAction->action = ReturnAction::Action::SET_BRANCH_KEY;
+            if (returnAction->action == ReturnAction::NO_ACTION) {
+                returnAction->action = ReturnAction::SET_BRANCH_KEY;
                 returnAction->key1   = dest->keys[0];
             }
 
@@ -355,6 +351,7 @@ bool BPlusTree<KeyType, DataType, order>::FixUnderflow(
             // The shifted off key is the leftmost key for a node
             cur->keys[branchIndex] = source->keys[0];
         }
+
 
         dest->size++;
         ShiftNodeLeft(source);
@@ -373,8 +370,7 @@ bool BPlusTree<KeyType, DataType, order>::FixUnderflow(
         //
         // To merge two leaves, just copy the data and keys over.
         //
-        // To merge two branches, copy the pointers and keys over, using
-        // rightRootKey as the key for the extra pointer
+        // To merge two branches, copy the pointers and keys over, using rightRootKey as the key for the extra pointer
         if (branchIndex < cur->size) {
             // Merge right child to current child and delete right child.
             dest   = cur->children[branchIndex];
@@ -405,8 +401,8 @@ bool BPlusTree<KeyType, DataType, order>::FixUnderflow(
 #pragma warning(disable : 4127) // warning C4127: conditional expression is constant
 #endif
         if (order <= 3 && branchIndex > 0
-            && cur->children[branchIndex]->isLeaf) // With order==2 it is possible to delete data[0], which
-                                                   // is not possible with higher orders.
+            && cur->children[branchIndex]->isLeaf) // With order==2 it is possible to delete data[0], which is not
+                                                   // possible with higher orders.
             cur->keys[branchIndex - 1] = cur->children[branchIndex]->keys[0];
 
         if (branchIndex < cur->size) {
@@ -420,7 +416,7 @@ bool BPlusTree<KeyType, DataType, order>::FixUnderflow(
         }
 
         if (branchIndex == 0 && dest->isLeaf) {
-            returnAction->action = ReturnAction::Action::SET_BRANCH_KEY;
+            returnAction->action = ReturnAction::SET_BRANCH_KEY;
             returnAction->key1   = dest->keys[0];
         }
 
@@ -525,15 +521,14 @@ Page<KeyType, DataType, order>* BPlusTree<KeyType, DataType, order>::InsertIntoN
                 }
                 newPage->children[destIndex++] = nodeData;
 
-                // sourceIndex+1 is sort of a hack but it works - because there is one
-                // extra child than keys skip past the last child for cur
+                // sourceIndex+1 is sort of a hack but it works - because there is one extra child than keys
+                // skip past the last child for cur
                 for (; sourceIndex + 1 < cur->size + 1; sourceIndex++, destIndex++) {
                     newPage->children[destIndex] = cur->children[sourceIndex + 1];
                 }
 
-                // the first key is the middle key.  Remove it from the page and push it
-                // to the parent
-                returnAction->action = ReturnAction::Action::PUSH_KEY_TO_PARENT;
+                // the first key is the middle key.  Remove it from the page and push it to the parent
+                returnAction->action = ReturnAction::PUSH_KEY_TO_PARENT;
                 returnAction->key1   = newPage->keys[0];
                 for (int j = 0; j < destIndex - 1; j++) newPage->keys[j] = newPage->keys[j + 1];
             }
@@ -552,9 +547,8 @@ Page<KeyType, DataType, order>* BPlusTree<KeyType, DataType, order>::InsertIntoN
                 for (; sourceIndex < order + 1; sourceIndex++, destIndex++)
                     newPage->children[destIndex] = cur->children[sourceIndex];
 
-                // the first key is the middle key.  Remove it from the page and push it
-                // to the parent
-                returnAction->action = ReturnAction::Action::PUSH_KEY_TO_PARENT;
+                // the first key is the middle key.  Remove it from the page and push it to the parent
+                returnAction->action = ReturnAction::PUSH_KEY_TO_PARENT;
                 returnAction->key1   = newPage->keys[0];
                 for (int j = 0; j < destIndex - 1; j++) newPage->keys[j] = newPage->keys[j + 1];
             }
@@ -632,8 +626,7 @@ Page<KeyType, DataType, order>* BPlusTree<KeyType, DataType, order>::GetLeafFrom
     Page<KeyType, DataType, order>* cur = root;
     int                             childIndex;
     while (cur->isLeaf == false) {
-        // When searching, if we match the exact key we go down the pointer after
-        // that index
+        // When searching, if we match the exact key we go down the pointer after that index
         if (GetIndexOf(key, cur, &childIndex)) childIndex++;
         cur = cur->children[childIndex];
     }
@@ -661,7 +654,7 @@ Page<KeyType, DataType, order>* BPlusTree<KeyType, DataType, order>::InsertBranc
             }
 
             if (CanRotateLeft(cur, branchIndex)) {
-                returnAction->action = ReturnAction::Action::REPLACE_KEY1_WITH_KEY2;
+                returnAction->action = ReturnAction::REPLACE_KEY1_WITH_KEY2;
                 if (key > cur->children[branchIndex]->keys[0]) {
                     RotateLeft(cur, branchIndex, returnAction);
 
@@ -684,7 +677,7 @@ Page<KeyType, DataType, order>* BPlusTree<KeyType, DataType, order>::InsertBranc
 
                 return 0;
             } else if (CanRotateRight(cur, branchIndex)) {
-                returnAction->action = ReturnAction::Action::REPLACE_KEY1_WITH_KEY2;
+                returnAction->action = ReturnAction::REPLACE_KEY1_WITH_KEY2;
 
                 if (key < cur->children[branchIndex]->keys[cur->children[branchIndex]->size - 1]) {
                     RotateRight(cur, branchIndex, returnAction);
@@ -705,13 +698,13 @@ Page<KeyType, DataType, order>* BPlusTree<KeyType, DataType, order>::InsertBranc
         }
 
         newPage = InsertBranchDown(key, data, cur->children[branchIndex], returnAction, success);
-        if (returnAction->action == ReturnAction::Action::REPLACE_KEY1_WITH_KEY2) {
+        if (returnAction->action == ReturnAction::REPLACE_KEY1_WITH_KEY2) {
             if (branchIndex > 0 && cur->keys[branchIndex - 1] == returnAction->key1)
                 cur->keys[branchIndex - 1] = returnAction->key2;
         }
         if (newPage) {
             if (newPage->isLeaf == false) {
-                RakAssert(returnAction->action == ReturnAction::Action::PUSH_KEY_TO_PARENT);
+                RakAssert(returnAction->action == ReturnAction::PUSH_KEY_TO_PARENT);
                 newPage->size--;
                 return InsertIntoNode(returnAction->key1, data, branchIndex, newPage, cur, returnAction);
             } else {
@@ -744,15 +737,15 @@ bool BPlusTree<KeyType, DataType, order>::Insert(const KeyType key, const DataTy
     } else {
         bool         success = true;
         ReturnAction returnAction;
-        returnAction.action                     = ReturnAction::Action::NO_ACTION;
+        returnAction.action                     = ReturnAction::NO_ACTION;
         Page<KeyType, DataType, order>* newPage = InsertBranchDown(key, data, root, &returnAction, &success);
         if (success == false) return false;
         if (newPage) {
             KeyType newKey;
             if (newPage->isLeaf == false) {
-                // One key is pushed up through the stack.  I store that at keys[0] but
-                // it has to be removed for the page to be correct
-                RakAssert(returnAction.action == ReturnAction::Action::PUSH_KEY_TO_PARENT);
+                // One key is pushed up through the stack.  I store that at keys[0] but it has to be removed for the
+                // page to be correct
+                RakAssert(returnAction.action == ReturnAction::PUSH_KEY_TO_PARENT);
                 newKey = returnAction.key1;
                 newPage->size--;
             } else newKey = newPage->keys[0];
@@ -937,8 +930,7 @@ void BPlusTree<KeyType, DataType, order>::PrintGraph(void) {
 #include "DS_BPlusTree.h"
 #include <stdio.h>
 
-// Handle underflow on root.  If there is only one item left then I can go
-downwards.
+// Handle underflow on root.  If there is only one item left then I can go downwards.
 // Make sure I keep the leftmost pointer valid by traversing it
 // When I free a leaf, be sure to adjust the pointers around it.
 
@@ -946,67 +938,67 @@ downwards.
 
 void main(void)
 {
-        DataStructures::BPlusTree<int, int, 16> btree;
-        DataStructures::List<int> haveList, removedList;
-        int temp;
-        int i, j, index;
-        int testSize;
-        bool b;
+    DataStructures::BPlusTree<int, int, 16> btree;
+    DataStructures::List<int> haveList, removedList;
+    int temp;
+    int i, j, index;
+    int testSize;
+    bool b;
 
-        for (testSize=0; testSize < 514; testSize++)
+    for (testSize=0; testSize < 514; testSize++)
+    {
+        RAKNET_DEBUG_PRINTF("TestSize=%i\n", testSize);
+
+        for (i=0; i < testSize; i++)
+            haveList.Insert(i);
+
+        for (i=0; i < testSize; i++)
         {
-                RAKNET_DEBUG_PRINTF("TestSize=%i\n", testSize);
-
-                for (i=0; i < testSize; i++)
-                        haveList.Insert(i);
-
-                for (i=0; i < testSize; i++)
-                {
-                        index=i+randomMT()%(testSize-i);
-                        temp=haveList[index];
-                        haveList[index]=haveList[i];
-                        haveList[i]=temp;
-                }
-
-                for (i=0; i<testSize; i++)
-                {
-                        btree.Insert(haveList[i], haveList[i]);
-                        btree.ValidateTree();
-                }
-
-                for (i=0; i < testSize; i++)
-                {
-                        index=i+randomMT()%(testSize-i);
-                        temp=haveList[index];
-                        haveList[index]=haveList[i];
-                        haveList[i]=temp;
-                }
-                for (i=0; i<testSize; i++)
-                {
-                        btree.Delete(haveList[0]); // Asserts on 8th call. Fails
-on going to remove 8 (7th call) removedList.Insert(haveList[0]);
-                        haveList.RemoveAtIndex(0);
-                        for (j=0; j < removedList.Size(); j++)
-                        {
-                                b=btree.Get(removedList[j], temp);
-                                RakAssert(b==false);
-                        }
-                        for (j=0; j < haveList.Size(); j++)
-                        {
-                                b=btree.Get(haveList[j], temp);
-                                RakAssert(b==true);
-                                RakAssert(haveList[j]==temp);
-                        }
-                        RakAssert(btree.Size()==haveList.Size());
-                        btree.ValidateTree();
-                }
-                btree.Clear(_FILE_AND_LINE_);
-                removedList.Clear(_FILE_AND_LINE_);
-                haveList.Clear(_FILE_AND_LINE_);
+            index=i+randomMT()%(testSize-i);
+            temp=haveList[index];
+            haveList[index]=haveList[i];
+            haveList[i]=temp;
         }
 
-        RAKNET_DEBUG_PRINTF("Done. %i\n", btree.Size());
-        char ch[256];
-        Gets(ch, sizeof(ch));
+        for (i=0; i<testSize; i++)
+        {
+            btree.Insert(haveList[i], haveList[i]);
+            btree.ValidateTree();
+        }
+
+        for (i=0; i < testSize; i++)
+        {
+            index=i+randomMT()%(testSize-i);
+            temp=haveList[index];
+            haveList[index]=haveList[i];
+            haveList[i]=temp;
+        }
+        for (i=0; i<testSize; i++)
+        {
+            btree.Delete(haveList[0]); // Asserts on 8th call.  Fails on going to remove 8 (7th call)
+            removedList.Insert(haveList[0]);
+            haveList.RemoveAtIndex(0);
+            for (j=0; j < removedList.Size(); j++)
+            {
+                b=btree.Get(removedList[j], temp);
+                RakAssert(b==false);
+            }
+            for (j=0; j < haveList.Size(); j++)
+            {
+                b=btree.Get(haveList[j], temp);
+                RakAssert(b==true);
+                RakAssert(haveList[j]==temp);
+            }
+            RakAssert(btree.Size()==haveList.Size());
+            btree.ValidateTree();
+        }
+        btree.Clear(_FILE_AND_LINE_);
+        removedList.Clear(_FILE_AND_LINE_);
+        haveList.Clear(_FILE_AND_LINE_);
+    }
+
+    RAKNET_DEBUG_PRINTF("Done. %i\n", btree.Size());
+    char ch[256];
+    Gets(ch, sizeof(ch));
 }
 */

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -9,9 +9,9 @@
  */
 
 /// \file
-/// \brief A simple TCP based server allowing sends and receives.  Can be
-/// connected by any TCP client, including telnet.
+/// \brief A simple TCP based server allowing sends and receives.  Can be connected by any TCP client, including telnet.
 ///
+
 
 #include "NativeFeatureIncludes.h"
 #if _RAKNET_SUPPORT_PacketizedTCP == 1 && _RAKNET_SUPPORT_TCPInterface == 1
@@ -25,7 +25,7 @@
 
 namespace RakNet {
 
-class RAK_DLL_EXPORT PacketizedTCP : public TCPInterface {
+class RAKNET_API PacketizedTCP : public TCPInterface {
 public:
     // GetInstance() and DestroyInstance(instance*)
     STATIC_FACTORY_DECLARATIONS(PacketizedTCP)
@@ -75,13 +75,12 @@ protected:
     void    PushNotificationsToQueues(void);
     Packet* ReturnOutgoingPacket(void);
 
-    // A single TCP recieve may generate multiple split packets. They are stored
-    // in the waitingPackets list until Receive is called
+    // A single TCP recieve may generate multiple split packets. They are stored in the waitingPackets list until
+    // Receive is called
     DataStructures::Queue<Packet*>                                 waitingPackets;
     DataStructures::Map<SystemAddress, DataStructures::ByteQueue*> connections;
 
-    // Mirrors single producer / consumer, but processes them in Receive() before
-    // returning to user
+    // Mirrors single producer / consumer, but processes them in Receive() before returning to user
     DataStructures::Queue<SystemAddress> _newIncomingConnections, _lostConnections, _failedConnectionAttempts,
         _completedConnectionAttempts;
 };

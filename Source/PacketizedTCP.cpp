@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -7,6 +7,7 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  *
  */
+
 
 #include "NativeFeatureIncludes.h"
 #if _RAKNET_SUPPORT_PacketizedTCP == 1 && _RAKNET_SUPPORT_TCPInterface == 1
@@ -80,13 +81,14 @@ bool PacketizedTCP::SendList(
     dataLength = totalLengthOfUserData;
 #endif
 
+
     unsigned int lengthsArray[512];
     const char*  dataArray[512];
     dataArray[0]    = (char*)&dataLength;
     lengthsArray[0] = sizeof(dataLength);
-    for (int paramIndex = 0; paramIndex < 512 && paramIndex < numParameters; paramIndex++) {
-        dataArray[paramIndex + 1]    = data[paramIndex];
-        lengthsArray[paramIndex + 1] = lengths[paramIndex];
+    for (int j = 0; j < 512 && j < numParameters; j++) {
+        dataArray[j + 1]    = data[j];
+        lengthsArray[j + 1] = lengths[j];
     }
     return TCPInterface::SendList(dataArray, lengthsArray, numParameters + 1, systemAddress, broadcast);
 }
@@ -138,6 +140,7 @@ Packet* PacketizedTCP::Receive(void) {
             continue;
         }
 
+
         if (incomingPacket->deleteData == true) {
             // Came from network
             SystemAddress systemAddressFromPacket;
@@ -152,8 +155,7 @@ Packet* PacketizedTCP::Receive(void) {
                 bq->ReadBytes((char*)&dataLength, sizeof(PTCPHeader), true);
                 if (RakNet::BitStream::DoEndianSwap())
                     RakNet::BitStream::ReverseBytesInPlace((unsigned char*)&dataLength, sizeof(dataLength));
-                // Header indicates packet length. If enough data is available, read out
-                // and return one packet
+                // Header indicates packet length. If enough data is available, read out and return one packet
                 if (bq->GetBytesWritten() >= dataLength + sizeof(PTCPHeader)) {
                     do {
                         bq->IncrementReadOffset(sizeof(PTCPHeader));

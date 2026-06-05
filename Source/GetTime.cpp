@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -10,6 +10,7 @@
 
 /// \file
 ///
+
 
 #if defined(_WIN32)
 #include "WindowsIncludes.h"
@@ -24,10 +25,12 @@
 
 #include "GetTime.h"
 
+
 #if defined(_WIN32)
 // DWORD mProcMask;
 // DWORD mSysMask;
 // HANDLE mThread;
+
 
 #else
 #include <sys/time.h>
@@ -41,11 +44,10 @@ static bool initialized = false;
 #include "SimpleMutex.h"
 RakNet::TimeUS lastNormalizedReturnedValue = 0;
 RakNet::TimeUS lastNormalizedInputValue    = 0;
-/// This constraints timer forward jumps to 1 second, and does not let it jump
-/// backwards See http://support.microsoft.com/kb/274323 where the timer can
-/// sometimes jump forward by hours or days This also has the effect where
-/// debugging a sending system won't treat the time spent halted past 1 second
-/// as elapsed network time
+/// This constraints timer forward jumps to 1 second, and does not let it jump backwards
+/// See http://support.microsoft.com/kb/274323 where the timer can sometimes jump forward by hours or days
+/// This also has the effect where debugging a sending system won't treat the time spent halted past 1 second as elapsed
+/// network time
 RakNet::TimeUS NormalizeTime(RakNet::TimeUS timeIn) {
     RakNet::TimeUS             diff, lastNormalizedReturnedValueCopy;
     static RakNet::SimpleMutex mutex;
@@ -67,6 +69,7 @@ RakNet::TimeUS NormalizeTime(RakNet::TimeUS timeIn) {
 RakNet::Time   RakNet::GetTime(void) { return (RakNet::Time)(GetTimeUS() / 1000); }
 RakNet::TimeMS RakNet::GetTimeMS(void) { return (RakNet::TimeMS)(GetTimeUS() / 1000); }
 
+
 #if defined(_WIN32)
 RakNet::TimeUS GetTimeUS_Windows(void) {
     if (initialized == false) {
@@ -78,8 +81,7 @@ RakNet::TimeUS GetTimeUS_Windows(void) {
 
         // Get the current Affinity
 #if _MSC_VER >= 1400 && defined(_M_X64)
-//		GetProcessAffinityMask(mProc, (PDWORD_PTR)&mProcMask,
-//(PDWORD_PTR)&mSysMask);
+//		GetProcessAffinityMask(mProc, (PDWORD_PTR)&mProcMask, (PDWORD_PTR)&mSysMask);
 #else
 //		GetProcessAffinityMask(mProc, &mProcMask, &mSysMask);
 #endif
@@ -88,8 +90,8 @@ RakNet::TimeUS GetTimeUS_Windows(void) {
 #endif // _WIN32_WCE
     }
 
-    // 9/26/2010 In China running LuDaShi, QueryPerformanceFrequency has to be
-    // called every time because CPU clock speeds can be different
+    // 9/26/2010 In China running LuDaShi, QueryPerformanceFrequency has to be called every time because CPU clock
+    // speeds can be different
     RakNet::TimeUS curTime;
     LARGE_INTEGER  PerfVal;
     LARGE_INTEGER  yo1;
@@ -114,8 +116,8 @@ RakNet::TimeUS GetTimeUS_Linux(void) {
     if (initialized == false) {
         gettimeofday(&tp, 0);
         initialized = true;
-        // I do this because otherwise RakNet::Time in milliseconds won't work as it
-        // will underflow when dividing by 1000 to do the conversion
+        // I do this because otherwise RakNet::Time in milliseconds won't work as it will underflow when dividing by
+        // 1000 to do the conversion
         initialTime = (tp.tv_sec) * (RakNet::TimeUS)1000000 + (tp.tv_usec);
     }
 
@@ -135,6 +137,7 @@ RakNet::TimeUS GetTimeUS_Linux(void) {
 
 RakNet::TimeUS RakNet::GetTimeUS(void) {
 
+
 #if defined(_WIN32)
     return GetTimeUS_Windows();
 #else
@@ -143,11 +146,11 @@ RakNet::TimeUS RakNet::GetTimeUS(void) {
 }
 bool RakNet::GreaterThan(RakNet::Time a, RakNet::Time b) {
     // a > b?
-    const RakNet::Time halfSpan = static_cast<RakNet::Time>(-1) / static_cast<RakNet::Time>(2);
+    const RakNet::Time halfSpan = (RakNet::Time)(((RakNet::Time)(const RakNet::Time)-1) / (RakNet::Time)2);
     return b != a && b - a > halfSpan;
 }
 bool RakNet::LessThan(RakNet::Time a, RakNet::Time b) {
     // a < b?
-    const RakNet::Time halfSpan = static_cast<RakNet::Time>(-1) / static_cast<RakNet::Time>(2);
+    const RakNet::Time halfSpan = ((RakNet::Time)(const RakNet::Time)-1) / (RakNet::Time)2;
     return b != a && b - a < halfSpan;
 }

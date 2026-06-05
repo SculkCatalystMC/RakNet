@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -11,13 +11,16 @@
 #ifndef __SIGNALED_EVENT_H
 #define __SIGNALED_EVENT_H
 
+
 #if defined(_WIN32)
 #include "WindowsIncludes.h"
+
 
 #else
 #include "SimpleMutex.h"
 #include <pthread.h>
 #include <sys/types.h>
+
 
 #endif
 
@@ -25,7 +28,7 @@
 
 namespace RakNet {
 
-class RAK_DLL_EXPORT SignaledEvent {
+class RAKNET_API SignaledEvent {
 public:
     SignaledEvent();
     ~SignaledEvent();
@@ -38,6 +41,7 @@ public:
 protected:
 #ifdef _WIN32
     HANDLE eventList;
+
 
 #else
     SimpleMutex isSignaledMutex;

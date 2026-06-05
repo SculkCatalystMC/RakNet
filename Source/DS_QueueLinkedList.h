@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -13,6 +13,7 @@
 /// \brief A queue implemented as a linked list.
 ///
 
+
 #ifndef __QUEUE_LINKED_LIST_H
 #define __QUEUE_LINKED_LIST_H
 
@@ -20,13 +21,12 @@
 #include "Export.h"
 #include "RakMemoryOverride.h"
 
-/// The namespace DataStructures was only added to avoid compiler errors for
-/// commonly named data structures As these data structures are stand-alone, you
-/// can use them outside of RakNet for your own projects if you wish.
+/// The namespace DataStructures was only added to avoid compiler errors for commonly named data structures
+/// As these data structures are stand-alone, you can use them outside of RakNet for your own projects if you wish.
 namespace DataStructures {
 /// \brief A queue implemented using a linked list.  Rarely used.
 template <class QueueType>
-class RAK_DLL_EXPORT QueueLinkedList {
+class RAKNET_API QueueLinkedList {
 
 public:
     QueueLinkedList();

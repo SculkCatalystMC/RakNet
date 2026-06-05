@@ -27,6 +27,7 @@
 #define FA_DIREC  0x10 // Synonym of _A_SUBDIR
 #define FA_ARCH   0x20 // Synonym of _A_ARCH
 
+
 const unsigned STRING_BUFFER_SIZE = 512;
 
 typedef struct _finddata_t {

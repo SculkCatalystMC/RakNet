@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -36,8 +36,7 @@ unsigned int RakNetRandomSync::RandomMT(void) {
     if (usedValueBufferCount > 0) {
         --usedValueBufferCount;
         if (usedValueBufferCount < usedValues.Size()) {
-            // The remote system had less calls than the current system, so return
-            // values from the past
+            // The remote system had less calls than the current system, so return values from the past
             return usedValues[usedValues.Size() - usedValueBufferCount - 1];
         } else {
             // Unknown past value, too far back

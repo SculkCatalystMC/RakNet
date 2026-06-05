@@ -8,7 +8,7 @@
 
 // If compiling with MFC, you might want to add #include "StdAfx.h"
 
-#define _CRT_SECURE_NO_WARNINGS
+
 #include "DR_SHA1.h"
 #include <stdlib.h>
 
@@ -269,42 +269,27 @@ void CSHA1::Final() {
 }
 
 #ifdef SHA1_UTILITY_FUNCTIONS
-bool CSHA1::ReportHash(TCHAR* tszReport, ReportType rtReportType) const {
+bool CSHA1::ReportHash(TCHAR* tszReport, REPORT_TYPE rtReportType) const {
     if (tszReport == NULL) return false;
 
-    static const size_t REPORT_BUFFER_CAPACITY = 84;
     TCHAR tszTemp[16];
-    size_t outLen = 0;
-    tszReport[0]  = 0;
 
-    if ((rtReportType == ReportType::Hex) || (rtReportType == ReportType::HexShort)) {
+    if ((rtReportType == REPORT_HEX) || (rtReportType == REPORT_HEX_SHORT)) {
         _sntprintf(tszTemp, 15, _T("%02X"), m_digest[0]);
-        size_t tempLen = _tcslen(tszTemp);
-        if (tempLen + 1 > REPORT_BUFFER_CAPACITY) return false;
-        memcpy(tszReport, tszTemp, (tempLen + 1) * sizeof(TCHAR));
-        outLen = tempLen;
+        _tcscpy(tszReport, tszTemp);
 
-        const TCHAR* lpFmt = ((rtReportType == ReportType::Hex) ? _T(" %02X") : _T("%02X"));
+        const TCHAR* lpFmt = ((rtReportType == REPORT_HEX) ? _T(" %02X") : _T("%02X"));
         for (size_t i = 1; i < 20; ++i) {
             _sntprintf(tszTemp, 15, lpFmt, m_digest[i]);
-            tempLen = _tcslen(tszTemp);
-            if (outLen + tempLen + 1 > REPORT_BUFFER_CAPACITY) return false;
-            memcpy(tszReport + outLen, tszTemp, (tempLen + 1) * sizeof(TCHAR));
-            outLen += tempLen;
+            _tcscat(tszReport, tszTemp);
         }
-    } else if (rtReportType == ReportType::Digit) {
+    } else if (rtReportType == REPORT_DIGIT) {
         _sntprintf(tszTemp, 15, _T("%u"), m_digest[0]);
-        size_t tempLen = _tcslen(tszTemp);
-        if (tempLen + 1 > REPORT_BUFFER_CAPACITY) return false;
-        memcpy(tszReport, tszTemp, (tempLen + 1) * sizeof(TCHAR));
-        outLen = tempLen;
+        _tcscpy(tszReport, tszTemp);
 
         for (size_t i = 1; i < 20; ++i) {
             _sntprintf(tszTemp, 15, _T(" %u"), m_digest[i]);
-            tempLen = _tcslen(tszTemp);
-            if (outLen + tempLen + 1 > REPORT_BUFFER_CAPACITY) return false;
-            memcpy(tszReport + outLen, tszTemp, (tempLen + 1) * sizeof(TCHAR));
-            outLen += tempLen;
+            _tcscat(tszReport, tszTemp);
         }
     } else return false;
 
@@ -313,7 +298,7 @@ bool CSHA1::ReportHash(TCHAR* tszReport, ReportType rtReportType) const {
 #endif
 
 #ifdef SHA1_STL_FUNCTIONS
-bool CSHA1::ReportHashStl(std::basic_string<TCHAR>& strOut, ReportType rtReportType) const {
+bool CSHA1::ReportHashStl(std::basic_string<TCHAR>& strOut, REPORT_TYPE rtReportType) const {
     TCHAR      tszOut[84];
     const bool bResult = ReportHash(tszOut, rtReportType);
     if (bResult) strOut = tszOut;
@@ -332,8 +317,7 @@ bool CSHA1::GetHash(UINT_8* pbDest20) const {
 unsigned char* CSHA1::GetHash(void) const { return (unsigned char*)m_digest; }
 
 // http://cseweb.ucsd.edu/~mihir/papers/hmac-cb.pdf
-// Sample code:
-// http://www.opensource.apple.com/source/freeradius/freeradius-11/freeradius/src/lib/hmac.c
+// Sample code: http://www.opensource.apple.com/source/freeradius/freeradius-11/freeradius/src/lib/hmac.c
 void CSHA1::HMAC(
     unsigned char* sharedKey,
     int            sharedKeyLength,
@@ -361,8 +345,7 @@ void CSHA1::HMAC(
         keyWithOpad[i] ^= 0x5c;
     }
 
-    // 3. Append the data stream Text to the 64 byte string resulting from step
-    // (2)
+    // 3. Append the data stream Text to the 64 byte string resulting from step (2)
     // 4. Apply H to the stream generated in step (3)
     CSHA1 firstHash;
     firstHash.Reset();
@@ -370,8 +353,7 @@ void CSHA1::HMAC(
     firstHash.Update(data, dataLength);
     firstHash.Final();
 
-    // 6. Append the H (hash) result from step (4) to the 64 byte string resulting
-    // from step (5)
+    // 6. Append the H (hash) result from step (4) to the 64 byte string resulting from step (5)
     // 7. Apply H to the stream generated in step (6) and output the result
     CSHA1 secondHash;
     secondHash.Reset();

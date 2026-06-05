@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -7,6 +7,7 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  *
  */
+
 
 #include "StringTable.h"
 #include "BitStream.h"
@@ -18,6 +19,7 @@ using namespace RakNet;
 
 StringTable* StringTable::instance       = 0;
 int          StringTable::referenceCount = 0;
+
 
 int RakNet::StrAndBoolComp(char* const& key, const StrAndBool& data) { return strcmp(key, (const char*)data.str); }
 
@@ -52,9 +54,8 @@ void StringTable::AddString(const char* str, bool copyString) {
     StrAndBool sab;
     sab.b = copyString;
     if (copyString) {
-        size_t strLen = strlen(str) + 1;
-        sab.str       = (char*)rakMalloc_Ex(strLen, _FILE_AND_LINE_);
-        memcpy(sab.str, str, strLen);
+        sab.str = (char*)rakMalloc_Ex(strlen(str) + 1, _FILE_AND_LINE_);
+        strcpy(sab.str, str);
     } else {
         sab.str = (char*)str;
     }
@@ -93,19 +94,16 @@ bool StringTable::DecodeString(char* output, int maxCharsToWrite, RakNet::BitStr
         if (!input->Read(index)) return false;
         if (index >= orderedStringList.Size()) {
 #ifdef _DEBUG
-            // Critical error - got a string index out of range, which means AddString
-            // was called more times on the remote system than on this system. All
-            // systems must call AddString the same number of types, with the same
-            // strings in the same order.
+            // Critical error - got a string index out of range, which means AddString was called more times on the
+            // remote system than on this system. All systems must call AddString the same number of types, with the
+            // same strings in the same order.
             RakAssert(0);
 #endif
             return false;
         }
 
-        size_t copyLen = strlen(orderedStringList[index].str);
-        if (copyLen >= (size_t)maxCharsToWrite) copyLen = (size_t)maxCharsToWrite - 1;
-        memcpy(output, orderedStringList[index].str, copyLen);
-        output[copyLen] = 0;
+        strncpy(output, orderedStringList[index].str, maxCharsToWrite);
+        output[maxCharsToWrite - 1] = 0;
     }
 
     return true;

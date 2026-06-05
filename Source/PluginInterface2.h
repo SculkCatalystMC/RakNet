@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -9,9 +9,9 @@
  */
 
 /// \file
-/// \brief \b RakNet's plugin functionality system, version 2.  You can derive
-/// from this to create your own plugins.
+/// \brief \b RakNet's plugin functionality system, version 2.  You can derive from this to create your own plugins.
 ///
+
 
 #ifndef __PLUGIN_INTERFACE_2_H
 #define __PLUGIN_INTERFACE_2_H
@@ -34,28 +34,24 @@ struct InternalPacket;
 /// \defgroup PLUGINS_GROUP Plugins
 /// \ingroup PLUGIN_INTERFACE_GROUP
 
-/// For each message that arrives on an instance of RakPeer, the plugins get an
-/// opportunity to process them first. This enumeration represents what to do
-/// with the message
+/// For each message that arrives on an instance of RakPeer, the plugins get an opportunity to process them first. This
+/// enumeration represents what to do with the message
 /// \ingroup PLUGIN_INTERFACE_GROUP
-enum class PluginReceiveResult : unsigned char {
+enum PluginReceiveResult {
     /// The plugin used this message and it shouldn't be given to the user.
     RR_STOP_PROCESSING_AND_DEALLOCATE = 0,
 
     /// This message will be processed by other plugins, and at last by the user.
     RR_CONTINUE_PROCESSING,
 
-    /// The plugin is going to hold on to this message.  Do not deallocate it but
-    /// do not pass it to other plugins either.
+    /// The plugin is going to hold on to this message.  Do not deallocate it but do not pass it to other plugins
+    /// either.
     RR_STOP_PROCESSING
 };
 
-using enum PluginReceiveResult;
-
-
 /// Reasons why a connection was lost
 /// \ingroup PLUGIN_INTERFACE_GROUP
-enum class PI2_LostConnectionReason : unsigned char {
+enum PI2_LostConnectionReason {
     /// Called RakPeer::CloseConnection()
     LCR_CLOSED_BY_USER,
 
@@ -66,12 +62,9 @@ enum class PI2_LostConnectionReason : unsigned char {
     LCR_CONNECTION_LOST
 };
 
-using enum PI2_LostConnectionReason;
-
-
 /// Returns why a connection attempt failed
 /// \ingroup PLUGIN_INTERFACE_GROUP
-enum class PI2_FailedConnectionAttemptReason : unsigned char {
+enum PI2_FailedConnectionAttemptReason {
     FCAR_CONNECTION_ATTEMPT_FAILED,
     FCAR_ALREADY_CONNECTED,
     FCAR_NO_FREE_INCOMING_CONNECTIONS,
@@ -85,9 +78,6 @@ enum class PI2_FailedConnectionAttemptReason : unsigned char {
     FCAR_PUBLIC_KEY_MISMATCH
 };
 
-using enum PI2_FailedConnectionAttemptReason;
-
-
 /// RakNet's plugin system. Each plugin processes the following events:
 /// -Connection attempts
 /// -The result of connection attempts
@@ -95,7 +85,7 @@ using enum PI2_FailedConnectionAttemptReason;
 /// -Updates over time, when RakPeer::Receive() is called
 ///
 /// \ingroup PLUGIN_INTERFACE_GROUP
-class RAK_DLL_EXPORT PluginInterface2 {
+class RAKNET_API PluginInterface2 {
 public:
     PluginInterface2();
     virtual ~PluginInterface2();
@@ -111,8 +101,7 @@ public:
 
     /// OnReceive is called for every packet.
     /// \param[in] packet the packet that is being returned to the user
-    /// \return True to allow the game and other plugins to get this message,
-    /// false to absorb it
+    /// \return True to allow the game and other plugins to get this message, false to absorb it
     virtual PluginReceiveResult OnReceive(Packet* packet) {
         (void)packet;
         return RR_CONTINUE_PROCESSING;
@@ -124,12 +113,11 @@ public:
     /// Called when RakPeer is shutdown
     virtual void OnRakPeerShutdown(void) {}
 
-    /// Called when a connection is dropped because the user called
-    /// RakPeer::CloseConnection() for a particular system
+    /// Called when a connection is dropped because the user called RakPeer::CloseConnection() for a particular system
     /// \param[in] systemAddress The system whose connection was closed
     /// \param[in] rakNetGuid The guid of the specified system
-    /// \param[in] lostConnectionReason How the connection was closed: manually,
-    /// connection lost, or notification of disconnection
+    /// \param[in] lostConnectionReason How the connection was closed: manually, connection lost, or notification of
+    /// disconnection
     virtual void OnClosedConnection(
         const SystemAddress&     systemAddress,
         RakNetGUID               rakNetGUID,
@@ -143,8 +131,7 @@ public:
     /// Called when we got a new connection
     /// \param[in] systemAddress Address of the new connection
     /// \param[in] rakNetGuid The guid of the specified system
-    /// \param[in] isIncoming If true, this is ID_NEW_INCOMING_CONNECTION, or the
-    /// equivalent
+    /// \param[in] isIncoming If true, this is ID_NEW_INCOMING_CONNECTION, or the equivalent
     virtual void OnNewConnection(const SystemAddress& systemAddress, RakNetGUID rakNetGUID, bool isIncoming) {
         (void)systemAddress;
         (void)rakNetGUID;
@@ -161,14 +148,12 @@ public:
     }
 
     /// Queried when attached to RakPeer
-    /// Return true to call OnDirectSocketSend(), OnDirectSocketReceive(),
-    /// OnReliabilityLayerNotification(), OnInternalPacket(), and OnAck() If true,
-    /// then you cannot call RakPeer::AttachPlugin() or RakPeer::DetachPlugin()
+    /// Return true to call OnDirectSocketSend(), OnDirectSocketReceive(), OnReliabilityLayerNotification(),
+    /// OnInternalPacket(), and OnAck() If true, then you cannot call RakPeer::AttachPlugin() or RakPeer::DetachPlugin()
     /// for this plugin, while RakPeer is active
     virtual bool UsesReliabilityLayer(void) const { return false; }
 
-    /// Called on a send to the socket, per datagram, that does not go through the
-    /// reliability layer
+    /// Called on a send to the socket, per datagram, that does not go through the reliability layer
     /// \pre To be called, UsesReliabilityLayer() must return true
     /// \param[in] data The data being sent
     /// \param[in] bitsUsed How many bits long \a data is
@@ -179,8 +164,7 @@ public:
         (void)remoteSystemAddress;
     }
 
-    /// Called on a receive from the socket, per datagram, that does not go
-    /// through the reliability layer
+    /// Called on a receive from the socket, per datagram, that does not go through the reliability layer
     /// \pre To be called, UsesReliabilityLayer() must return true
     /// \param[in] data The data being sent
     /// \param[in] bitsUsed How many bits long \a data is
@@ -210,13 +194,11 @@ public:
     /// Called on a send or receive of a message within the reliability layer
     /// \pre To be called, UsesReliabilityLayer() must return true
     /// \param[in] internalPacket The user message, along with all send data.
-    /// \param[in] frameNumber The number of frames sent or received so far for
-    /// this player depending on \a isSend .  Indicates the frame of this user
-    /// message.
+    /// \param[in] frameNumber The number of frames sent or received so far for this player depending on \a isSend .
+    /// Indicates the frame of this user message.
     /// \param[in] remoteSystemAddress The player we sent or got this packet from
     /// \param[in] time The current time as returned by RakNet::GetTimeMS()
-    /// \param[in] isSend Is this callback representing a send event or receive
-    /// event?
+    /// \param[in] isSend Is this callback representing a send event or receive event?
     virtual void OnInternalPacket(
         InternalPacket* internalPacket,
         unsigned        frameNumber,
@@ -233,8 +215,7 @@ public:
 
     /// Called when we get an ack for a message we reliably sent
     /// \pre To be called, UsesReliabilityLayer() must return true
-    /// \param[in] messageNumber The numerical identifier for which message this
-    /// is
+    /// \param[in] messageNumber The numerical identifier for which message this is
     /// \param[in] remoteSystemAddress The player we sent or got this packet from
     /// \param[in] time The current time as returned by RakNet::GetTimeMS()
     virtual void OnAck(unsigned int messageNumber, SystemAddress remoteSystemAddress, RakNet::TimeMS time) {
@@ -253,7 +234,7 @@ public:
         (void)remoteSystemAddress;
     }
 
-    RakPeerInterface* GetRakPeerInterface(void) const { return rakPeerInterface; }
+    RakPeerInterface* GetRakPeerInterface(void) const { return mRakPeerInterface; }
 
     RakNetGUID GetMyGUIDUnified(void) const;
 
@@ -266,8 +247,7 @@ public:
 #endif
 
 protected:
-    // Send through either rakPeerInterface or tcpInterface, whichever is
-    // available
+    // Send through either rakPeerInterface or tcpInterface, whichever is available
     void SendUnified(
         const RakNet::BitStream* bitStream,
         PacketPriority           priority,
@@ -301,7 +281,7 @@ protected:
     void    DeallocPacketUnified(Packet* packet);
 
     // Filled automatically in when attached
-    RakPeerInterface* rakPeerInterface;
+    RakPeerInterface* mRakPeerInterface;
 #if _RAKNET_SUPPORT_TCPInterface == 1
     TCPInterface* tcpInterface;
 #endif

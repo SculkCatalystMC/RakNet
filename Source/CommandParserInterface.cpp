@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -14,11 +14,11 @@
 #include <stdio.h>
 #include <string.h>
 
+
 #if defined(WINDOWS_STORE_RT)
 #elif defined(_WIN32)
-// IP_DONTFRAGMENT is different between winsock 1 and winsock 2.  Therefore,
-// Winsock2.h must be linked againt Ws2_32.lib winsock.h must be linked against
-// WSock32.lib.  If these two are mixed up the flag won't work correctly
+// IP_DONTFRAGMENT is different between winsock 1 and winsock 2.  Therefore, Winsock2.h must be linked againt Ws2_32.lib
+// winsock.h must be linked against WSock32.lib.  If these two are mixed up the flag won't work correctly
 #include <winsock2.h>
 
 #else

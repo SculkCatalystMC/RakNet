@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -11,6 +11,7 @@
 /// \file
 ///
 
+
 #include "RakNetTypes.h"
 #include "RakAssert.h"
 #include "RakNetSocket2.h"
@@ -21,16 +22,13 @@
 #include <string.h>
 
 #if defined(_WIN32)
-// extern __int64 _strtoui64(const char*, char**, int); // needed for
-// Code::Blocks. Does not compile on Visual Studio 2010 IP_DONTFRAGMENT is
-// different between winsock 1 and winsock 2.  Therefore, Winsock2.h must be
-// linked againt Ws2_32.lib winsock.h must be linked against WSock32.lib.  If
-// these two are mixed up the flag won't work correctly
+// extern __int64 _strtoui64(const char*, char**, int); // needed for Code::Blocks. Does not compile on Visual Studio
+// 2010 IP_DONTFRAGMENT is different between winsock 1 and winsock 2.  Therefore, Winsock2.h must be linked againt
+// Ws2_32.lib winsock.h must be linked against WSock32.lib.  If these two are mixed up the flag won't work correctly
 #include "WindowsIncludes.h"
 
 #else
 #include <arpa/inet.h>
-#include <netdb.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #endif
@@ -39,7 +37,11 @@
 #include "SocketLayer.h"
 #include "SuperFastHash.h"
 #include <stdlib.h>
-#include <string.h> // strncasecmp
+#include <string.h> // strncasecmp'
+
+#if (defined(__GNUC__) || defined(__GCCXML__)) && !defined(__WIN32__)
+#include <netdb.h>
+#endif
 
 using namespace RakNet;
 
@@ -95,31 +97,23 @@ SocketDescriptor::SocketDescriptor(unsigned short _port, const char* _hostAddres
 #endif
     remotePortRakNetWasStartedOn_PS3_PSP2 = 0;
     port                                  = _port;
-    if (_hostAddress) snprintf(hostAddress, sizeof(hostAddress), "%s", _hostAddress);
+    if (_hostAddress) strcpy(hostAddress, _hostAddress);
     else hostAddress[0] = 0;
     extraSocketOptions = 0;
     socketFamily       = AF_INET;
 }
 
-// Defaults to not in peer to peer mode for NetworkIDs.  This only sends the
-// localSystemAddress portion in the BitStream class This is what you want for
-// client/server, where the server assigns all NetworkIDs and it is unnecessary
-// to transmit the full structure. For peer to peer, this will transmit the
-// systemAddress of the system that created the object in addition to
-// localSystemAddress.  This allows Any system to create unique ids locally. All
-// systems must use the same value for this variable.
-// bool RAK_DLL_EXPORT NetworkID::peerToPeerMode=false;
+// Defaults to not in peer to peer mode for NetworkIDs.  This only sends the localSystemAddress portion in the BitStream
+// class This is what you want for client/server, where the server assigns all NetworkIDs and it is unnecessary to
+// transmit the full structure. For peer to peer, this will transmit the systemAddress of the system that created the
+// object in addition to localSystemAddress.  This allows Any system to create unique ids locally. All systems must use
+// the same value for this variable. bool RAKNET_API NetworkID::peerToPeerMode=false;
 
 SystemAddress& SystemAddress::operator=(const SystemAddress& input) {
     memcpy(&address, &input.address, sizeof(address));
     systemIndex = input.systemIndex;
     debugPort   = input.debugPort;
     return *this;
-}
-SystemAddress::SystemAddress(const SystemAddress& input) {
-    memcpy(&address, &input.address, sizeof(address));
-    systemIndex = input.systemIndex;
-    debugPort   = input.debugPort;
 }
 bool SystemAddress::EqualsExcludingPort(const SystemAddress& right) const {
     return (address.addr4.sin_family == AF_INET && address.addr4.sin_addr.s_addr == right.address.addr4.sin_addr.s_addr)
@@ -254,8 +248,7 @@ bool SystemAddress::IsLoopback(void) const {
 }
 void SystemAddress::ToString_Old(bool writePort, char* dest, char portDelineator) const {
     if (*this == UNASSIGNED_SYSTEM_ADDRESS) {
-        static const char unassigned[] = "UNASSIGNED_SYSTEM_ADDRESS";
-        memcpy(dest, unassigned, sizeof(unassigned));
+        strcpy(dest, "UNASSIGNED_SYSTEM_ADDRESS");
         return;
     }
 
@@ -264,14 +257,11 @@ void SystemAddress::ToString_Old(bool writePort, char* dest, char portDelineator
     portStr[1] = 0;
 
     in_addr in;
-    in.s_addr = address.addr4.sin_addr.s_addr;
-    if (inet_ntop(AF_INET, &in, dest, INET_ADDRSTRLEN) == 0) {
-        dest[0] = 0;
-    }
+    in.s_addr           = address.addr4.sin_addr.s_addr;
+    const char* ntoaStr = inet_ntoa(in);
+    strcpy(dest, ntoaStr);
     if (writePort) {
-        size_t destLen = strlen(dest);
-        dest[destLen++] = portStr[0];
-        dest[destLen]   = 0;
+        strcat(dest, portStr);
         Itoa(GetPort(), dest + strlen(dest), 10);
     }
 }
@@ -294,8 +284,7 @@ void SystemAddress::ToString_New(bool writePort, char* dest, char portDelineator
     (void)ret;
 
     if (*this == UNASSIGNED_SYSTEM_ADDRESS) {
-        static const char unassigned[] = "UNASSIGNED_SYSTEM_ADDRESS";
-        memcpy(dest, unassigned, sizeof(unassigned));
+        strcpy(dest, "UNASSIGNED_SYSTEM_ADDRESS");
         return;
     }
 
@@ -328,9 +317,7 @@ void SystemAddress::ToString_New(bool writePort, char* dest, char portDelineator
         unsigned char ch[2];
         ch[0] = portDelineator;
         ch[1] = 0;
-        size_t destLen = strlen(dest);
-        dest[destLen++] = static_cast<char>(ch[0]);
-        dest[destLen]   = 0;
+        strcat(dest, (const char*)ch);
         Itoa(ntohs(address.addr4.sin_port), dest + strlen(dest), 10);
     }
 }
@@ -364,8 +351,8 @@ SystemAddress::SystemAddress(const char* str, unsigned short port) {
 }
 
 #ifdef _MSC_VER
-#pragma warning(disable : 4996) // The POSIX name for this item is deprecated. Instead, use the ISO
-                                // C++ conformant name: _strnicmp. See online help for details.
+#pragma warning(disable : 4996) // The POSIX name for this item is deprecated. Instead, use the ISO C++ conformant name:
+                                // _strnicmp. See online help for details.
 #endif
 void SystemAddress::FixForIPVersion(const SystemAddress& boundAddressToSocket) {
     char str[128];
@@ -384,16 +371,14 @@ void SystemAddress::FixForIPVersion(const SystemAddress& boundAddressToSocket) {
 
         // 		if (boundAddressToSocket.GetIPVersion()==4)
         // 		{
-        // 			// Some kind of bug with sendto: returns "The requested
-        // address is not valid in its context." if loopback doesn't have the same
-        // IP address
+        // 			// Some kind of bug with sendto: returns "The requested address is not valid in its context." if
+        // loopback doesn't have the same IP address
         // 			address.addr4.sin_addr.s_addr=boundAddressToSocket.address.addr4.sin_addr.s_addr;
         // 		}
     }
 }
 bool SystemAddress::IsLANAddress(void) {
-//	return address.addr4.sin_addr.S_un.S_un_b.s_b1==10 ||
-// address.addr4.sin_addr.S_un.s_b1==192;
+//	return address.addr4.sin_addr.S_un.S_un_b.s_b1==10 || address.addr4.sin_addr.S_un.s_b1==192;
 #if defined(__WIN32__)
     return address.addr4.sin_addr.S_un.S_un_b.s_b1 == 10 || address.addr4.sin_addr.S_un.S_un_b.s_b1 == 192;
 #else
@@ -409,7 +394,8 @@ bool SystemAddress::SetBinaryAddress(const char* str, char portDelineator) {
         if (strncasecmp(str, "localhost", 9) == 0)
 #endif
         {
-            address.addr4.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+
+            address.addr4.sin_addr.s_addr = inet_addr__("127.0.0.1");
 
             if (str[9]) {
                 SetPortHostOrder((unsigned short)atoi(str + 9));
@@ -422,11 +408,8 @@ bool SystemAddress::SetBinaryAddress(const char* str, char portDelineator) {
         ip[0] = 0;
         RakNetSocket2::DomainNameToIP(str, ip);
         if (ip[0]) {
-            if (inet_pton(AF_INET, ip, &address.addr4.sin_addr) != 1) {
-                *this = UNASSIGNED_SYSTEM_ADDRESS;
-                return false;
-            }
 
+            address.addr4.sin_addr.s_addr = inet_addr__(ip);
         } else {
             *this = UNASSIGNED_SYSTEM_ADDRESS;
             return false;
@@ -459,10 +442,7 @@ bool SystemAddress::SetBinaryAddress(const char* str, char portDelineator) {
         }
 
         if (IPPart[0]) {
-            if (inet_pton(AF_INET, IPPart, &address.addr4.sin_addr) != 1) {
-                *this = UNASSIGNED_SYSTEM_ADDRESS;
-                return false;
-            }
+            address.addr4.sin_addr.s_addr = inet_addr__(IPPart);
         }
 
         if (portPart[0]) {
@@ -497,12 +477,12 @@ bool SystemAddress::FromString(const char* str, char portDelineator, int ipVersi
 
     // TODO - what about 255.255.255.255?
     if (ipVersion == 4 && strcmp(str, IPV6_LOOPBACK) == 0) {
-        snprintf(ipPart, sizeof(ipPart), "%s", IPV4_LOOPBACK);
+        strcpy(ipPart, IPV4_LOOPBACK);
     } else if (ipVersion == 6 && strcmp(str, IPV4_LOOPBACK) == 0) {
         address.addr4.sin_family = AF_INET6;
-        snprintf(ipPart, sizeof(ipPart), "%s", IPV6_LOOPBACK);
+        strcpy(ipPart, IPV6_LOOPBACK);
     } else if (NonNumericHostString(str) == false) {
-        for (; i < static_cast<int>(sizeof(ipPart)) && str[i] != 0 && str[i] != portDelineator; i++) {
+        for (; i < sizeof(ipPart) && str[i] != 0 && str[i] != portDelineator; i++) {
             if ((str[i] < '0' || str[i] > '9') && (str[i] < 'a' || str[i] > 'f') && (str[i] < 'A' || str[i] > 'F')
                 && str[i] != '.' && str[i] != ':' && str[i] != '%' && str[i] != '-' && str[i] != '/')
                 break;
@@ -518,7 +498,7 @@ bool SystemAddress::FromString(const char* str, char portDelineator, int ipVersi
     j = 0;
     if (str[i] == portDelineator && portDelineator != 0) {
         i++;
-        for (; j < static_cast<int>(sizeof(portPart)) && str[i] != 0; i++, j++) {
+        for (; j < sizeof(portPart) && str[i] != 0; i++, j++) {
             portPart[j] = str[i];
         }
     }
@@ -527,8 +507,8 @@ bool SystemAddress::FromString(const char* str, char portDelineator, int ipVersi
     // needed for getaddrinfo
     WSAStartupSingleton::AddRef();
 
-    // This could be a domain, or a printable address such as "192.0.2.1" or
-    // "2001:db8:63b3:1::3490" I want to convert it to its binary representation
+    // This could be a domain, or a printable address such as "192.0.2.1" or "2001:db8:63b3:1::3490"
+    // I want to convert it to its binary representation
     addrinfo hints, *servinfo = 0;
     memset(&hints, 0, sizeof hints);
     hints.ai_socktype = SOCK_DGRAM;
@@ -553,8 +533,8 @@ bool SystemAddress::FromString(const char* str, char portDelineator, int ipVersi
         // 		{
         //			address.addr4.sin_family=AF_INET6;
         // 			memset(&address.addr6,0,sizeof(address.addr6));
-        // 			memcpy(address.addr6.sin6_addr.s6_addr+12,&((struct
-        // sockaddr_in *)servinfo->ai_addr)->sin_addr.s_addr,sizeof(unsigned long));
+        // 			memcpy(address.addr6.sin6_addr.s6_addr+12,&((struct sockaddr_in
+        // *)servinfo->ai_addr)->sin_addr.s_addr,sizeof(unsigned long));
         // 		}
         // 		else
         // 		{
@@ -618,13 +598,11 @@ const char* RakNetGUID::ToString(void) const {
     return (char*)str[lastStrIndex & 7];
 }
 void RakNetGUID::ToString(char* dest) const {
-    if (*this == UNASSIGNED_RAKNET_GUID) {
-        static const char unassigned[] = "UNASSIGNED_RAKNET_GUID";
-        memcpy(dest, unassigned, sizeof(unassigned));
-    } else
-        // old dotted formatting example retained for reference
-        snprintf(dest, 64, "%" PRINTF_64_BIT_MODIFIER "u", (long long unsigned int)g);
-    // old dotted formatting example retained for reference
+    if (*this == UNASSIGNED_RAKNET_GUID) strcpy(dest, "UNASSIGNED_RAKNET_GUID");
+    else
+        // sprintf(dest, "%u.%u.%u.%u.%u.%u", g[0], g[1], g[2], g[3], g[4], g[5]);
+        sprintf(dest, "%" PRINTF_64_BIT_MODIFIER "u", (long long unsigned int)g);
+    // sprintf(dest, "%u.%u.%u.%u.%u.%u", g[0], g[1], g[2], g[3], g[4], g[5]);
 }
 bool RakNetGUID::FromString(const char* source) {
     if (source == 0) return false;

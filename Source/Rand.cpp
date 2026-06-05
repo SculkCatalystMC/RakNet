@@ -26,8 +26,7 @@
  * at a time, so the caching and pipelining of modern systems is exploited.
  * It is also divide- and mod-free.
  *
- * Licensing is free
- * http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/MT2002/elicense.html
+ * Licensing is free http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/MT2002/elicense.html
  *
  * The code as Shawn received it included the following notice:
  *
@@ -78,12 +77,7 @@ unsigned int randomMT(void) { return randomMT(_state, _next, _left); }
 float        frandomMT(void) { return frandomMT(_state, _next, _left); }
 void         fillBufferMT(void* buffer, unsigned int bytes) { fillBufferMT(buffer, bytes, _state, _next, _left); }
 
-void seedMT(
-    unsigned int   seed,
-    unsigned int*  state,
-    unsigned int*& next,
-    int&           left
-) // Defined in cokus_c.c
+void seedMT(unsigned int seed, unsigned int* state, unsigned int*& next, int& left) // Defined in cokus_c.c
 {
     (void)next;
 
@@ -141,6 +135,7 @@ void seedMT(
         ;
 }
 
+
 unsigned int reloadMT(unsigned int* state, unsigned int*& next, int& left) {
     unsigned int *p0 = state, *p2 = state + 2, *pM = state + M, s0, s1;
     int           j;
@@ -165,6 +160,7 @@ unsigned int reloadMT(unsigned int* state, unsigned int*& next, int& left) {
     return (s1 ^ (s1 >> 18));
 }
 
+
 unsigned int randomMT(unsigned int* state, unsigned int*& next, int& left) {
     unsigned int y;
 
@@ -180,8 +176,8 @@ unsigned int randomMT(unsigned int* state, unsigned int*& next, int& left) {
 
     return (y ^ (y >> 18));
 
-    // This change made so the value returned is in the same range as what rand()
-    // returns return(y ^ (y >> 18)) % 32767;
+    // This change made so the value returned is in the same range as what rand() returns
+    // return(y ^ (y >> 18)) % 32767;
 }
 
 void fillBufferMT(void* buffer, unsigned int bytes, unsigned int* state, unsigned int*& next, int& left) {
@@ -227,8 +223,7 @@ seedMT(4357U);
 // print the first 2,002 random numbers seven to a line as an example
 
 for(j=0; j<2002; j++)
-RAKNET_DEBUG_PRINTF(" %10lu%s", (unsigned int) randomMT(), (j%7)==6 ? "\n" :
-"");
+RAKNET_DEBUG_PRINTF(" %10lu%s", (unsigned int) randomMT(), (j%7)==6 ? "\n" : "");
 
 return(EXIT_SUCCESS);
 }

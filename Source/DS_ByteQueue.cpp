@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -13,6 +13,7 @@
 #include <stdlib.h> // realloc
 #include <string.h> // Memmove
 
+
 using namespace DataStructures;
 
 ByteQueue::ByteQueue() {
@@ -25,8 +26,7 @@ void ByteQueue::WriteBytes(const char* in, unsigned length, const char* file, un
     bytesWritten = GetBytesWritten();
     if (lengthAllocated == 0 || length > lengthAllocated - bytesWritten - 1) {
         unsigned oldLengthAllocated = lengthAllocated;
-        // Always need to waste 1 byte for the math to work, else
-        // writeoffset==readoffset
+        // Always need to waste 1 byte for the math to work, else writeoffset==readoffset
         unsigned newAmountToAllocate = length + oldLengthAllocated + 1;
         if (newAmountToAllocate < 256) newAmountToAllocate = 256;
         lengthAllocated = lengthAllocated + newAmountToAllocate;

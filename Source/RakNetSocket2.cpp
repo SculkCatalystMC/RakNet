@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -24,7 +24,6 @@ using namespace RakNet;
 #include <arpa/inet.h>
 #include <errno.h> // error numbers
 #include <fcntl.h>
-#include <netdb.h>
 #include <unistd.h>
 #if !defined(ANDROID)
 #include <ifaddrs.h>
@@ -34,7 +33,6 @@ using namespace RakNet;
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <sys/types.h>
-#include "LinuxStrings.h"
 #endif
 
 #ifdef TEST_NATIVE_CLIENT_ON_WINDOWS
@@ -75,9 +73,11 @@ RakNetSocket2* RakNetSocket2Allocator::AllocRNS2(void) {
     s2 = RakNet::OP_NEW<RNS2_WindowsStore8>(_FILE_AND_LINE_);
     s2->SetSocketType(RNS2T_WINDOWS_STORE_8);
 
+
 #elif defined(__native_client__)
     s2 = RakNet::OP_NEW<RNS2_NativeClient>(_FILE_AND_LINE_);
     s2->SetSocketType(RNS2T_CHROME);
+
 
 #elif defined(_WIN32)
     s2 = RakNet::OP_NEW<RNS2_Windows>(_FILE_AND_LINE_);
@@ -92,8 +92,10 @@ void RakNetSocket2::GetMyIP(SystemAddress addresses[MAXIMUM_NUMBER_OF_INTERNAL_I
 #if defined(WINDOWS_STORE_RT)
     RNS2_WindowsStore8::GetMyIP(addresses);
 
+
 #elif defined(__native_client__)
     RNS2_NativeClient::GetMyIP(addresses);
+
 
 #elif defined(_WIN32)
     RNS2_Windows::GetMyIP(addresses);
@@ -111,6 +113,7 @@ void RakNetSocket2::DomainNameToIP(const char* domainName, char ip[65]) {
     return RNS2_WindowsStore8::DomainNameToIP(domainName, ip);
 #elif defined(__native_client__)
     return DomainNameToIP_Berkley(domainName, ip);
+
 
 #elif defined(_WIN32)
     return DomainNameToIP_Berkley(domainName, ip);
@@ -210,8 +213,7 @@ void RNS2_NativeClient::onSendTo(void* pData, int32_t dataSize) {
 RNS2SendResult RNS2_NativeClient::Send(RNS2_SendParameters* sendParameters, const char* file, unsigned int line) {
     if (bindState == BS_FAILED) return -1;
 
-    // This is called from multiple threads. Always buffer the send, until native
-    // client is threadsafe
+    // This is called from multiple threads. Always buffer the send, until native client is threadsafe
     BufferSend(sendParameters, file, line);
     return sendParameters->length;
 }
@@ -223,8 +225,8 @@ void RNS2_NativeClient::BufferSend(RNS2_SendParameters* sendParameters, const ch
     bufferedSends.Push(sp, file, line);
     bufferedSendsMutex.Unlock();
 
-    // Do not check to send immediately, because this was probably invoked from a
-    // thread and native client is not threadsafe
+    // Do not check to send immediately, because this was probably invoked from a thread and native client is not
+    // threadsafe
 }
 void RNS2_NativeClient::GetMyIP(SystemAddress addresses[MAXIMUM_NUMBER_OF_INTERNAL_IDS]) {
     addresses[0] = UNASSIGNED_SYSTEM_ADDRESS;
@@ -291,16 +293,17 @@ RNS2_Berkley::BindShared(RNS2_BerkleyBindParameters* bindParameters, const char*
     memcpy(&binding, bindParameters, sizeof(RNS2_BerkleyBindParameters));
 
     /*
-  #if defined(__APPLE__)
+#if defined(__APPLE__)
     const CFSocketContext   context = { 0, this, NULL, NULL, NULL };
-    _cfSocket = CFSocketCreateWithNative(NULL, rns2Socket, kCFSocketReadCallBack,
-  SocketReadCallback, &context); #endif
+    _cfSocket = CFSocketCreateWithNative(NULL, rns2Socket, kCFSocketReadCallBack, SocketReadCallback, &context);
+#endif
     */
 
     return br;
 }
 
 RAK_THREAD_DECLARATION(RNS2_Berkley::RecvFromLoop) {
+
 
     RNS2_Berkley* b = (RNS2_Berkley*)arguments;
 
@@ -328,15 +331,16 @@ unsigned RNS2_Berkley::RecvFromLoopInt(void) {
     }
     isRecvFromLoopThreadActive.Decrement();
 
+
     return 0;
 }
 RNS2_Berkley::RNS2_Berkley() { rns2Socket = static_cast<RNS2Socket>(INVALID_SOCKET); }
 RNS2_Berkley::~RNS2_Berkley() {
     if (rns2Socket != INVALID_SOCKET) {
         /*
-    #if defined(__APPLE__)
+#if defined(__APPLE__)
         CFSocketInvalidate(_cfSocket);
-    #endif
+#endif
         */
 
         closesocket__(rns2Socket);
@@ -344,6 +348,7 @@ RNS2_Berkley::~RNS2_Berkley() {
 }
 int RNS2_Berkley::CreateRecvPollingThread(int threadPriority) {
     endThreads = false;
+
 
     int errorCode = RakNet::RakThread::Create(RecvFromLoop, this, threadPriority);
 
@@ -371,8 +376,8 @@ void RNS2_Berkley::BlockOnStopRecvPollingThread(void) {
 }
 const RNS2_BerkleyBindParameters* RNS2_Berkley::GetBindings(void) const { return &binding; }
 RNS2Socket                        RNS2_Berkley::GetSocket(void) const { return rns2Socket; }
-// See RakNetSocket2_Berkley.cpp for WriteSharedIPV4, BindSharedIPV4And6 and
-// other implementations
+// See RakNetSocket2_Berkley.cpp for WriteSharedIPV4, BindSharedIPV4And6 and other implementations
+
 
 #if defined(_WIN32)
 RNS2_Windows::RNS2_Windows() { slo = 0; }

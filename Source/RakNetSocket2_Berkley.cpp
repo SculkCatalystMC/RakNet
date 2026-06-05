@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -10,22 +10,20 @@
 
 #include "EmptyHeader.h"
 
+#if (defined(__GNUC__) || defined(__GCCXML__)) && !defined(__WIN32__)
+#include "LinuxStrings.h"
+#include <netdb.h>
+#endif
+
 #ifdef RAKNET_SOCKET_2_INLINE_FUNCTIONS
 
 #ifndef RAKNETSOCKET2_BERKLEY_CPP
 #define RAKNETSOCKET2_BERKLEY_CPP
 
-// Every platform except windows store 8 and native client supports Berkley
-// sockets
+// Every platform except windows store 8 and native client supports Berkley sockets
 #if !defined(WINDOWS_STORE_RT) && !defined(__native_client__)
 
 #include "Itoa.h"
-
-namespace {
-bool ParseIpv4Address(const char* text, in_addr* outAddress) {
-    return inet_pton(AF_INET, text, outAddress) == 1;
-}
-}
 
 void RNS2_Berkley::SetSocketOptions(void) {
     int r;
@@ -34,26 +32,26 @@ void RNS2_Berkley::SetSocketOptions(void) {
     r            = setsockopt__(rns2Socket, SOL_SOCKET, SO_RCVBUF, (char*)&sock_opt, sizeof(sock_opt));
     RakAssert(r == 0);
 
-    // Immediate hard close. Don't linger the socket, or recreating the socket
-    // quickly on Vista fails. Fail with voice and xbox
+    // Immediate hard close. Don't linger the socket, or recreating the socket quickly on Vista fails.
+    // Fail with voice and xbox
 
     sock_opt = 0;
     r        = setsockopt__(rns2Socket, SOL_SOCKET, SO_LINGER, (char*)&sock_opt, sizeof(sock_opt));
     // Do not assert, ignore failure
+
 
     // This doesn't make much difference: 10% maybe
     // Not supported on console 2
     sock_opt = 1024 * 16;
     r        = setsockopt__(rns2Socket, SOL_SOCKET, SO_SNDBUF, (char*)&sock_opt, sizeof(sock_opt));
     RakAssert(r == 0);
-    static_cast<void>(r);
 }
 
 void RNS2_Berkley::SetNonBlockingSocket(unsigned long nonblocking) {
 #ifdef _WIN32
-    int res = ioctlsocket__(rns2Socket, FIONBIO, &nonblocking);
+    /*int res =*/ioctlsocket__(rns2Socket, FIONBIO, &nonblocking);
     RakAssert(res == 0);
-    static_cast<void>(res);
+
 
 #else
     if (nonblocking) fcntl(rns2Socket, F_SETFL, O_NONBLOCK);
@@ -67,7 +65,6 @@ void RNS2_Berkley::SetIPHdrIncl(int ipHdrIncl) {
     setsockopt__(rns2Socket, IPPROTO_IP, IP_HDRINCL, (char*)&ipHdrIncl, sizeof(ipHdrIncl));
 }
 void RNS2_Berkley::SetDoNotFragment(int opt) {
-    static_cast<void>(opt);
 #if defined(IP_DONTFRAGMENT)
 #if defined(_WIN32) && !defined(_DEBUG)
     // If this assert hit you improperly linked against WSock32.h
@@ -87,7 +84,9 @@ void RNS2_Berkley::GetSystemAddressIPV4(RNS2Socket rns2Socket, SystemAddress* sy
     systemAddressOut->address.addr4.sin_addr.s_addr = sa.sin_addr.s_addr;
 
     if (systemAddressOut->address.addr4.sin_addr.s_addr == INADDR_ANY) {
-        systemAddressOut->address.addr4.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+
+
+        systemAddressOut->address.addr4.sin_addr.s_addr = inet_addr__("127.0.0.1");
     }
 }
 void RNS2_Berkley::GetSystemAddressIPV4And6(RNS2Socket rns2Socket, SystemAddress* systemAddressOut) {
@@ -147,6 +146,8 @@ void RNS2_Berkley::GetSystemAddressIPV4And6(RNS2Socket rns2Socket, SystemAddress
 #endif
 }
 
+extern void PrepareAddrInfoHints2(addrinfo* hints);
+
 #ifdef _MSC_VER
 #pragma warning(disable : 4702) // warning C4702: unreachable code
 #endif
@@ -170,21 +171,23 @@ RNS2_Berkley::BindSharedIPV4(RNS2_BerkleyBindParameters* bindParameters, const c
     // Fill in the rest of the address structure
     boundAddress.address.addr4.sin_family = AF_INET;
 
+
     if (bindParameters->hostAddress && bindParameters->hostAddress[0]) {
-        if (!ParseIpv4Address(bindParameters->hostAddress, &boundAddress.address.addr4.sin_addr)) {
-            closesocket__(rns2Socket);
-            return BR_FAILED_TO_BIND_SOCKET;
-        }
+
+
+        boundAddress.address.addr4.sin_addr.s_addr = inet_addr__(bindParameters->hostAddress);
 
     } else {
         //		RAKNET_DEBUG_PRINTF("Binding any on port %i\n", port);
         boundAddress.address.addr4.sin_addr.s_addr = INADDR_ANY;
     }
 
+
     // bind our name to the socket
     ret = bind__(rns2Socket, (struct sockaddr*)&boundAddress.address.addr4, sizeof(boundAddress.address.addr4));
 
     if (ret <= -1) {
+
 
 #if defined(_WIN32)
         closesocket__(rns2Socket);
@@ -201,22 +204,13 @@ RNS2_Berkley::BindSharedIPV4(RNS2_BerkleyBindParameters* bindParameters, const c
             break;
 
         case EINVAL:
-            RAKNET_DEBUG_PRINTF(
-                "bind__(): The addrlen is wrong, or the socket was "
-                "not in the AF_UNIX family.\n"
-            );
+            RAKNET_DEBUG_PRINTF("bind__(): The addrlen is wrong, or the socket was not in the AF_UNIX family.\n");
             break;
         case EROFS:
-            RAKNET_DEBUG_PRINTF(
-                "bind__(): The socket inode would reside on a "
-                "read-only file system.\n"
-            );
+            RAKNET_DEBUG_PRINTF("bind__(): The socket inode would reside on a read-only file system.\n");
             break;
         case EFAULT:
-            RAKNET_DEBUG_PRINTF(
-                "bind__(): my_addr points outside the user's "
-                "accessible address space.\n"
-            );
+            RAKNET_DEBUG_PRINTF("bind__(): my_addr points outside the user's accessible address space.\n");
             break;
         case ENAMETOOLONG:
             RAKNET_DEBUG_PRINTF("bind__(): my_addr is too long.\n");
@@ -232,17 +226,11 @@ RNS2_Berkley::BindSharedIPV4(RNS2_BerkleyBindParameters* bindParameters, const c
             break;
         case EACCES:
             // Port reserved on PS4
-            RAKNET_DEBUG_PRINTF(
-                "bind__(): Search permission is denied on a "
-                "component of the path prefix.\n"
-            );
+            RAKNET_DEBUG_PRINTF("bind__(): Search permission is denied on a component of the path prefix.\n");
             break;
 
         case ELOOP:
-            RAKNET_DEBUG_PRINTF(
-                "bind__(): Too many symbolic links were encountered "
-                "in resolving my_addr.\n"
-            );
+            RAKNET_DEBUG_PRINTF("bind__(): Too many symbolic links were encountered in resolving my_addr.\n");
             break;
 
         default:
@@ -270,12 +258,11 @@ RNS2_Berkley::BindSharedIPV4And6(RNS2_BerkleyBindParameters* bindParameters, con
     int              ret = 0;
     struct addrinfo  hints;
     struct addrinfo *servinfo = 0, *aip; // will point to the results
-    memset(&hints, 0, sizeof(hints));
-    hints.ai_socktype = SOCK_DGRAM;
-    hints.ai_flags    = AI_PASSIVE;
+    PrepareAddrInfoHints2(&hints);
     hints.ai_family = bindParameters->addressFamily;
     char portStr[32];
     Itoa(bindParameters->port, portStr, 10);
+
 
     // On Ubuntu, "" returns "No address associated with hostname" while 0 works.
     if (bindParameters->hostAddress
@@ -290,9 +277,10 @@ RNS2_Berkley::BindSharedIPV4And6(RNS2_BerkleyBindParameters* bindParameters, con
     for (aip = servinfo; aip != NULL; aip = aip->ai_next) {
         // Open socket. The address type depends on what
         // getaddrinfo() gave us.
-        rns2Socket = static_cast<RNS2Socket>(socket__(aip->ai_family, aip->ai_socktype, aip->ai_protocol));
+        rns2Socket = (uint32_t)socket__(aip->ai_family, aip->ai_socktype, aip->ai_protocol);
 
         if (rns2Socket == -1) return BR_FAILED_TO_BIND_SOCKET;
+
 
         ret = bind__(rns2Socket, aip->ai_addr, (int)aip->ai_addrlen);
         if (ret >= 0) {
@@ -332,12 +320,15 @@ void RNS2_Berkley::RecvFromBlockingIPV4And6(RNS2RecvStruct* recvFromStruct) {
     int       dataOutSize;
     const int flag = 0;
 
+
     {
         sockLen     = sizeof(their_addr);
         sockAddrPtr = (sockaddr*)&their_addr;
     }
 
+
     dataOutSize = MAXIMUM_MTU_SIZE;
+
 
     recvFromStruct->bytesRead =
         recvfrom__(rns2Socket, recvFromStruct->data, dataOutSize, flag, sockAddrPtr, socketlenPtr);
@@ -363,22 +354,23 @@ void RNS2_Berkley::RecvFromBlockingIPV4And6(RNS2RecvStruct* recvFromStruct) {
     }
 #endif
 
+
     if (recvFromStruct->bytesRead <= 0) return;
     recvFromStruct->timeRead = RakNet::GetTimeUS();
+
 
     {
         if (their_addr.ss_family == AF_INET) {
             memcpy(&recvFromStruct->systemAddress.address.addr4, (sockaddr_in*)&their_addr, sizeof(sockaddr_in));
             recvFromStruct->systemAddress.debugPort = ntohs(recvFromStruct->systemAddress.address.addr4.sin_port);
-            //	systemAddressOut->address.addr4.sin_port=ntohs(
-            // systemAddressOut->address.addr4.sin_port );
+            //	systemAddressOut->address.addr4.sin_port=ntohs( systemAddressOut->address.addr4.sin_port );
         } else {
             memcpy(&recvFromStruct->systemAddress.address.addr6, (sockaddr_in6*)&their_addr, sizeof(sockaddr_in6));
             recvFromStruct->systemAddress.debugPort = ntohs(recvFromStruct->systemAddress.address.addr6.sin6_port);
-            //	systemAddressOut->address.addr6.sin6_port=ntohs(
-            // systemAddressOut->address.addr6.sin6_port );
+            //	systemAddressOut->address.addr6.sin6_port=ntohs( systemAddressOut->address.addr6.sin6_port );
         }
     }
+
 
 #else
     (void)recvFromStruct;
@@ -393,6 +385,7 @@ void RNS2_Berkley::RecvFromBlockingIPV4(RNS2RecvStruct* recvFromStruct) {
     memset(&sa, 0, sizeof(sockaddr_in));
     const int flag = 0;
 
+
     {
         sockLen       = sizeof(sa);
         sa.sin_family = AF_INET;
@@ -403,32 +396,30 @@ void RNS2_Berkley::RecvFromBlockingIPV4(RNS2RecvStruct* recvFromStruct) {
     recvFromStruct->bytesRead =
         recvfrom__(GetSocket(), recvFromStruct->data, sizeof(recvFromStruct->data), flag, sockAddrPtr, socketlenPtr);
 
+
     if (recvFromStruct->bytesRead <= 0) {
         /*
         DWORD dwIOError = WSAGetLastError();
 
         if ( dwIOError == WSAECONNRESET )
         {
-    #if defined(_DEBUG)
-                RAKNET_DEBUG_PRINTF( "A previous send operation resulted in an ICMP
-    Port Unreachable message.\n" ); #endif
+#if defined(_DEBUG)
+            RAKNET_DEBUG_PRINTF( "A previous send operation resulted in an ICMP Port Unreachable message.\n" );
+#endif
 
         }
         else if ( dwIOError != WSAEWOULDBLOCK && dwIOError != WSAEADDRNOTAVAIL)
         {
-    #if defined(_WIN32) && !defined(_XBOX) && !defined(_XBOX_720_COMPILE_AS_WINDOWS)
-    && !defined(X360) && defined(_DEBUG) && !defined(_XBOX_720_COMPILE_AS_WINDOWS)
-    && !defined(WINDOWS_PHONE_8) LPVOID messageBuffer; FormatMessage(
-    FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
-    FORMAT_MESSAGE_IGNORE_INSERTS, NULL, dwIOError, MAKELANGID( LANG_NEUTRAL,
-    SUBLANG_DEFAULT ),  // Default language ( LPTSTR ) & messageBuffer, 0, NULL );
-                // something has gone wrong here...
-                RAKNET_DEBUG_PRINTF( "sendto failed:Error code - %d\n%s", dwIOError,
-    messageBuffer );
+#if defined(_WIN32) && !defined(_XBOX) && !defined(_XBOX_720_COMPILE_AS_WINDOWS) && !defined(X360) && defined(_DEBUG) &&
+!defined(_XBOX_720_COMPILE_AS_WINDOWS) && !defined(WINDOWS_PHONE_8) LPVOID messageBuffer; FormatMessage(
+FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, dwIOError,
+MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ),  // Default language ( LPTSTR ) & messageBuffer, 0, NULL );
+            // something has gone wrong here...
+            RAKNET_DEBUG_PRINTF( "sendto failed:Error code - %d\n%s", dwIOError, messageBuffer );
 
-                //Free the buffer.
-                LocalFree( messageBuffer );
-    #endif
+            //Free the buffer.
+            LocalFree( messageBuffer );
+#endif
         }
         */
 
@@ -436,14 +427,14 @@ void RNS2_Berkley::RecvFromBlockingIPV4(RNS2RecvStruct* recvFromStruct) {
     }
     recvFromStruct->timeRead = RakNet::GetTimeUS();
 
+
     {
 
         recvFromStruct->systemAddress.SetPortNetworkOrder(sa.sin_port);
         recvFromStruct->systemAddress.address.addr4.sin_addr.s_addr = sa.sin_addr.s_addr;
     }
 
-    // printf("--- Got %i bytes from %s\n", recvFromStruct->bytesRead,
-    // recvFromStruct->systemAddress.ToString());
+    // printf("--- Got %i bytes from %s\n", recvFromStruct->bytesRead, recvFromStruct->systemAddress.ToString());
 }
 
 void RNS2_Berkley::RecvFromBlocking(RNS2RecvStruct* recvFromStruct) {

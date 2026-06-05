@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -10,9 +10,11 @@
 
 #include "WSAStartupSingleton.h"
 
+
 #if defined(_WIN32) && !defined(WINDOWS_STORE_RT)
 #include <winsock2.h>
 #include <ws2tcpip.h>
+
 
 #endif
 #include "RakNetDefines.h"
@@ -29,6 +31,7 @@ void WSAStartupSingleton::AddRef(void) {
 
     if (refCount != 1) return;
 
+
     WSADATA winsockInfo;
     if (WSAStartup(MAKEWORD(2, 2), &winsockInfo) != 0) {
 #if defined(_DEBUG) && !defined(WINDOWS_PHONE_8)
@@ -44,7 +47,7 @@ void WSAStartupSingleton::AddRef(void) {
             NULL
         );
         // something has gone wrong here...
-        RAKNET_DEBUG_PRINTF("WSAStartup failed:Error code - %d\n%s", dwIOError, messageBuffer);
+        // RAKNET_DEBUG_PRINTF( "WSAStartup failed:Error code - %d\n%s", dwIOError, messageBuffer );
         // Free the buffer.
         LocalFree(messageBuffer);
 #endif
@@ -62,6 +65,7 @@ void WSAStartupSingleton::Deref(void) {
     }
 
     WSACleanup();
+
 
     refCount = 0;
 #endif

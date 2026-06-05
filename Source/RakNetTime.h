@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -16,9 +16,8 @@
 
 namespace RakNet {
 
-// Define __GET_TIME_64BIT if you want to use large types for GetTime (takes
-// more bandwidth when you transmit time though!) You would want to do this if
-// your system is going to run long enough to overflow the millisecond counter
+// Define __GET_TIME_64BIT if you want to use large types for GetTime (takes more bandwidth when you transmit time
+// though!) You would want to do this if your system is going to run long enough to overflow the millisecond counter
 // (over a month)
 #if __GET_TIME_64BIT == 1
 typedef uint64_t Time;

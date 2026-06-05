@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -13,6 +13,7 @@
 /// \brief Straightforward linked list data structure.
 ///
 
+
 #ifndef __LINKED_LIST_H
 #define __LINKED_LIST_H
 
@@ -23,14 +24,12 @@
 #pragma warning(push)
 #endif
 
-/// The namespace DataStructures was only added to avoid compiler errors for
-/// commonly named data structures As these data structures are stand-alone, you
-/// can use them outside of RakNet for your own projects if you wish.
+/// The namespace DataStructures was only added to avoid compiler errors for commonly named data structures
+/// As these data structures are stand-alone, you can use them outside of RakNet for your own projects if you wish.
 namespace DataStructures {
-// Prototype to prevent error in CircularLinkedList class when a reference is
-// made to a LinkedList class
+// Prototype to prevent error in CircularLinkedList class when a reference is made to a LinkedList class
 template <class LinkedListType>
-class RAK_DLL_EXPORT LinkedList;
+class RAKNET_API LinkedList;
 
 /**
  * \brief (Circular) Linked List ADT (Doubly Linked Pointer to Node Style) -
@@ -162,9 +161,8 @@ public:
     CircularLinkedList();
     ~CircularLinkedList();
     CircularLinkedList(const CircularLinkedList& original_copy);
-    // CircularLinkedList(LinkedList<CircularLinkedListType> original_copy)
-    // {CircularLinkedList(original_copy);}  // Converts linked list to circular
-    // type
+    // CircularLinkedList(LinkedList<CircularLinkedListType> original_copy) {CircularLinkedList(original_copy);}  //
+    // Converts linked list to circular type
     bool                operator=(const CircularLinkedList& original_copy);
     CircularLinkedList& operator++();    // CircularLinkedList A; ++A;
     CircularLinkedList& operator++(int); // Circular_Linked List A; A++;
@@ -232,6 +230,7 @@ private:
     LinkedList Mergesort(const LinkedList& L);
 };
 
+
 template <class CircularLinkedListType>
 inline void CircularLinkedList<CircularLinkedListType>::Beginning(void) {
     if (this->root) this->position = this->root;
@@ -249,6 +248,7 @@ bool LinkedList<LinkedListType>::operator=(const LinkedList<LinkedListType>& ori
     if ((&original_copy) != this) {
 
         this->Clear();
+
 
         if (original_copy.list_size == 0) {
             this->root      = 0;
@@ -280,6 +280,7 @@ bool LinkedList<LinkedListType>::operator=(const LinkedList<LinkedListType>& ori
 
             do {
 
+
                 // Save the current element
                 last = this->position;
 
@@ -296,6 +297,7 @@ bool LinkedList<LinkedListType>::operator=(const LinkedList<LinkedListType>& ori
 
                 if (original_copy_pointer == original_copy.position) save_position = this->position;
 
+
                 // Set the previous pointer for the new node
                 (this->position->previous) = last;
 
@@ -306,8 +308,8 @@ bool LinkedList<LinkedListType>::operator=(const LinkedList<LinkedListType>& ori
 
             while ((original_copy_pointer->next) != (original_copy.root));
 
-            // Complete the circle.  Set the next pointer of the newest node to the
-            // root and the previous pointer of the root to the newest node
+            // Complete the circle.  Set the next pointer of the newest node to the root and the previous pointer of the
+            // root to the newest node
             this->position->next = this->root;
 
             this->root->previous = this->position;
@@ -320,6 +322,7 @@ bool LinkedList<LinkedListType>::operator=(const LinkedList<LinkedListType>& ori
 
     return true;
 }
+
 
 template <class CircularLinkedListType>
 CircularLinkedList<CircularLinkedListType>::CircularLinkedList() {
@@ -380,8 +383,7 @@ LinkedList<LinkedListType>::LinkedList(const LinkedList& original_copy) {
 
             // Create a new node and point position to it
             this->position = RakNet::OP_NEW<typename LinkedList::node>(_FILE_AND_LINE_);
-            // position->item = RakNet::OP_NEW<CircularLinkedListType>(
-            // _FILE_AND_LINE_ );
+            // position->item = RakNet::OP_NEW<CircularLinkedListType>( _FILE_AND_LINE_ );
 
             // Copy the item to the new node
             // *(position->item)=*(original_copy_pointer->item);
@@ -399,8 +401,8 @@ LinkedList<LinkedListType>::LinkedList(const LinkedList& original_copy) {
 
         while ((original_copy_pointer->next) != (original_copy.root));
 
-        // Complete the circle.  Set the next pointer of the newest node to the root
-        // and the previous pointer of the root to the newest node
+        // Complete the circle.  Set the next pointer of the newest node to the root and the previous pointer of the
+        // root to the newest node
         this->position->next = this->root;
 
         this->root->previous = this->position;
@@ -411,15 +413,11 @@ LinkedList<LinkedListType>::LinkedList(const LinkedList& original_copy) {
     }
 }
 
-#ifdef _MSC_VER
-#pragma warning(disable : 4701) // warning C4701: local variable <variable name>
-                                // may be used without having been initialized
-#endif
 template <class CircularLinkedListType>
 CircularLinkedList<CircularLinkedListType>::CircularLinkedList(const CircularLinkedList& original_copy) {
-    node* original_copy_pointer;
-    node* last;
-    node* save_position = 0;
+    node* original_copy_pointer = nullptr;
+    node* last                  = nullptr;
+    node* save_position         = nullptr;
 
     if (original_copy.list_size == 0) {
         this->root      = 0;
@@ -452,6 +450,7 @@ CircularLinkedList<CircularLinkedListType>::CircularLinkedList(const CircularLin
 
         do {
 
+
             // Save the current element
             last = this->position;
 
@@ -460,8 +459,7 @@ CircularLinkedList<CircularLinkedListType>::CircularLinkedList(const CircularLin
 
             // Create a new node and point position to it
             this->position = RakNet::OP_NEW<typename CircularLinkedList::node>(_FILE_AND_LINE_);
-            // position->item = RakNet::OP_NEW<CircularLinkedListType>(
-            // _FILE_AND_LINE_ );
+            // position->item = RakNet::OP_NEW<CircularLinkedListType>( _FILE_AND_LINE_ );
 
             // Copy the item to the new node
             // *(position->item)=*(original_copy_pointer->item);
@@ -479,8 +477,8 @@ CircularLinkedList<CircularLinkedListType>::CircularLinkedList(const CircularLin
 
         while ((original_copy_pointer->next) != (original_copy.root));
 
-        // Complete the circle.  Set the next pointer of the newest node to the root
-        // and the previous pointer of the root to the newest node
+        // Complete the circle.  Set the next pointer of the newest node to the root and the previous pointer of the
+        // root to the newest node
         this->position->next = this->root;
 
         this->root->previous = position;
@@ -491,19 +489,16 @@ CircularLinkedList<CircularLinkedListType>::CircularLinkedList(const CircularLin
     }
 }
 
-#ifdef _MSC_VER
-#pragma warning(disable : 4701) // warning C4701: local variable <variable name>
-                                // may be used without having been initialized
-#endif
 template <class CircularLinkedListType>
 bool CircularLinkedList<CircularLinkedListType>::operator=(const CircularLinkedList& original_copy) {
-    node* original_copy_pointer;
-    node* last;
-    node* save_position = 0;
+    node* original_copy_pointer = nullptr;
+    node* last                  = nullptr;
+    node* save_position         = nullptr;
 
     if ((&original_copy) != this) {
 
         this->Clear();
+
 
         if (original_copy.list_size == 0) {
             this->root      = 0;
@@ -542,8 +537,7 @@ bool CircularLinkedList<CircularLinkedListType>::operator=(const CircularLinkedL
 
                 // Create a new node and point position to it
                 this->position = RakNet::OP_NEW<typename CircularLinkedList::node>(_FILE_AND_LINE_);
-                // position->item = RakNet::OP_NEW<CircularLinkedListType>(
-                // _FILE_AND_LINE_ );
+                // position->item = RakNet::OP_NEW<CircularLinkedListType>( _FILE_AND_LINE_ );
 
                 // Copy the item to the new node
                 // *(position->item)=*(original_copy_pointer->item);
@@ -561,8 +555,8 @@ bool CircularLinkedList<CircularLinkedListType>::operator=(const CircularLinkedL
 
             while ((original_copy_pointer->next) != (original_copy.root));
 
-            // Complete the circle.  Set the next pointer of the newest node to the
-            // root and the previous pointer of the root to the newest node
+            // Complete the circle.  Set the next pointer of the newest node to the root and the previous pointer of the
+            // root to the newest node
             this->position->next = this->root;
 
             this->root->previous = this->position;
@@ -593,16 +587,14 @@ void CircularLinkedList<CircularLinkedListType>::Insert(const CircularLinkedList
 
     else if (list_size == 1) {
         this->position = RakNet::OP_NEW<typename CircularLinkedList::node>(_FILE_AND_LINE_);
-        // position->item = RakNet::OP_NEW<CircularLinkedListType>( _FILE_AND_LINE_
-        // );
+        // position->item = RakNet::OP_NEW<CircularLinkedListType>( _FILE_AND_LINE_ );
         this->root->next         = this->position;
         this->root->previous     = this->position;
         this->position->previous = this->root;
         this->position->next     = this->root;
         // *(position->item)=input;
         this->position->item = input;
-        this->root           = this->position; // Since we're inserting into a 1 element list
-                                               // the old root is now the second item
+        this->root = this->position; // Since we're inserting into a 1 element list the old root is now the second item
         this->list_size = 2;
     }
 
@@ -620,8 +612,7 @@ void CircularLinkedList<CircularLinkedListType>::Insert(const CircularLinkedList
         Note that the order of the following statements is important  */
 
         new_node = RakNet::OP_NEW<typename CircularLinkedList::node>(_FILE_AND_LINE_);
-        // new_node->item = RakNet::OP_NEW<CircularLinkedListType>( _FILE_AND_LINE_
-        // );
+        // new_node->item = RakNet::OP_NEW<CircularLinkedListType>( _FILE_AND_LINE_ );
 
         // *(new_node->item)=input;
         new_node->item = input;
@@ -638,8 +629,8 @@ void CircularLinkedList<CircularLinkedListType>::Insert(const CircularLinkedList
         // Point next of B to C
         new_node->next = this->position;
 
-        // Since the root pointer is bound to a node rather than an index this moves
-        // it back if you insert an element at the root
+        // Since the root pointer is bound to a node rather than an index this moves it back if you insert an element at
+        // the root
 
         if (this->position == this->root) {
             this->root     = new_node;
@@ -670,8 +661,7 @@ CircularLinkedListType& CircularLinkedList<CircularLinkedListType>::Add(const Ci
 
     else if (list_size == 1) {
         this->position = RakNet::OP_NEW<typename CircularLinkedList::node>(_FILE_AND_LINE_);
-        // position->item = RakNet::OP_NEW<CircularLinkedListType>( _FILE_AND_LINE_
-        // );
+        // position->item = RakNet::OP_NEW<CircularLinkedListType>( _FILE_AND_LINE_ );
         this->root->next         = this->position;
         this->root->previous     = this->position;
         this->position->previous = this->root;
@@ -688,7 +678,7 @@ CircularLinkedListType& CircularLinkedList<CircularLinkedListType>::Add(const Ci
         /*
 
            B
-       |
+           |
         A --- C
 
         new_node=B
@@ -698,8 +688,7 @@ CircularLinkedListType& CircularLinkedList<CircularLinkedListType>::Add(const Ci
         Note that the order of the following statements is important  */
 
         new_node = RakNet::OP_NEW<typename CircularLinkedList::node>(_FILE_AND_LINE_);
-        // new_node->item = RakNet::OP_NEW<CircularLinkedListType>( _FILE_AND_LINE_
-        // );
+        // new_node->item = RakNet::OP_NEW<CircularLinkedListType>( _FILE_AND_LINE_ );
 
         // *(new_node->item)=input;
         new_node->item = input;
@@ -797,9 +786,9 @@ CircularLinkedList<CircularLinkedListType>::FindPointer(const CircularLinkedList
 
     current = this->root;
 
-    // Search for the item starting from the root node and incrementing the
-    // pointer after every check If you wind up pointing at the root again you
-    // looped around the list so didn't find the item, in which case return 0
+    // Search for the item starting from the root node and incrementing the pointer after every check
+    // If you wind up pointing at the root again you looped around the list so didn't find the item, in which case
+    // return 0
     do {
         // if (*(current->item) == input) return current;
 
@@ -843,8 +832,7 @@ CircularLinkedList<CircularLinkedListType>& CircularLinkedList<CircularLinkedLis
 /*
 // Postfix
 template <class CircularLinkedListType>
-CircularLinkedList<CircularLinkedListType>&
-CircularLinkedList<CircularLinkedListType>::operator++(int)
+CircularLinkedList<CircularLinkedListType>& CircularLinkedList<CircularLinkedListType>::operator++(int)
 {
 CircularLinkedList<CircularLinkedListType> before;
 before=*this;
@@ -869,8 +857,7 @@ CircularLinkedList<CircularLinkedListType>& CircularLinkedList<CircularLinkedLis
 /*
 // Postfix
 template <class CircularLinkedListType>
-CircularLinkedList<CircularLinkedListType>&
-CircularLinkedList<CircularLinkedListType>::operator--(int)
+CircularLinkedList<CircularLinkedListType>& CircularLinkedList<CircularLinkedListType>::operator--(int)
 {
 CircularLinkedList<CircularLinkedListType> before;
 before=*this;
@@ -887,8 +874,7 @@ CircularLinkedList<CircularLinkedListType>& CircularLinkedList<CircularLinkedLis
 template <class CircularLinkedListType>
 void CircularLinkedList<CircularLinkedListType>::Clear(void) {
     if (this->list_size == 0) return;
-    else if (this->list_size == 1) // {RakNet::OP_DELETE(root->item);
-                                   // RakNet::OP_DELETE(root, _FILE_AND_LINE_);}
+    else if (this->list_size == 1) // {RakNet::OP_DELETE(root->item); RakNet::OP_DELETE(root, _FILE_AND_LINE_);}
     {
         RakNet::OP_DELETE(this->root, _FILE_AND_LINE_);
     }
@@ -935,8 +921,8 @@ CircularLinkedList<CircularLinkedListType>::Concatenate(const CircularLinkedList
 
         Add(ptr->item);
 
-        // Update pointers.  Moving ptr keeps the current pointer at the end of the
-        // list since the add function does not move the pointer
+        // Update pointers.  Moving ptr keeps the current pointer at the end of the list since the add function does not
+        // move the pointer
         ptr = ptr->next;
 
         this->position = this->position->next;
@@ -1092,6 +1078,7 @@ LinkedList<LinkedListType> LinkedList<LinkedListType>::Merge(LinkedList L1, Link
 
     return X;
 }
+
 
 // Prefix
 template <class LinkedListType>

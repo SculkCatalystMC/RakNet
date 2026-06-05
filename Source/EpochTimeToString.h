@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -8,14 +8,16 @@
  *
  */
 
+
 /// \file EpochTimeToString.h
 ///
+
 
 #ifndef __EPOCH_TIME_TO_STRING_H
 #define __EPOCH_TIME_TO_STRING_H
 
 #include "Export.h"
 
-RAK_DLL_EXPORT char* EpochTimeToString(long long time);
+RAKNET_API char* EpochTimeToString(long long time);
 
 #endif

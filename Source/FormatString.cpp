@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -7,6 +7,7 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  *
  */
+
 
 #include "FormatString.h"
 #include "LinuxStrings.h"
@@ -21,7 +22,7 @@ char* FormatString(const char* format, ...) {
     va_start(ap, format);
 
     if (++textIndex == 4) textIndex = 0;
-    vsnprintf(text[textIndex], 8096, format, ap);
+    _vsnprintf(text[textIndex], 8096, format, ap);
     va_end(ap);
     text[textIndex][8096 - 1] = 0;
 
@@ -31,8 +32,7 @@ char* FormatString(const char* format, ...) {
 char* FormatStringTS(char* output, const char* format, ...) {
     va_list ap;
     va_start(ap, format);
-    vsnprintf(output, 512, format, ap);
+    _vsnprintf(output, 512, format, ap);
     va_end(ap);
-    output[512 - 1] = 0;
     return output;
 }

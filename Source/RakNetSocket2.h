@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -41,19 +41,16 @@ struct RNS2_BerkleyBindParameters;
 struct RNS2_SendParameters;
 typedef int RNS2Socket;
 
-enum class RNS2BindResult : unsigned char {
+enum RNS2BindResult {
     BR_SUCCESS,
     BR_REQUIRES_RAKNET_SUPPORT_IPV6_DEFINE,
     BR_FAILED_TO_BIND_SOCKET,
     BR_FAILED_SEND_TEST,
 };
 
-using enum RNS2BindResult;
-
-
 typedef int RNS2SendResult;
 
-enum class RNS2Type : unsigned char {
+enum RNS2Type {
     RNS2T_WINDOWS_STORE_8,
     RNS2T_PS3,
     RNS2T_PS4,
@@ -65,9 +62,6 @@ enum class RNS2Type : unsigned char {
     RNS2T_LINUX
 };
 
-using enum RNS2Type;
-
-
 struct RNS2_SendParameters {
     RNS2_SendParameters() { ttl = 0; }
     char*         data;
@@ -77,6 +71,7 @@ struct RNS2_SendParameters {
 };
 
 struct RNS2RecvStruct {
+
 
     char data[MAXIMUM_MTU_SIZE];
 
@@ -92,7 +87,7 @@ public:
     static void           DeallocRNS2(RakNetSocket2* s);
 };
 
-class RAK_DLL_EXPORT RNS2EventHandler {
+class RAKNET_API RNS2EventHandler {
 public:
     RNS2EventHandler() {}
     virtual ~RNS2EventHandler() {}
@@ -104,8 +99,7 @@ public:
     virtual RNS2RecvStruct* AllocRNS2RecvStruct(const char* file, unsigned int line)                      = 0;
 
     // recvFromStruct=bufferedPackets.Allocate( _FILE_AND_LINE_ );
-    // 	DataStructures::ThreadsafeAllocatingQueue<RNS2RecvStruct>
-    // bufferedPackets;
+    // 	DataStructures::ThreadsafeAllocatingQueue<RNS2RecvStruct> bufferedPackets;
 };
 
 class RakNetSocket2 {
@@ -113,8 +107,8 @@ public:
     RakNetSocket2();
     virtual ~RakNetSocket2();
 
-    // In order for the handler to trigger, some platforms must call PollRecvFrom,
-    // some platforms this create an internal thread.
+    // In order for the handler to trigger, some platforms must call PollRecvFrom, some platforms this create an
+    // internal thread.
     void                   SetRecvEventHandler(RNS2EventHandler* _eventHandler);
     virtual RNS2SendResult Send(RNS2_SendParameters* sendParameters, const char* file, unsigned int line) = 0;
     RNS2Type               GetSocketType(void) const;
@@ -176,8 +170,8 @@ protected:
     static SimpleMutex                               rns2ListMutex;
 
     Windows::Networking::Sockets::DatagramSocket ^ listener;
-    // Platform::Collections::Map<Windows::Storage::Streams::IOutputStream>
-    // ^outputStreamMap; Platform::Collections::Map<String^, int>^ m;
+    // Platform::Collections::Map<Windows::Storage::Streams::IOutputStream> ^outputStreamMap;
+    // Platform::Collections::Map<String^, int>^ m;
     // std::map<> m;
     ListenerContext ^ listenerContext;
 };
@@ -205,10 +199,9 @@ public:
     static bool IsPortInUse(unsigned short port, const char* hostAddress, unsigned short addressFamily, int type);
     static void GetMyIP(SystemAddress addresses[MAXIMUM_NUMBER_OF_INTERNAL_IDS]);
 
-    // RNS2_NativeClient doesn't automatically call recvfrom in a thread - user
-    // must call Update() from the main thread This causes buffered sends to send,
-    // until send is asynch pending It causes recvfrom events to trigger the
-    // callback, and push a message to the event handler
+    // RNS2_NativeClient doesn't automatically call recvfrom in a thread - user must call Update() from the main thread
+    // This causes buffered sends to send, until send is asynch pending
+    // It causes recvfrom events to trigger the callback, and push a message to the event handler
     //
     // Example:
     //
@@ -237,7 +230,7 @@ protected:
     bool                       sendInProgress;
     SimpleMutex                sendInProgressMutex;
 
-    enum class BindState : unsigned char { Unbound, InProgress, Bound, Failed } bindState;
+    enum BindState { BS_UNBOUND, BS_IN_PROGRESS, BS_BOUND, BS_FAILED } bindState;
     DataStructures::Queue<RNS2_SendParameters_NativeClient*> bufferedSends;
     SimpleMutex                                              bufferedSendsMutex;
 };
@@ -270,8 +263,7 @@ public:
     // ----------- MEMBERS ------------
     virtual RNS2BindResult Bind(RNS2_BerkleyBindParameters* bindParameters, const char* file, unsigned int line) = 0;
 };
-// Every platform that uses Berkley sockets, except native client, can compile
-// some common functions
+// Every platform that uses Berkley sockets, except native client, can compile some common functions
 class RNS2_Berkley : public IRNS2_Berkley {
 public:
     RNS2_Berkley();
@@ -317,6 +309,7 @@ protected:
     static RAK_THREAD_DECLARATION(RecvFromLoop);
 };
 
+
 #if defined(_WIN32) || defined(__GNUC__) || defined(__GCCXML__) || defined(__S3E__)
 class RNS2_Windows_Linux_360 {
 public:
@@ -330,9 +323,10 @@ protected:
 };
 #endif
 
+
 #if defined(_WIN32)
 
-class RAK_DLL_EXPORT SocketLayerOverride {
+class RAKNET_API SocketLayerOverride {
 public:
     SocketLayerOverride() {}
     virtual ~SocketLayerOverride() {}
@@ -340,10 +334,8 @@ public:
     /// Called when SendTo would otherwise occur.
     virtual int RakNetSendTo(const char* data, int length, const SystemAddress& systemAddress) = 0;
 
-    /// Called when RecvFrom would otherwise occur. Return number of bytes read.
-    /// Write data into dataOut
-    // Return -1 to use RakNet's normal recvfrom, 0 to abort RakNet's normal
-    // recvfrom, and positive to return data
+    /// Called when RecvFrom would otherwise occur. Return number of bytes read. Write data into dataOut
+    // Return -1 to use RakNet's normal recvfrom, 0 to abort RakNet's normal recvfrom, and positive to return data
     virtual int RakNetRecvFrom(char dataOut[MAXIMUM_MTU_SIZE], SystemAddress* senderOut, bool calledFromMainThread) = 0;
 };
 

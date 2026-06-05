@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -11,9 +11,10 @@
 /// \file DS_WeightedGraph.h
 /// \internal
 /// \brief Weighted graph.
-/// \details I'm assuming the indices are complex map types, rather than
-/// sequential numbers (which could be implemented much more efficiently).
+/// \details I'm assuming the indices are complex map types, rather than sequential numbers (which could be implemented
+/// much more efficiently).
 ///
+
 
 #ifndef __WEIGHTED_GRAPH_H
 #define __WEIGHTED_GRAPH_H
@@ -33,12 +34,11 @@
 #pragma warning(push)
 #endif
 
-/// The namespace DataStructures was only added to avoid compiler errors for
-/// commonly named data structures As these data structures are stand-alone, you
-/// can use them outside of RakNet for your own projects if you wish.
+/// The namespace DataStructures was only added to avoid compiler errors for commonly named data structures
+/// As these data structures are stand-alone, you can use them outside of RakNet for your own projects if you wish.
 namespace DataStructures {
 template <class node_type, class weight_type, bool allow_unlinkedNodes>
-class RAK_DLL_EXPORT WeightedGraph {
+class RAKNET_API WeightedGraph {
 public:
     static void IMPLEMENT_DEFAULT_COMPARISON(void) {
         DataStructures::defaultMapKeyComparison<node_type>(node_type(), node_type());
@@ -218,8 +218,8 @@ void WeightedGraph<node_type, weight_type, allow_unlinkedNodes>::RemoveConnectio
 #ifdef _MSC_VER
 #pragma warning(disable : 4127) // warning C4127: conditional expression is constant
 #endif
-    if (allow_unlinkedNodes == false) // If we do not allow _unlinked nodes, then if there are no
-                                      // connections, remove the node
+    if (allow_unlinkedNodes
+        == false) // If we do not allow _unlinked nodes, then if there are no connections, remove the node
     {
         if (adjacencyLists.Get(node1)->Size() == 0)
             RemoveNode(node1); // Will also remove node1 from the adjacency list of node2
@@ -342,8 +342,8 @@ bool WeightedGraph<node_type, weight_type, allow_unlinkedNodes>::GetSpanningTree
     node_type                        startNode,
     weight_type                      INFINITE_WEIGHT
 ) {
-    // Find the shortest path from the start node to each of the input nodes.  Add
-    // this path to a new WeightedGraph if the result is reachable
+    // Find the shortest path from the start node to each of the input nodes.  Add this path to a new WeightedGraph if
+    // the result is reachable
     DataStructures::List<node_type>                                            path;
     DataStructures::WeightedGraph<node_type, weight_type, allow_unlinkedNodes> outGraph;
     bool                                                                       res;
@@ -418,8 +418,7 @@ void WeightedGraph<node_type, weight_type, allow_unlinkedNodes>::GenerateDisjktr
     DataStructures::Map<node_type, weight_type>         openSet;
 
     for (col = 0; col < adjacencyLists.Size(); col++) {
-        // This should be already sorted, so it's a bit inefficient to do an
-        // insertion sort, but what the heck
+        // This should be already sorted, so it's a bit inefficient to do an insertion sort, but what the heck
         costMatrixIndices
             .Insert(adjacencyLists.GetKeyAtIndex(col), adjacencyLists.GetKeyAtIndex(col), true, _FILE_AND_LINE_);
     }
@@ -438,8 +437,8 @@ void WeightedGraph<node_type, weight_type, allow_unlinkedNodes>::GenerateDisjktr
 
     while (row < adjacencyLists.Size() - 1) {
         adjacencyList = adjacencyLists.Get(currentNode);
-        // Go through all connections from the current node.  If the new weight is
-        // less than the current weight, then update that weight.
+        // Go through all connections from the current node.  If the new weight is less than the current weight, then
+        // update that weight.
         for (col = 0; col < adjacencyList->Size(); col++) {
             edgeWeight         = (*adjacencyList)[col];
             adjacentKey        = adjacencyList->GetKeyAtIndex(col);
@@ -463,13 +462,12 @@ void WeightedGraph<node_type, weight_type, allow_unlinkedNodes>::GenerateDisjktr
         unsigned i,j;
         for (i=0; i < adjacencyLists.Size()-1; i++)
         {
-                for (j=0; j < adjacencyLists.Size(); j++)
-                {
-                        RAKNET_DEBUG_PRINTF("%2i ",
-        costMatrix[i*adjacencyLists.Size() + j]);
-                }
-                RAKNET_DEBUG_PRINTF("Node=%i", leastNodeArray[i]);
-                RAKNET_DEBUG_PRINTF("\n");
+            for (j=0; j < adjacencyLists.Size(); j++)
+            {
+                RAKNET_DEBUG_PRINTF("%2i ", costMatrix[i*adjacencyLists.Size() + j]);
+            }
+            RAKNET_DEBUG_PRINTF("Node=%i", leastNodeArray[i]);
+            RAKNET_DEBUG_PRINTF("\n");
         }
         */
 
@@ -487,19 +485,18 @@ void WeightedGraph<node_type, weight_type, allow_unlinkedNodes>::GenerateDisjktr
     }
 
     /*
-  #ifdef _DEBUG
+#ifdef _DEBUG
     unsigned i,j;
     for (i=0; i < adjacencyLists.Size()-1; i++)
     {
-            for (j=0; j < adjacencyLists.Size(); j++)
-            {
-                    RAKNET_DEBUG_PRINTF("%2i ", costMatrix[i*adjacencyLists.Size()
-  + j]);
-            }
-            RAKNET_DEBUG_PRINTF("Node=%i", leastNodeArray[i]);
-            RAKNET_DEBUG_PRINTF("\n");
+        for (j=0; j < adjacencyLists.Size(); j++)
+        {
+            RAKNET_DEBUG_PRINTF("%2i ", costMatrix[i*adjacencyLists.Size() + j]);
+        }
+        RAKNET_DEBUG_PRINTF("Node=%i", leastNodeArray[i]);
+        RAKNET_DEBUG_PRINTF("\n");
     }
-  #endif
+#endif
     */
 
     isValidPath = true;
@@ -526,8 +523,7 @@ void WeightedGraph<node_type, weight_type, allow_unlinkedNodes>::Print(void) {
         if (adjacencyLists[i]->Size() == 0) RAKNET_DEBUG_PRINTF("<Empty>");
         else {
             for (j = 0; j < adjacencyLists[i]->Size(); j++)
-                //	RAKNET_DEBUG_PRINTF("%i (%.2f) ",
-                // adjacencyLists.GetIndexAtKey(adjacencyLists[i]->GetKeyAtIndex(j)),
+                //	RAKNET_DEBUG_PRINTF("%i (%.2f) ", adjacencyLists.GetIndexAtKey(adjacencyLists[i]->GetKeyAtIndex(j)),
                 //(float) adjacencyLists[i]->operator[](j) );
                 RAKNET_DEBUG_PRINTF(
                     "%s (%.2f) ",

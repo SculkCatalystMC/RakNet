@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -85,6 +85,7 @@ void HTTPConnection::Update(void) {
         sa = tcp->HasLostConnection();
     }
 
+
     switch (connectionState) {
     case CS_NONE: {
         if (outgoingCommand.IsEmpty()) return;
@@ -157,8 +158,7 @@ void HTTPConnection::Update(void) {
     }
     }
 
-    //	if (connectionState==CS_PROCESSING &&
-    // currentProcessingCommand.data.IsEmpty()==false)
+    //	if (connectionState==CS_PROCESSING && currentProcessingCommand.data.IsEmpty()==false)
     //		outgoingCommand.PushAtHead(currentProcessingCommand);
 }
 bool      HTTPConnection::HasRead(void) const { return results.IsEmpty() == false; }
@@ -202,17 +202,17 @@ void          HTTPConnection::ProcessTCPPacket(Packet* packet) {
 
         // besides having the server close the connection, they may
         // provide a length header and supply that many bytes
-        if (
-        // Why was start_of_body here? Makes the GET command fail
-        // start_of_body &&
-        connectionState == CS_PROCESSING) {
+        if(
+			// Why was start_of_body here? Makes the GET command fail
+			// start_of_body && 
+			connectionState == CS_PROCESSING)
+		{
             /*
-            // The stupid programmer that wrote this originally didn't think that just
-            because the header contains this value doesn't mean you got the whole
-            message if (strstr((const char*) packet->data, "\r\nConnection:
+            // The stupid programmer that wrote this originally didn't think that just because the header contains this
+            value doesn't mean you got the whole message if (strstr((const char*) packet->data, "\r\nConnection:
             close\r\n"))
             {
-                    CloseConnection();
+                CloseConnection();
             }
             else
             {
@@ -226,14 +226,14 @@ void          HTTPConnection::ProcessTCPPacket(Packet* packet) {
                     long length = atol(length_header + 10) + length_of_headers;
 
                     if ((long)incomingData.GetLength() >= length) {
-                        // printf("Closed connection (Got all data due to length
-                        // header)\n");
+                        // printf("Closed connection (Got all data due to length header)\n");
                         CloseConnection();
                     }
                 }
             } else {
                 // No processing needed
             }
+
 
             //}
         }
@@ -242,10 +242,12 @@ void          HTTPConnection::ProcessTCPPacket(Packet* packet) {
 
 bool HTTPConnection::IsBusy(void) const { return connectionState != CS_NONE; }
 
-int HTTPConnection::GetState(void) const { return static_cast<int>(connectionState); }
+int HTTPConnection::GetState(void) const { return connectionState; }
+
 
 HTTPConnection::~HTTPConnection(void) {
     if (tcp) tcp->CloseConnection(server);
 }
+
 
 #endif // _RAKNET_SUPPORT_*

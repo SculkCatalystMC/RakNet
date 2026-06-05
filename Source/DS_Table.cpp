@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -8,17 +8,14 @@
  *
  */
 
+
 #include "DS_Table.h"
 #include "DS_OrderedList.h"
 #include "Itoa.h"
 #include "RakAssert.h"
-#include <stdio.h>
 #include <string.h>
 
 using namespace DataStructures;
-using enum Table::ColumnType;
-using enum Table::FilterQueryType;
-using enum Table::SortQueryType;
 
 #ifdef _MSC_VER
 #pragma warning(push)
@@ -59,8 +56,8 @@ Table::Cell::Cell(const Table::Cell& input) {
     isEmpty = input.isEmpty;
     i       = input.i;
     ptr     = input.ptr;
-    c       = 0;
     if (input.c) {
+        if (c) rakFree_Ex(c, _FILE_AND_LINE_);
         c = (char*)rakMalloc_Ex((int)i, _FILE_AND_LINE_);
         memcpy(c, input.c, (int)i);
     }
@@ -87,7 +84,7 @@ void Table::Cell::Set(const char* input) {
     if (input) {
         i = (int)strlen(input) + 1;
         c = (char*)rakMalloc_Ex((int)i, _FILE_AND_LINE_);
-        memcpy(c, input, (size_t)i);
+        strcpy(c, input);
     } else {
         c = 0;
         i = 0;
@@ -125,7 +122,7 @@ void Table::Cell::Get(double* output) {
 }
 void Table::Cell::Get(char* output) {
     RakAssert(isEmpty == false);
-    memcpy(output, c, (size_t)i);
+    strcpy(output, c);
 }
 void Table::Cell::Get(char* output, int* outputLength) {
     RakAssert(isEmpty == false);
@@ -147,10 +144,10 @@ RakNet::RakString Table::Cell::ToString(ColumnType columnType) {
 
     return RakNet::RakString();
 }
-Table::Cell::Cell(double numericValue, char* charValue, void* pointerValue, ColumnType type) {
-    SetByType(numericValue, charValue, pointerValue, type);
+Table::Cell::Cell(double numericValue, char* charValue, void* ptr, ColumnType type) {
+    SetByType(numericValue, charValue, ptr, type);
 }
-void Table::Cell::SetByType(double numericValue, char* charValue, void* pointerValue, ColumnType type) {
+void Table::Cell::SetByType(double numericValue, char* charValue, void* pointer, ColumnType type) {
     isEmpty = true;
     if (type == NUMERIC) {
         Set(numericValue);
@@ -159,9 +156,9 @@ void Table::Cell::SetByType(double numericValue, char* charValue, void* pointerV
     } else if (type == BINARY) {
         Set(charValue, (int)numericValue);
     } else if (type == POINTER) {
-        SetPtr(pointerValue);
+        SetPtr(pointer);
     } else {
-        pointerValue = reinterpret_cast<void*>(charValue);
+        pointer = (void*)charValue;
     }
 }
 Table::ColumnType Table::Cell::EstimateColumnType(void) const {
@@ -184,10 +181,7 @@ Table::ColumnDescriptor::ColumnDescriptor() {}
 Table::ColumnDescriptor::~ColumnDescriptor() {}
 Table::ColumnDescriptor::ColumnDescriptor(const char cn[_TABLE_MAX_COLUMN_NAME_LENGTH], ColumnType ct) {
     columnType = ct;
-    size_t copyLen = strlen(cn);
-    if (copyLen >= _TABLE_MAX_COLUMN_NAME_LENGTH) copyLen = _TABLE_MAX_COLUMN_NAME_LENGTH - 1;
-    memcpy(columnName, cn, copyLen);
-    columnName[copyLen] = 0;
+    strcpy(columnName, cn);
 }
 void Table::Row::UpdateCell(unsigned columnIndex, double value) {
     cells[columnIndex]->Clear();
@@ -687,17 +681,16 @@ void Table::QueryRow(
 
 static Table::SortQuery*                              _sortQueries;
 static unsigned                                       _numSortQueries;
-static DataStructures::List<unsigned>                 _columnIndices;
+static DataStructures::List<unsigned>*                _columnIndices;
 static DataStructures::List<Table::ColumnDescriptor>* _columns;
 int                                                   RowSort(
                                                       Table::Row* const& first,
                                                       Table::Row* const& second
-                                                  ) // first is the one inserting, second is
-                                                    // the one already there.
+                                                  ) // first is the one inserting, second is the one already there.
 {
     unsigned i, columnIndex;
     for (i = 0; i < _numSortQueries; i++) {
-        columnIndex = _columnIndices[i];
+        columnIndex = (*_columnIndices)[i];
         if (columnIndex == (unsigned)-1) continue;
 
         if (first->cells[columnIndex]->isEmpty == true && second->cells[columnIndex]->isEmpty == false)
@@ -730,20 +723,20 @@ int                                                   RowSort(
     return 0;
 }
 void Table::SortTable(Table::SortQuery* sortQueries, unsigned numSortQueries, Table::Row** out) {
-    unsigned i;
-    unsigned outLength;
+    unsigned                       i;
+    unsigned                       outLength;
+    DataStructures::List<unsigned> columnIndices;
     _sortQueries    = sortQueries;
     _numSortQueries = numSortQueries;
-    _columnIndices.Clear(false, _FILE_AND_LINE_);
+    _columnIndices  = &columnIndices;
     _columns        = &columns;
     bool anyValid   = false;
 
     for (i = 0; i < numSortQueries; i++) {
         if (sortQueries[i].columnIndex < columns.Size() && columns[sortQueries[i].columnIndex].columnType != BINARY) {
-            _columnIndices.Insert(sortQueries[i].columnIndex, _FILE_AND_LINE_);
+            columnIndices.Insert(sortQueries[i].columnIndex, _FILE_AND_LINE_);
             anyValid = true;
-        } else _columnIndices.Insert((unsigned)-1,
-                                     _FILE_AND_LINE_); // Means don't check this column
+        } else columnIndices.Insert((unsigned)-1, _FILE_AND_LINE_); // Means don't check this column
     }
 
     DataStructures::Page<unsigned, Row*, _TABLE_BPLUS_TREE_ORDER>* cur;
@@ -785,18 +778,13 @@ void Table::PrintColumnHeaders(char* out, int outLength, char columnDelineator) 
     for (i = 0; i < columns.Size(); i++) {
         if (i != 0) {
             len = (int)strlen(out);
-            if (len < outLength - 1) {
-                out[len]     = columnDelineator;
-                out[len + 1] = 0;
-            }
+            if (len < outLength - 1) sprintf(out + len, "%c", columnDelineator);
             else return;
         }
 
         len = (int)strlen(out);
-        size_t colNameLen = strlen(columns[i].columnName);
-        if (len < outLength - (int)colNameLen) {
-            memcpy(out + len, columns[i].columnName, colNameLen + 1);
-        } else return;
+        if (len < outLength - (int)strlen(columns[i].columnName)) sprintf(out + len, "%s", columns[i].columnName);
+        else return;
     }
 }
 void Table::PrintRow(
@@ -813,11 +801,7 @@ void Table::PrintRow(
     }
 
     if (inputRow->cells.Size() != columns.Size()) {
-        const char* errorMessage = "Cell width does not match column width.\n";
-        size_t      copyLen      = strlen(errorMessage);
-        if (copyLen >= (size_t)outLength) copyLen = (size_t)outLength - 1;
-        memcpy(out, errorMessage, copyLen);
-        out[copyLen] = 0;
+        strncpy(out, "Cell width does not match column width.\n", outLength);
         out[outLength - 1] = 0;
         return;
     }
@@ -829,24 +813,22 @@ void Table::PrintRow(
     for (i = 0; i < columns.Size(); i++) {
         if (columns[i].columnType == NUMERIC) {
             if (inputRow->cells[i]->isEmpty == false) {
-                snprintf(buff, sizeof(buff), "%f", inputRow->cells[i]->i);
+                sprintf(buff, "%f", inputRow->cells[i]->i);
                 len = (int)strlen(buff);
             } else len = 0;
             if (i + 1 != columns.Size()) buff[len++] = columnDelineator;
             buff[len] = 0;
         } else if (columns[i].columnType == STRING) {
             if (inputRow->cells[i]->isEmpty == false && inputRow->cells[i]->c) {
-                size_t copyLen = strlen(inputRow->cells[i]->c);
-                if (copyLen >= sizeof(buff) - 1) copyLen = sizeof(buff) - 2;
-                memcpy(buff, inputRow->cells[i]->c, copyLen);
-                buff[copyLen] = 0;
+                strncpy(buff, inputRow->cells[i]->c, 512 - 2);
+                buff[512 - 2] = 0;
                 len           = (int)strlen(buff);
             } else len = 0;
             if (i + 1 != columns.Size()) buff[len++] = columnDelineator;
             buff[len] = 0;
         } else if (columns[i].columnType == POINTER) {
             if (inputRow->cells[i]->isEmpty == false && inputRow->cells[i]->ptr) {
-                snprintf(buff, sizeof(buff), "%p", inputRow->cells[i]->ptr);
+                sprintf(buff, "%p", inputRow->cells[i]->ptr);
                 len = (int)strlen(buff);
             } else len = 0;
             if (i + 1 != columns.Size()) buff[len++] = columnDelineator;
@@ -860,10 +842,7 @@ void Table::PrintRow(
 
         len = (int)strlen(out);
         if (outLength == len + 1) break;
-        size_t copyLen = strlen(buff);
-        if (copyLen >= (size_t)(outLength - len)) copyLen = (size_t)(outLength - len - 1);
-        memcpy(out + len, buff, copyLen);
-        out[len + copyLen] = 0;
+        strncpy(out + len, buff, outLength - len);
         out[outLength - 1] = 0;
     }
 }

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -9,9 +9,9 @@
  */
 
 /// \file
-/// \brief \b [Internal] Passes queued data between threads using a circular
-/// buffer with read and write pointers
+/// \brief \b [Internal] Passes queued data between threads using a circular buffer with read and write pointers
 ///
+
 
 #ifndef __SINGLE_PRODUCER_CONSUMER_H
 #define __SINGLE_PRODUCER_CONSUMER_H
@@ -23,13 +23,12 @@ static const int MINIMUM_LIST_SIZE = 8;
 #include "Export.h"
 #include "RakMemoryOverride.h"
 
-/// The namespace DataStructures was only added to avoid compiler errors for
-/// commonly named data structures As these data structures are stand-alone, you
-/// can use them outside of RakNet for your own projects if you wish.
+/// The namespace DataStructures was only added to avoid compiler errors for commonly named data structures
+/// As these data structures are stand-alone, you can use them outside of RakNet for your own projects if you wish.
 namespace DataStructures {
 /// \brief A single producer consumer implementation without critical sections.
 template <class SingleProducerConsumerType>
-class RAK_DLL_EXPORT SingleProducerConsumer {
+class RAKNET_API SingleProducerConsumer {
 public:
     // Constructor
     SingleProducerConsumer();
@@ -37,50 +36,43 @@ public:
     // Destructor
     ~SingleProducerConsumer();
 
-    /// WriteLock must be immediately followed by WriteUnlock.  These two
-    /// functions must be called in the same thread.
+    /// WriteLock must be immediately followed by WriteUnlock.  These two functions must be called in the same thread.
     /// \return A pointer to a block of data you can write to.
     SingleProducerConsumerType* WriteLock(void);
 
-    /// Call if you don't want to write to a block of data from WriteLock() after
-    /// all. Cancelling locks cancels all locks back up to the data passed.  So if
-    /// you lock twice and cancel using the first lock, the second lock is ignored
+    /// Call if you don't want to write to a block of data from WriteLock() after all.
+    /// Cancelling locks cancels all locks back up to the data passed.  So if you lock twice and cancel using the first
+    /// lock, the second lock is ignored
     /// \param[in] cancelToLocation Which WriteLock() to cancel.
     void CancelWriteLock(SingleProducerConsumerType* cancelToLocation);
 
-    /// Call when you are done writing to a block of memory returned by
-    /// WriteLock()
+    /// Call when you are done writing to a block of memory returned by WriteLock()
     void WriteUnlock(void);
 
-    /// ReadLock must be immediately followed by ReadUnlock. These two functions
-    /// must be called in the same thread.
+    /// ReadLock must be immediately followed by ReadUnlock. These two functions must be called in the same thread.
     /// \retval 0 No data is availble to read
-    /// \retval Non-zero The data previously written to, in another thread, by
-    /// WriteLock followed by WriteUnlock.
+    /// \retval Non-zero The data previously written to, in another thread, by WriteLock followed by WriteUnlock.
     SingleProducerConsumerType* ReadLock(void);
 
-    // Cancelling locks cancels all locks back up to the data passed.  So if you
-    // lock twice and cancel using the first lock, the second lock is ignored
+    // Cancelling locks cancels all locks back up to the data passed.  So if you lock twice and cancel using the first
+    // lock, the second lock is ignored
     /// param[in] Which ReadLock() to cancel.
     void CancelReadLock(SingleProducerConsumerType* cancelToLocation);
 
-    /// Signals that we are done reading the the data from the least recent call
-    /// of ReadLock. At this point that pointer is no longer valid, and should no
-    /// longer be read.
+    /// Signals that we are done reading the the data from the least recent call of ReadLock.
+    /// At this point that pointer is no longer valid, and should no longer be read.
     void ReadUnlock(void);
 
-    /// Clear is not thread-safe and none of the lock or unlock functions should
-    /// be called while it is running.
+    /// Clear is not thread-safe and none of the lock or unlock functions should be called while it is running.
     void Clear(void);
 
-    /// This function will estimate how many elements are waiting to be read. It's
-    /// threadsafe enough that the value returned is stable, but not threadsafe
-    /// enough to give accurate results.
+    /// This function will estimate how many elements are waiting to be read.  It's threadsafe enough that the value
+    /// returned is stable, but not threadsafe enough to give accurate results.
     /// \return An ESTIMATE of how many data elements are waiting to be read
     int Size(void) const;
 
-    /// Make sure that the pointer we done reading for the call to ReadUnlock is
-    /// the right pointer. param[in] A previous pointer returned by ReadLock()
+    /// Make sure that the pointer we done reading for the call to ReadUnlock is the right pointer.
+    /// param[in] A previous pointer returned by ReadLock()
     bool CheckReadUnlockOrder(const SingleProducerConsumerType* data) const;
 
     /// Returns if ReadUnlock was called before ReadLock
@@ -92,8 +84,8 @@ private:
         DataPlusPtr() { readyToRead = false; }
         SingleProducerConsumerType object;
 
-        // Ready to read is so we can use an equality boolean comparison, in case
-        // the writePointer var is trashed while context switching.
+        // Ready to read is so we can use an equality boolean comparison, in case the writePointer var is trashed while
+        // context switching.
         volatile bool         readyToRead;
         volatile DataPlusPtr* next;
     };
@@ -246,6 +238,7 @@ bool SingleProducerConsumer<SingleProducerConsumerType>::CheckReadUnlockOrder(
 ) const {
     return const_cast<const SingleProducerConsumerType*>(&readPointer->object) == data;
 }
+
 
 template <class SingleProducerConsumerType>
 bool SingleProducerConsumer<SingleProducerConsumerType>::ReadIsLocked(void) const {

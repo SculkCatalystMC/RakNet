@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -13,6 +13,7 @@
 /// \brief Just a regular tree
 ///
 
+
 #ifndef __DS_TREE_H
 #define __DS_TREE_H
 
@@ -21,12 +22,11 @@
 #include "Export.h"
 #include "RakMemoryOverride.h"
 
-/// The namespace DataStructures was only added to avoid compiler errors for
-/// commonly named data structures As these data structures are stand-alone, you
-/// can use them outside of RakNet for your own projects if you wish.
+/// The namespace DataStructures was only added to avoid compiler errors for commonly named data structures
+/// As these data structures are stand-alone, you can use them outside of RakNet for your own projects if you wish.
 namespace DataStructures {
 template <class TreeType>
-class RAK_DLL_EXPORT Tree {
+class RAKNET_API Tree {
 public:
     Tree();
     Tree(TreeType& inputData);
@@ -75,12 +75,12 @@ void Tree<TreeType>::AddChild(TreeType& newData) {
 template <class TreeType>
 void Tree<TreeType>::DeleteDecendants(void) {
     /*
-  DataStructures::List<Tree*> output;
+    DataStructures::List<Tree*> output;
     LevelOrderTraversal(output);
     unsigned i;
     for (i=0; i < output.Size(); i++)
-            RakNet::OP_DELETE(output[i], _FILE_AND_LINE_);
-  */
+        RakNet::OP_DELETE(output[i], _FILE_AND_LINE_);
+*/
 
     // Already recursive to do this
     unsigned int i;

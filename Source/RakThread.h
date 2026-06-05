@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -15,7 +15,9 @@
 #include "WindowsIncludes.h"
 #endif
 
+
 #include "Export.h"
+
 
 #if defined(WINDOWS_PHONE_8) || defined(WINDOWS_STORE_RT)
 #include "../DependentExtensions/WinPhone8/ThreadEmulation.h"
@@ -27,18 +29,19 @@ namespace RakNet {
 #if defined(_WIN32_WCE) || defined(WINDOWS_PHONE_8) || defined(WINDOWS_STORE_RT)
 #define RAK_THREAD_DECLARATION(functionName) DWORD WINAPI functionName(LPVOID arguments)
 
+
 #elif defined(_WIN32)
 #define RAK_THREAD_DECLARATION(functionName) unsigned __stdcall functionName(void* arguments)
+
 
 #else
 #define RAK_THREAD_DECLARATION(functionName) void* functionName(void* arguments)
 #endif
 
-class RAK_DLL_EXPORT RakThread {
+class RAKNET_API RakThread {
 public:
-    /// Create a thread, simplified to be cross platform without all the extra
-    /// junk To then start that thread, call RakCreateThread(functionName,
-    /// arguments);
+    /// Create a thread, simplified to be cross platform without all the extra junk
+    /// To then start that thread, call RakCreateThread(functionName, arguments);
     /// \param[in] start_address Function you want to call
     /// \param[in] arglist Arguments to pass to the function
     /// \return 0=success. >0 = error code
@@ -54,8 +57,10 @@ public:
 #if defined(_WIN32_WCE) || defined(WINDOWS_PHONE_8) || defined(WINDOWS_STORE_RT)
     static int Create(LPTHREAD_START_ROUTINE start_address, void* arglist, int priority = 0);
 
+
 #elif defined(_WIN32)
     static int Create(unsigned __stdcall start_address(void*), void* arglist, int priority = 0);
+
 
 #else
     static int Create(void* start_address(void*), void* arglist, int priority = 0);

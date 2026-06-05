@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -7,6 +7,7 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  *
  */
+
 
 #include "NativeFeatureIncludes.h"
 #if _RAKNET_SUPPORT_TelnetTransport == 1
@@ -51,7 +52,7 @@ void RakNetTransport2::Send(SystemAddress systemAddress, const char* data, ...) 
     char    text[REMOTE_MAX_TEXT_INPUT];
     va_list ap;
     va_start(ap, data);
-    vsnprintf(text, REMOTE_MAX_TEXT_INPUT, data, ap);
+    _vsnprintf(text, REMOTE_MAX_TEXT_INPUT, data, ap);
     va_end(ap);
     text[REMOTE_MAX_TEXT_INPUT - 1] = 0;
 
@@ -59,7 +60,7 @@ void RakNetTransport2::Send(SystemAddress systemAddress, const char* data, ...) 
     str.Write((MessageID)ID_TRANSPORT_STRING);
     str.Write(text, (int)strlen(text));
     str.Write((unsigned char)0); // Null terminate the string
-    rakPeerInterface->Send(
+    mRakPeerInterface->Send(
         &str,
         MEDIUM_PRIORITY,
         RELIABLE_ORDERED,
@@ -69,7 +70,7 @@ void RakNetTransport2::Send(SystemAddress systemAddress, const char* data, ...) 
     );
 }
 void RakNetTransport2::CloseConnection(SystemAddress systemAddress) {
-    rakPeerInterface->CloseConnection(systemAddress, true, 0);
+    mRakPeerInterface->CloseConnection(systemAddress, true, 0);
 }
 Packet* RakNetTransport2::Receive(void) {
     if (packetQueue.Size() == 0) return 0;
@@ -88,7 +89,7 @@ void RakNetTransport2::DeallocatePacket(Packet* packet) {
     RakNet::OP_DELETE(packet, _FILE_AND_LINE_);
 }
 PluginReceiveResult RakNetTransport2::OnReceive(Packet* packet) {
-    switch (static_cast<DefaultMessageIDTypes>(packet->data[0])) {
+    switch (packet->data[0]) {
     case ID_TRANSPORT_STRING: {
         if (packet->length == sizeof(MessageID)) return RR_STOP_PROCESSING_AND_DEALLOCATE;
 
@@ -101,8 +102,6 @@ PluginReceiveResult RakNetTransport2::OnReceive(Packet* packet) {
         packetQueue.Push(p, _FILE_AND_LINE_);
     }
         return RR_STOP_PROCESSING_AND_DEALLOCATE;
-    default:
-        break;
     }
     return RR_CONTINUE_PROCESSING;
 }

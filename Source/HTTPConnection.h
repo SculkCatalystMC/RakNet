@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -11,6 +11,7 @@
 /// \file HTTPConnection.h
 /// \brief Contains HTTPConnection, used to communicate with web servers
 ///
+
 
 #include "NativeFeatureIncludes.h"
 #if _RAKNET_SUPPORT_HTTPConnection == 1 && _RAKNET_SUPPORT_TCPInterface == 1
@@ -31,15 +32,14 @@ struct SystemAddress;
 
 /// \brief Use HTTPConnection to communicate with a web server.
 /// \details Start an instance of TCPInterface via the Start() command.
-/// Instantiate a new instance of HTTPConnection, and associate TCPInterface
-/// with the class in the constructor. Use Post() to send commands to the web
-/// server, and ProcessDataPacket() to update the connection with packets
-/// returned from TCPInterface that have the system address of the web server
-/// This class will handle connecting and reconnecting as necessary.
+/// Instantiate a new instance of HTTPConnection, and associate TCPInterface with the class in the constructor.
+/// Use Post() to send commands to the web server, and ProcessDataPacket() to update the connection with packets
+/// returned from TCPInterface that have the system address of the web server This class will handle connecting and
+/// reconnecting as necessary.
 ///
 /// Note that only one Post() can be handled at a time.
 /// \deprecated, use HTTPConnection2
-class RAK_DLL_EXPORT HTTPConnection {
+class RAKNET_API HTTPConnection {
 public:
     // GetInstance() and DestroyInstance(instance*)
     STATIC_FACTORY_DECLARATIONS(HTTPConnection)
@@ -55,15 +55,13 @@ public:
     /// HTTP only allows one request at a time per connection
     ///
     /// \pre IsBusy()==false
-    /// \param path the path on the remote server you want to POST to. For example
-    /// "index.html"
+    /// \param path the path on the remote server you want to POST to. For example "index.html"
     /// \param data A NULL terminated string to submit to the server
     /// \param contentType "Content-Type:" passed to post.
     void Post(const char* path, const char* data, const char* _contentType = "application/x-www-form-urlencoded");
 
     /// Get a file from a webserver
-    /// \param path the path on the remote server you want to GET from. For
-    /// example "index.html"
+    /// \param path the path on the remote server you want to GET from. For example "index.html"
     void Get(const char* path);
 
     /// Is there a Read result ready?
@@ -88,8 +86,7 @@ public:
 
     /// Results of HTTP requests.  Standard response codes are < 999
     /// ( define HTTP codes and our internal codes as needed )
-    enum class ResponseCodes : int { NoBody = 1001, OK = 200, Deleted = 1002 };
-    using enum ResponseCodes;
+    enum ResponseCodes { NoBody = 1001, OK = 200, Deleted = 1002 };
 
     HTTPConnection& operator=(const HTTPConnection& rhs) {
         (void)rhs;
@@ -137,14 +134,13 @@ private:
     unsigned short                     port;
     DataStructures::Queue<BadResponse> badResponses;
 
-    enum class ConnectionState : unsigned char {
+    enum ConnectionState {
         CS_NONE,
         CS_DISCONNECTING,
         CS_CONNECTING,
         CS_CONNECTED,
         CS_PROCESSING,
     } connectionState;
-    using enum ConnectionState;
 
     RakNet::RakString                        incomingData;
     DataStructures::Queue<RakNet::RakString> results;
@@ -153,16 +149,16 @@ private:
 
     /*
     enum { RAK_HTTP_INITIAL,
-            RAK_HTTP_STARTING,
-            RAK_HTTP_CONNECTING,
-            RAK_HTTP_ESTABLISHED,
-            RAK_HTTP_REQUEST_SENT,
-            RAK_HTTP_IDLE } state;
+        RAK_HTTP_STARTING,
+        RAK_HTTP_CONNECTING,
+        RAK_HTTP_ESTABLISHED,
+        RAK_HTTP_REQUEST_SENT,
+        RAK_HTTP_IDLE } state;
 
-  RakNet::RakString outgoing, incoming, path, contentType;
-  void Process(Packet *packet); // the workhorse
+    RakNet::RakString outgoing, incoming, path, contentType;
+    void Process(Packet *packet); // the workhorse
 
-  // this helps check the various status lists in TCPInterface
+    // this helps check the various status lists in TCPInterface
     typedef SystemAddress (TCPInterface::*StatusCheckFunction)(void);
     bool InList(StatusCheckFunction func);
     */

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -30,24 +30,22 @@ public:
     virtual void* PerThreadFactory(void* context)                         = 0;
     virtual void  PerThreadDestructor(void* factoryResult, void* context) = 0;
 };
-/// A simple class to create worker threads that processes a queue of functions
-/// with data. This class does not allocate or deallocate memory.  It is up to
-/// the user to handle memory management. InputType and OutputType are stored
-/// directly in a queue.  For large structures, if you plan to delete from the
-/// middle of the queue, you might wish to store pointers rather than the
-/// structures themselves so the array can shift efficiently.
+/// A simple class to create worker threads that processes a queue of functions with data.
+/// This class does not allocate or deallocate memory.  It is up to the user to handle memory management.
+/// InputType and OutputType are stored directly in a queue.  For large structures, if you plan to delete from the
+/// middle of the queue, you might wish to store pointers rather than the structures themselves so the array can shift
+/// efficiently.
 template <class InputType, class OutputType>
-struct RAK_DLL_EXPORT ThreadPool {
+struct RAKNET_API ThreadPool {
     ThreadPool();
     ~ThreadPool();
 
     /// Start the specified number of threads.
     /// \param[in] numThreads The number of threads to start
     /// \param[in] stackSize 0 for default (except on consoles).
-    /// \param[in] _perThreadInit User callback to return data stored per thread.
-    /// Pass 0 if not needed.
-    /// \param[in] _perThreadDeinit User callback to destroy data stored per
-    /// thread, created by _perThreadInit.  Pass 0 if not needed.
+    /// \param[in] _perThreadInit User callback to return data stored per thread.  Pass 0 if not needed.
+    /// \param[in] _perThreadDeinit User callback to destroy data stored per thread, created by _perThreadInit.  Pass 0
+    /// if not needed.
     /// \return True on success, false on failure.
     bool
     StartThreads(int numThreads, int stackSize, void* (*_perThreadInit)() = 0, void (*_perThreadDeinit)(void*) = 0);
@@ -58,15 +56,12 @@ struct RAK_DLL_EXPORT ThreadPool {
     /// Stops all threads
     void StopThreads(void);
 
-    /// Adds a function to a queue with data to pass to that function.  This
-    /// function will be called from the thread Memory management is your
-    /// responsibility!  This class does not allocate or deallocate memory. The
-    /// best way to deallocate \a inputData is in userCallback.  If you call
-    /// EndThreads such that callbacks were not called, you can iterate through
-    /// the inputQueue and deallocate all pending input data there The best way to
-    /// deallocate output is as it is returned to you from GetOutput.  Similarly,
-    /// if you end the threads such that not all output was returned, you can
-    /// iterate through outputQueue and deallocate it there.
+    /// Adds a function to a queue with data to pass to that function.  This function will be called from the thread
+    /// Memory management is your responsibility!  This class does not allocate or deallocate memory.
+    /// The best way to deallocate \a inputData is in userCallback.  If you call EndThreads such that callbacks were not
+    /// called, you can iterate through the inputQueue and deallocate all pending input data there The best way to
+    /// deallocate output is as it is returned to you from GetOutput.  Similarly, if you end the threads such that not
+    /// all output was returned, you can iterate through outputQueue and deallocate it there.
     /// \param[in] workerThreadCallback The function to call from the thread
     /// \param[in] inputData The parameter to pass to \a userCallback
     void AddInput(
@@ -75,8 +70,8 @@ struct RAK_DLL_EXPORT ThreadPool {
     );
 
     /// Adds to the output queue
-    /// Use it if you want to inject output into the same queue that the system
-    /// uses. Normally you would not use this. Consider it a convenience function.
+    /// Use it if you want to inject output into the same queue that the system uses. Normally you would not use this.
+    /// Consider it a convenience function.
     /// \param[in] outputData The output to inject
     void AddOutput(OutputType outputData);
 
@@ -84,8 +79,8 @@ struct RAK_DLL_EXPORT ThreadPool {
     /// \return true if output is waiting, false otherwise
     bool HasOutput(void);
 
-    /// Inaccurate but fast version of HasOutput.  If this returns true, you
-    /// should still check HasOutput for the real value.
+    /// Inaccurate but fast version of HasOutput.  If this returns true, you should still check HasOutput for the real
+    /// value.
     /// \return true if output is probably waiting, false otherwise
     bool HasOutputFast(void);
 
@@ -93,28 +88,25 @@ struct RAK_DLL_EXPORT ThreadPool {
     /// \return true if input is waiting, false otherwise
     bool HasInput(void);
 
-    /// Inaccurate but fast version of HasInput.  If this returns true, you should
-    /// still check HasInput for the real value.
+    /// Inaccurate but fast version of HasInput.  If this returns true, you should still check HasInput for the real
+    /// value.
     /// \return true if input is probably waiting, false otherwise
     bool HasInputFast(void);
 
     /// Gets the output of a call to \a userCallback
-    /// HasOutput must return true before you call this function.  Otherwise it
-    /// will assert.
-    /// \return The output of \a userCallback.  If you have different output
-    /// signatures, it is up to you to encode the data to indicate this
+    /// HasOutput must return true before you call this function.  Otherwise it will assert.
+    /// \return The output of \a userCallback.  If you have different output signatures, it is up to you to encode the
+    /// data to indicate this
     OutputType GetOutput(void);
 
     /// Clears internal buffers
     void Clear(void);
 
-    /// Lock the input buffer before calling the functions InputSize,
-    /// InputAtIndex, and RemoveInputAtIndex It is only necessary to lock the
-    /// input or output while the threads are running
+    /// Lock the input buffer before calling the functions InputSize, InputAtIndex, and RemoveInputAtIndex
+    /// It is only necessary to lock the input or output while the threads are running
     void LockInput(void);
 
-    /// Unlock the input buffer after you are done with the functions InputSize,
-    /// GetInputAtIndex, and RemoveInputAtIndex
+    /// Unlock the input buffer after you are done with the functions InputSize, GetInputAtIndex, and RemoveInputAtIndex
     void UnlockInput(void);
 
     /// Length of the input queue
@@ -123,17 +115,16 @@ struct RAK_DLL_EXPORT ThreadPool {
     /// Get the input at a specified index
     InputType GetInputAtIndex(unsigned index);
 
-    /// Remove input from a specific index.  This does NOT do memory deallocation
-    /// - it only removes the item from the queue
+    /// Remove input from a specific index.  This does NOT do memory deallocation - it only removes the item from the
+    /// queue
     void RemoveInputAtIndex(unsigned index);
 
-    /// Lock the output buffer before calling the functions OutputSize,
-    /// OutputAtIndex, and RemoveOutputAtIndex It is only necessary to lock the
-    /// input or output while the threads are running
+    /// Lock the output buffer before calling the functions OutputSize, OutputAtIndex, and RemoveOutputAtIndex
+    /// It is only necessary to lock the input or output while the threads are running
     void LockOutput(void);
 
-    /// Unlock the output buffer after you are done with the functions OutputSize,
-    /// GetOutputAtIndex, and RemoveOutputAtIndex
+    /// Unlock the output buffer after you are done with the functions OutputSize, GetOutputAtIndex, and
+    /// RemoveOutputAtIndex
     void UnlockOutput(void);
 
     /// Length of the output queue
@@ -142,8 +133,8 @@ struct RAK_DLL_EXPORT ThreadPool {
     /// Get the output at a specified index
     OutputType GetOutputAtIndex(unsigned index);
 
-    /// Remove output from a specific index.  This does NOT do memory deallocation
-    /// - it only removes the item from the queue
+    /// Remove output from a specific index.  This does NOT do memory deallocation - it only removes the item from the
+    /// queue
     void RemoveOutputAtIndex(unsigned index);
 
     /// Removes all items from the input queue
@@ -168,16 +159,15 @@ struct RAK_DLL_EXPORT ThreadPool {
     void Resume(void);
 
 protected:
-    // It is valid to cancel input before it is processed.  To do so, lock the
-    // inputQueue with inputQueueMutex, Scan the list, and remove the item you
-    // don't want.
+    // It is valid to cancel input before it is processed.  To do so, lock the inputQueue with inputQueueMutex,
+    // Scan the list, and remove the item you don't want.
     RakNet::SimpleMutex inputQueueMutex, outputQueueMutex, workingThreadCountMutex, runThreadsMutex;
 
     void* (*perThreadDataFactory)();
     void (*perThreadDataDestructor)(void*);
 
-    // inputFunctionQueue & inputQueue are paired arrays so if you delete from one
-    // at a particular index you must delete from the other at the same index
+    // inputFunctionQueue & inputQueue are paired arrays so if you delete from one at a particular index you must delete
+    // from the other at the same index
     DataStructures::Queue<OutputType (*)(InputType, bool*, void*)> inputFunctionQueue;
     DataStructures::Queue<InputType>                               inputQueue;
     DataStructures::Queue<OutputType>                              outputQueue;
@@ -185,15 +175,16 @@ protected:
     ThreadDataInterface* threadDataInterface;
     void*                tdiContext;
 
+
     template <class ThreadInputType, class ThreadOutputType>
     friend RAK_THREAD_DECLARATION(WorkerThread);
 
     /*
-  #ifdef _WIN32
+#ifdef _WIN32
     friend unsigned __stdcall WorkerThread( LPVOID arguments );
-  #else
+#else
     friend void* WorkerThread( void* arguments );
-  #endif
+#endif
     */
 
     /// \internal
@@ -236,8 +227,10 @@ void* WorkerThread( void* arguments )
 */
 {
 
+
     ThreadPool<ThreadInputType, ThreadOutputType>* threadPool =
         (ThreadPool<ThreadInputType, ThreadOutputType>*)arguments;
+
 
     bool returnOutput;
     ThreadOutputType (*userCallback)(ThreadInputType, bool*, void*);
@@ -310,6 +303,7 @@ void* WorkerThread( void* arguments )
     else if (threadPool->threadDataInterface)
         threadPool->threadDataInterface->PerThreadDestructor(perThreadData, threadPool->tdiContext);
 
+
     return 0;
 }
 template <class InputType, class OutputType>
@@ -361,6 +355,7 @@ bool ThreadPool<InputType, OutputType>::StartThreads(
     int i;
     for (i = 0; i < numThreads; i++) {
         int errorCode;
+
 
         errorCode = RakNet::RakThread::Create(WorkerThread<InputType, OutputType>, this);
 
@@ -546,15 +541,13 @@ bool ThreadPool<InputType, OutputType>::IsWorking(void) {
     //		return true;
 
     // Bug fix: Originally the order of these two was reversed.
-    // It's possible with the thread timing that working could have been false,
-    // then it picks up the data in the other thread, then it checks here and sees
-    // there is no data.  So it thinks the thread is not working when it was.
+    // It's possible with the thread timing that working could have been false, then it picks up the data in the other
+    // thread, then it checks here and sees there is no data.  So it thinks the thread is not working when it was.
     if (HasOutputFast() && HasOutput()) return true;
 
     if (HasInputFast() && HasInput()) return true;
 
-    // Need to check is working again, in case the thread was between the first
-    // and second checks
+    // Need to check is working again, in case the thread was between the first and second checks
     workingThreadCountMutex.Lock();
     isWorking = numThreadsWorking != 0;
     workingThreadCountMutex.Unlock();

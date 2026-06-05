@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -34,8 +34,8 @@
 #endif
 
 #ifdef _MSC_VER
-#pragma warning(disable : 4996) // mkdir declared deprecated by Microsoft in order to make it harder
-                                // to be cross platform.  I don't agree it's deprecated.
+#pragma warning(disable : 4996) // mkdir declared deprecated by Microsoft in order to make it harder to be cross
+                                // platform.  I don't agree it's deprecated.
 #endif
 bool WriteFileWithDirectories(const char* path, char* data, unsigned dataLength) {
     int   index;
@@ -45,7 +45,7 @@ bool WriteFileWithDirectories(const char* path, char* data, unsigned dataLength)
 
     if (path == 0 || path[0] == 0) return false;
 
-    snprintf(pathCopy, sizeof(pathCopy), "%s", path);
+    strcpy(pathCopy, path);
 
     // Ignore first / if there is one
     if (pathCopy[0]) {
@@ -83,8 +83,8 @@ bool WriteFileWithDirectories(const char* path, char* data, unsigned dataLength)
         fclose(fp);
     } else {
 #ifdef _WIN32
-#pragma warning(disable : 4996) // mkdir declared deprecated by Microsoft in order to make it harder
-                                // to be cross platform.  I don't agree it's deprecated.
+#pragma warning(disable : 4996) // mkdir declared deprecated by Microsoft in order to make it harder to be cross
+                                // platform.  I don't agree it's deprecated.
         res = _mkdir(pathCopy);
 #else
         res = mkdir(pathCopy, 0744);
@@ -113,12 +113,9 @@ bool DirectoryExists(const char* directory) {
     _finddata_t fileInfo;
     intptr_t    dir;
     char        baseDirWithStars[560];
-    snprintf(baseDirWithStars, sizeof(baseDirWithStars), "%s", directory);
+    strcpy(baseDirWithStars, directory);
     AddSlash(baseDirWithStars);
-    size_t baseLen = strlen(baseDirWithStars);
-    if (baseLen + 3 < sizeof(baseDirWithStars)) {
-        memcpy(baseDirWithStars + baseLen, "*.*", 4);
-    }
+    strcat(baseDirWithStars, "*.*");
     dir = _findfirst(baseDirWithStars, &fileInfo);
     if (dir == -1) return false;
     _findclose(dir);

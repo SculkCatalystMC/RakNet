@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -8,25 +8,20 @@
  *
  */
 
+
 #include "IncrementalReadInterface.h"
 #include <stdio.h>
 
 using namespace RakNet;
 
 unsigned int IncrementalReadInterface::GetFilePart(
-    const char*         filename,
-    unsigned int        startReadBytes,
-    unsigned int        numBytesToRead,
-    void*               preallocatedDestination,
-    FileListNodeContext context
+    const char*  filename,
+    unsigned int startReadBytes,
+    unsigned int numBytesToRead,
+    void*        preallocatedDestination,
+    FileListNodeContext /*context*/
 ) {
-    static_cast<void>(context);
-    FILE* fp = 0;
-#if defined(_WIN32)
-    fopen_s(&fp, filename, "rb");
-#else
-    fp = fopen(filename, "rb");
-#endif
+    FILE* fp = fopen(filename, "rb");
     if (fp == 0) return 0;
     fseek(fp, startReadBytes, SEEK_SET);
     unsigned int numRead = (unsigned int)fread(preallocatedDestination, 1, numBytesToRead, fp);

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -15,13 +15,14 @@
 #ifndef __NETWORK_TYPES_H
 #define __NETWORK_TYPES_H
 
+#include <cstddef>
+
 #include "Export.h"
 #include "NativeTypes.h"
 #include "RakNetDefines.h"
 #include "RakNetTime.h"
 #include "SocketIncludes.h"
 #include "WindowsIncludes.h"
-#include "XBox360Includes.h"
 
 namespace RakNet {
 /// Forward declarations
@@ -29,7 +30,7 @@ class RakPeerInterface;
 class BitStream;
 struct Packet;
 
-enum class StartupResult : unsigned char {
+enum StartupResult {
     RAKNET_STARTED,
     RAKNET_ALREADY_STARTED,
     INVALID_SOCKET_DESCRIPTORS,
@@ -44,10 +45,8 @@ enum class StartupResult : unsigned char {
     STARTUP_OTHER_FAILURE
 };
 
-using enum StartupResult;
 
-
-enum class ConnectionAttemptResult : unsigned char {
+enum ConnectionAttemptResult {
     CONNECTION_ATTEMPT_STARTED,
     INVALID_PARAMETER,
     CANNOT_RESOLVE_DOMAIN_NAME,
@@ -56,31 +55,23 @@ enum class ConnectionAttemptResult : unsigned char {
     SECURITY_INITIALIZATION_FAILED
 };
 
-using enum ConnectionAttemptResult;
-
-
 /// Returned from RakPeerInterface::GetConnectionState()
-enum class ConnectionState : unsigned char {
+enum ConnectionState {
     /// Connect() was called, but the process hasn't started yet
     IS_PENDING,
     /// Processing the connection attempt
     IS_CONNECTING,
     /// Is connected and able to communicate
     IS_CONNECTED,
-    /// Was connected, but will disconnect as soon as the remaining messages are
-    /// delivered
+    /// Was connected, but will disconnect as soon as the remaining messages are delivered
     IS_DISCONNECTING,
     /// A connection attempt failed and will be aborted
     IS_SILENTLY_DISCONNECTING,
     /// No longer connected
     IS_DISCONNECTED,
-    /// Was never connected, or else was disconnected long enough ago that the
-    /// entry has been discarded
+    /// Was never connected, or else was disconnected long enough ago that the entry has been discarded
     IS_NOT_CONNECTED
 };
-
-using enum ConnectionState;
-
 
 /// Given a number of bits, return how many bytes are needed to represent that.
 #define BITS_TO_BYTES(x) (((x) + 7) >> 3)
@@ -105,85 +96,73 @@ typedef uint32_t BitSize_t;
 #endif
 
 /// Used with the PublicKey structure
-enum class PublicKeyMode : unsigned char {
-    /// The connection is insecure. You can also just pass 0 for the pointer to
-    /// PublicKey in RakPeerInterface::Connect()
+enum PublicKeyMode {
+    /// The connection is insecure. You can also just pass 0 for the pointer to PublicKey in RakPeerInterface::Connect()
     PKM_INSECURE_CONNECTION,
 
-    /// Accept whatever public key the server gives us. This is vulnerable to man
-    /// in the middle, but does not require distribution of the public key in
-    /// advance of connecting.
+    /// Accept whatever public key the server gives us. This is vulnerable to man in the middle, but does not require
+    /// distribution of the public key in advance of connecting.
     PKM_ACCEPT_ANY_PUBLIC_KEY,
 
-    /// Use a known remote server public key. PublicKey::remoteServerPublicKey
-    /// must be non-zero. This is the recommended mode for secure connections.
+    /// Use a known remote server public key. PublicKey::remoteServerPublicKey must be non-zero.
+    /// This is the recommended mode for secure connections.
     PKM_USE_KNOWN_PUBLIC_KEY,
 
-    /// Use a known remote server public key AND provide a public key for the
-    /// connecting client. PublicKey::remoteServerPublicKey, myPublicKey and
-    /// myPrivateKey must be all be non-zero. The server must cooperate for this
-    /// mode to work. I recommend not using this mode except for server-to-server
-    /// communication as it significantly increases the CPU requirements during
-    /// connections for both sides. Furthermore, when it is used, a connection
-    /// password should be used as well to avoid DoS attacks.
+    /// Use a known remote server public key AND provide a public key for the connecting client.
+    /// PublicKey::remoteServerPublicKey, myPublicKey and myPrivateKey must be all be non-zero.
+    /// The server must cooperate for this mode to work.
+    /// I recommend not using this mode except for server-to-server communication as it significantly increases the CPU
+    /// requirements during connections for both sides. Furthermore, when it is used, a connection password should be
+    /// used as well to avoid DoS attacks.
     PKM_USE_TWO_WAY_AUTHENTICATION
 };
 
-using enum PublicKeyMode;
-
-
 /// Passed to RakPeerInterface::Connect()
-struct RAK_DLL_EXPORT PublicKey {
+struct RAKNET_API PublicKey {
     /// How to interpret the public key, see above
     PublicKeyMode publicKeyMode;
 
-    /// Pointer to a public key of length cat::EasyHandshake::PUBLIC_KEY_BYTES.
-    /// See the Encryption sample.
+    /// Pointer to a public key of length cat::EasyHandshake::PUBLIC_KEY_BYTES. See the Encryption sample.
     char* remoteServerPublicKey;
 
-    /// (Optional) Pointer to a public key of length
-    /// cat::EasyHandshake::PUBLIC_KEY_BYTES
+    /// (Optional) Pointer to a public key of length cat::EasyHandshake::PUBLIC_KEY_BYTES
     char* myPublicKey;
 
-    /// (Optional) Pointer to a private key of length
-    /// cat::EasyHandshake::PRIVATE_KEY_BYTES
+    /// (Optional) Pointer to a private key of length cat::EasyHandshake::PRIVATE_KEY_BYTES
     char* myPrivateKey;
 };
 
 /// Describes the local socket to use for RakPeer::Startup
-struct RAK_DLL_EXPORT SocketDescriptor {
+struct RAKNET_API SocketDescriptor {
     SocketDescriptor();
     SocketDescriptor(unsigned short _port, const char* _hostAddress);
 
     /// The local port to bind to.  Pass 0 to have the OS autoassign a port.
     unsigned short port;
 
-    /// The local network card address to bind to, such as "127.0.0.1".  Pass an
-    /// empty string to use INADDR_ANY.
+    /// The local network card address to bind to, such as "127.0.0.1".  Pass an empty string to use INADDR_ANY.
     char hostAddress[32];
 
-    /// IP version: For IPV4, use AF_INET (default). For IPV6, use AF_INET6. To
-    /// autoselect, use AF_UNSPEC. IPV6 is the newer internet protocol. Instead of
-    /// addresses such as natpunch.jenkinssoftware.com, you may have an address
-    /// such as fe80::7c:31f7:fec4:27de%14. Encoding takes 16 bytes instead of 4,
-    /// so IPV6 is less efficient for bandwidth. On the positive side, NAT
-    /// Punchthrough is not needed and should not be used with IPV6 because there
-    /// are enough addresses that routers do not need to create address mappings.
-    /// RakPeer::Startup() will fail if this IP version is not supported.
+    /// IP version: For IPV4, use AF_INET (default). For IPV6, use AF_INET6. To autoselect, use AF_UNSPEC.
+    /// IPV6 is the newer internet protocol. Instead of addresses such as natpunch.jenkinssoftware.com, you may have an
+    /// address such as fe80::7c:31f7:fec4:27de%14. Encoding takes 16 bytes instead of 4, so IPV6 is less efficient for
+    /// bandwidth. On the positive side, NAT Punchthrough is not needed and should not be used with IPV6 because there
+    /// are enough addresses that routers do not need to create address mappings. RakPeer::Startup() will fail if this
+    /// IP version is not supported.
     /// \pre RAKNET_SUPPORT_IPV6 must be set to 1 in RakNetDefines.h for AF_INET6
     short socketFamily;
+
 
     unsigned short remotePortRakNetWasStartedOn_PS3_PSP2;
 
     // Required for Google chrome
     _PP_Instance_ chromeInstance;
 
-    // Set to true to use a blocking socket (default, do not change unless you
-    // have a reason to)
+    // Set to true to use a blocking socket (default, do not change unless you have a reason to)
     bool blockingSocket;
 
-    /// XBOX only: set IPPROTO_VDP if you want to use VDP. If enabled, this socket
-    /// does not support broadcast to 255.255.255.255
+    /// XBOX only: set IPPROTO_VDP if you want to use VDP. If enabled, this socket does not support broadcast to
+    /// 255.255.255.255
     unsigned int extraSocketOptions;
 };
 
@@ -191,21 +170,19 @@ extern bool NonNumericHostString(const char* host);
 
 /// \brief Network address for a system
 /// \details Corresponds to a network address<BR>
-/// This is not necessarily a unique identifier. For example, if a system has
-/// both LAN and internet connections, the system may be identified by either
-/// one, depending on who is communicating<BR> Therefore, you should not
-/// transmit the SystemAddress over the network and expect it to identify a
-/// system, or use it to connect to that system, except in the case where that
-/// system is not behind a NAT (such as with a dedciated server) Use RakNetGUID
-/// for a unique per-instance of RakPeer to identify systems
-struct RAK_DLL_EXPORT SystemAddress {
+/// This is not necessarily a unique identifier. For example, if a system has both LAN and internet connections, the
+/// system may be identified by either one, depending on who is communicating<BR> Therefore, you should not transmit the
+/// SystemAddress over the network and expect it to identify a system, or use it to connect to that system, except in
+/// the case where that system is not behind a NAT (such as with a dedciated server) Use RakNetGUID for a unique
+/// per-instance of RakPeer to identify systems
+struct RAKNET_API SystemAddress {
     /// Constructors
     SystemAddress();
     SystemAddress(const char* str);
     SystemAddress(const char* str, unsigned short port);
 
-    /// SystemAddress, with RAKNET_SUPPORT_IPV6 defined, holds both an
-    /// sockaddr_in6 and a sockaddr_in
+
+    /// SystemAddress, with RAKNET_SUPPORT_IPV6 defined, holds both an sockaddr_in6 and a sockaddr_in
     union // In6OrIn4
     {
 #if RAKNET_SUPPORT_IPV6 == 1
@@ -216,9 +193,8 @@ struct RAK_DLL_EXPORT SystemAddress {
         sockaddr_in addr4;
     } address;
 
-    /// This is not used internally, but holds a copy of the port held in the
-    /// address union, so for debugging it's easier to check what port is being
-    /// held
+    /// This is not used internally, but holds a copy of the port held in the address union, so for debugging it's
+    /// easier to check what port is being held
     unsigned short debugPort;
 
     /// \internal Return the size to write to a bitStream
@@ -235,8 +211,7 @@ struct RAK_DLL_EXPORT SystemAddress {
     /// \sa GetIPVersion
     unsigned int GetIPPROTO(void) const;
 
-    /// Call SetToLoopback(), with whatever IP version is currently held. Defaults
-    /// to IPV4
+    /// Call SetToLoopback(), with whatever IP version is currently held. Defaults to IPV4
     void SetToLoopback(void);
 
     /// Call SetToLoopback() with a specific IP version
@@ -258,21 +233,16 @@ struct RAK_DLL_EXPORT SystemAddress {
     // THREADSAFE
     void ToString(bool writePort, char* dest, char portDelineator = '|') const;
 
-    /// Set the system address from a printable IP string, for example "192.0.2.1"
-    /// or "2001:db8:63b3:1::3490" You can write the port as well, using the
-    /// portDelineator, for example "192.0.2.1|1234"
-    /// \param[in] str A printable IP string, for example "192.0.2.1" or
-    /// "2001:db8:63b3:1::3490". Pass 0 for \a str to set to
-    /// UNASSIGNED_SYSTEM_ADDRESS
-    /// \param[in] portDelineator if \a str contains a port, delineate the port
-    /// with this character. portDelineator should not be '.', ':', '%', '-', '/',
-    /// a number, or a-f
-    /// \param[in] ipVersion Only used if str is a pre-defined address in the
-    /// wrong format, such as 127.0.0.1 but you want ip version 6, so you can pass
-    /// 6 here to do the conversion
+    /// Set the system address from a printable IP string, for example "192.0.2.1" or "2001:db8:63b3:1::3490"
+    /// You can write the port as well, using the portDelineator, for example "192.0.2.1|1234"
+    /// \param[in] str A printable IP string, for example "192.0.2.1" or "2001:db8:63b3:1::3490". Pass 0 for \a str to
+    /// set to UNASSIGNED_SYSTEM_ADDRESS
+    /// \param[in] portDelineator if \a str contains a port, delineate the port with this character. portDelineator
+    /// should not be '.', ':', '%', '-', '/', a number, or a-f
+    /// \param[in] ipVersion Only used if str is a pre-defined address in the wrong format, such as 127.0.0.1 but you
+    /// want ip version 6, so you can pass 6 here to do the conversion
     /// \note The current port is unchanged if a port is not specified in \a str
-    /// \return True on success, false on ipVersion does not match type of passed
-    /// string
+    /// \return True on success, false on ipVersion does not match type of passed string
     bool FromString(const char* str, char portDelineator = '|', int ipVersion = 0);
 
     /// Same as FromString(), but you explicitly set a port at the same time
@@ -290,13 +260,11 @@ struct RAK_DLL_EXPORT SystemAddress {
     /// \internal Returns the port in network order
     unsigned short GetPortNetworkOrder(void) const;
 
-    /// Sets the port. The port value should be in host order (this is what you
-    /// normally use) Renamed from SetPort because of winspool.h
-    /// http://edn.embarcadero.com/article/21494
+    /// Sets the port. The port value should be in host order (this is what you normally use)
+    /// Renamed from SetPort because of winspool.h http://edn.embarcadero.com/article/21494
     void SetPortHostOrder(unsigned short s);
 
-    /// \internal Sets the port. The port value should already be in network
-    /// order.
+    /// \internal Sets the port. The port value should already be in network order.
     void SetPortNetworkOrder(unsigned short s);
 
     /// Old version, for crap platforms that don't support newer socket functions
@@ -304,21 +272,19 @@ struct RAK_DLL_EXPORT SystemAddress {
     /// Old version, for crap platforms that don't support newer socket functions
     void ToString_Old(bool writePort, char* dest, char portDelineator = ':') const;
 
-    /// \internal sockaddr_in6 requires extra data beyond just the IP and port.
-    /// Copy that extra data from an existing SystemAddress that already has it
+    /// \internal sockaddr_in6 requires extra data beyond just the IP and port. Copy that extra data from an existing
+    /// SystemAddress that already has it
     void FixForIPVersion(const SystemAddress& boundAddressToSocket);
 
     bool IsLANAddress(void);
 
-    SystemAddress(const SystemAddress& input);
     SystemAddress& operator=(const SystemAddress& input);
     bool           operator==(const SystemAddress& right) const;
     bool           operator!=(const SystemAddress& right) const;
     bool           operator>(const SystemAddress& right) const;
     bool           operator<(const SystemAddress& right) const;
 
-    /// \internal Used internally for fast lookup. Optional (use -1 to do regular
-    /// lookup). Don't transmit this.
+    /// \internal Used internally for fast lookup. Optional (use -1 to do regular lookup). Don't transmit this.
     SystemIndex systemIndex;
 
 private:
@@ -327,18 +293,15 @@ private:
 #endif
 };
 
-/// Uniquely identifies an instance of RakPeer. Use
-/// RakPeer::GetGuidFromSystemAddress() and RakPeer::GetSystemAddressFromGuid()
-/// to go between SystemAddress and RakNetGUID Use
-/// RakPeer::GetGuidFromSystemAddress(UNASSIGNED_SYSTEM_ADDRESS) to get your own
-/// GUID
-struct RAK_DLL_EXPORT RakNetGUID {
+/// Uniquely identifies an instance of RakPeer. Use RakPeer::GetGuidFromSystemAddress() and
+/// RakPeer::GetSystemAddressFromGuid() to go between SystemAddress and RakNetGUID Use
+/// RakPeer::GetGuidFromSystemAddress(UNASSIGNED_SYSTEM_ADDRESS) to get your own GUID
+struct RAKNET_API RakNetGUID {
     RakNetGUID();
     explicit RakNetGUID(uint64_t _g) {
         g           = _g;
         systemIndex = (SystemIndex)-1;
     }
-    RakNetGUID(const RakNetGUID& input) = default;
     //	uint32_t g[6];
     uint64_t g;
 
@@ -362,8 +325,7 @@ struct RAK_DLL_EXPORT RakNetGUID {
         return *this;
     }
 
-    // Used internally for fast lookup. Optional (use -1 to do regular lookup).
-    // Don't transmit this.
+    // Used internally for fast lookup. Optional (use -1 to do regular lookup). Don't transmit this.
     SystemIndex systemIndex;
     static int  size() { return (int)sizeof(uint64_t); }
 
@@ -387,7 +349,8 @@ const RakNetGUID    UNASSIGNED_RAKNET_GUID((uint64_t)-1);
 //	0xFFFFFFFFFFFFFFFF
 //};
 
-struct RAK_DLL_EXPORT AddressOrGUID {
+
+struct RAKNET_API AddressOrGUID {
     RakNetGUID    rakNetGuid;
     SystemAddress systemAddress;
 
@@ -451,11 +414,9 @@ struct Packet {
     /// The system that send this packet.
     SystemAddress systemAddress;
 
-    /// A unique identifier for the system that sent this packet, regardless of IP
-    /// address (internal / external / remote system) Only valid once a connection
-    /// has been established (ID_CONNECTION_REQUEST_ACCEPTED, or
-    /// ID_NEW_INCOMING_CONNECTION) Until that time, will be
-    /// UNASSIGNED_RAKNET_GUID
+    /// A unique identifier for the system that sent this packet, regardless of IP address (internal / external / remote
+    /// system) Only valid once a connection has been established (ID_CONNECTION_REQUEST_ACCEPTED, or
+    /// ID_NEW_INCOMING_CONNECTION) Until that time, will be UNASSIGNED_RAKNET_GUID
     RakNetGUID guid;
 
     /// The length of the data in bytes
@@ -472,8 +433,7 @@ struct Packet {
     bool deleteData;
 
     /// @internal
-    /// If true, this message is meant for the user, not for the plugins, so do
-    /// not process it through plugins
+    /// If true, this message is meant for the user, not for the plugins, so do not process it through plugins
     bool wasGeneratedLocally;
 };
 
@@ -485,7 +445,7 @@ const NetworkID UNASSIGNED_NETWORK_ID = (uint64_t)-1;
 
 const int PING_TIMES_ARRAY_SIZE = 5;
 
-struct RAK_DLL_EXPORT uint24_t {
+struct RAKNET_API uint24_t {
     uint32_t val;
 
     uint24_t() {}

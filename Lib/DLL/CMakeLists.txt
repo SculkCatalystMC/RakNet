@@ -13,7 +13,7 @@ target_include_directories(RakNetDLL PRIVATE ${RAKNET_INTERNAL_INCLUDE_DIRS})
 target_compile_definitions(RakNetDLL PRIVATE ${RAKNET_COMMON_COMPILE_DEFINITIONS})
 	
 IF(WIN32 AND NOT UNIX)
-	target_compile_definitions(RakNetDLL PRIVATE WIN32 _RAKNET_DLL)
+	target_compile_definitions(RakNetDLL PRIVATE WIN32 _RAKNET_DLL _CRT_NONSTDC_NO_DEPRECATE _CRT_SECURE_NO_DEPRECATE)
 	target_compile_options(RakNetDLL PRIVATE /GS- /GR-)
 ENDIF(WIN32 AND NOT UNIX)
 

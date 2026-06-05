@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, Oculus VR, Inc.
+ *  Copyright (c) 2025, SculkCatalystMC.
  *  All rights reserved.
  *
  *  This source code is licensed under the BSD-style license found in the
@@ -14,9 +14,8 @@
 extern "C" {
 #endif
 
-// Fast itoa from http://www.jb.man.ac.uk/~slowe/cpp/itoa.html for Linux since
-// it seems like Linux doesn't support this function. I modified it to remove
-// the std dependencies.
+// Fast itoa from http://www.jb.man.ac.uk/~slowe/cpp/itoa.html for Linux since it seems like Linux doesn't support this
+// function. I modified it to remove the std dependencies.
 char* Itoa(int value, char* result, int base) {
     // check that the base if valid
     if (base < 2 || base > 16) {
