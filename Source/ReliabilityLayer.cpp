@@ -535,7 +535,7 @@ void ReliabilityLayer::FreeThreadSafeMemory(void) {
     outgoingPacketBuffer.Clear(true, _FILE_AND_LINE_);
 
 #ifdef _DEBUG
-    for (unsigned i = 0; i < delayList.Size(); i++) RakNet::OP_DELETE(delayList[i], __FILE__, __LINE__);
+    for (unsigned k = 0; k < delayList.Size(); k++) RakNet::OP_DELETE(delayList[k], __FILE__, __LINE__);
     delayList.Clear(__FILE__, __LINE__);
 #endif
 
@@ -1560,11 +1560,13 @@ waitingForOrderedPacketReadIndex[ orderingChannelCopy ] )
                             // Done
                             goto CONTINUE_SOCKET_DATA_PARSE_LOOP;
                         }
-                    } else if (IsOlderOrderedPacket(
-                                   internalPacket->orderingIndex,
-                                   orderedReadIndex[internalPacket->orderingChannel]
-                               )
-                               == false) {
+                    } else if (
+                        IsOlderOrderedPacket(
+                            internalPacket->orderingIndex,
+                            orderedReadIndex[internalPacket->orderingChannel]
+                        )
+                        == false
+                    ) {
                         // internalPacket->_orderingIndex is greater
                         // If a message has a greater ordering index, and is sequenced or ordered, buffer it
                         // Sequenced has a lower heap weight, ordered has max sequenced weight
@@ -1798,8 +1800,10 @@ bool ReliabilityLayer::Send(
         DeleteSequencedPacketsInList(orderingChannel, sendQueue[i]);
         }
         */
-    } else if (internalPacket->reliability == RELIABLE_ORDERED
-               || internalPacket->reliability == RELIABLE_ORDERED_WITH_ACK_RECEIPT) {
+    } else if (
+        internalPacket->reliability == RELIABLE_ORDERED
+        || internalPacket->reliability == RELIABLE_ORDERED_WITH_ACK_RECEIPT
+    ) {
         // Assign the ordering channel and index
         internalPacket->orderingChannel      = orderingChannel;
         internalPacket->orderingIndex        = orderedWriteIndex[orderingChannel]++;
@@ -3077,10 +3081,12 @@ bool ReliabilityLayer::IsOlderOrderedPacket(
         }
     }
 
-    else if (newPacketOrderingIndex
-                 >= (OrderingIndexType)(waitingForPacketOrderingIndex
-                                        - ((OrderingIndexType)maxRange / (OrderingIndexType)2 + (OrderingIndexType)1))
-             || newPacketOrderingIndex < waitingForPacketOrderingIndex) {
+    else if (
+        newPacketOrderingIndex
+            >= (OrderingIndexType)(waitingForPacketOrderingIndex
+                                   - ((OrderingIndexType)maxRange / (OrderingIndexType)2 + (OrderingIndexType)1))
+        || newPacketOrderingIndex < waitingForPacketOrderingIndex
+    ) {
         return true;
     }
 
@@ -3348,8 +3354,8 @@ void ReliabilityLayer::InsertIntoSplitPacketList(InternalPacket* internalPacket,
         // Write byteLength (4)
         // Write data, splitPacketChannelList[index]->splitPacketList[0]->data
         InternalPacket* progressIndicator = AllocateFromInternalPacketPool();
-        unsigned int    length            = sizeof(MessageID) + sizeof(unsigned int) * 2 + sizeof(unsigned int)
-                            + (unsigned int)BITS_TO_BYTES(splitPacketChannelList[index]->firstPacket->dataBitLength);
+        unsigned int    length = sizeof(MessageID) + sizeof(unsigned int) * 2 + sizeof(unsigned int)
+                               + (unsigned int)BITS_TO_BYTES(splitPacketChannelList[index]->firstPacket->dataBitLength);
         AllocInternalPacketData(progressIndicator, length, false, __FILE__, __LINE__);
         progressIndicator->dataBitLength = BYTES_TO_BITS(length);
         progressIndicator->data[0]       = (MessageID)ID_DOWNLOAD_PROGRESS;
