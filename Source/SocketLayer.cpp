@@ -161,7 +161,7 @@ void SocketLayer::SetSocketOptions(__UDPSOCKET__ listenSocket, bool blockingSock
                 NULL
             );
             // something has gone wrong here...
-            RAKNET_DEBUG_PRINTF("setsockopt__(SO_BROADCAST) failed:Error code - %d\n%s", dwIOError, messageBuffer);
+            RAKNET_DEBUG_PRINTF("setsockopt__(SO_BROADCAST) failed:Error code - %d\n%s", dwIOError, static_cast<char*>(messageBuffer));
             // Free the buffer.
             LocalFree(messageBuffer);
 #endif
@@ -412,7 +412,7 @@ void SocketLayer::GetSystemAddress_Old(__UDPSOCKET__ s, SystemAddress* systemAdd
             NULL
         );
         // something has gone wrong here...
-        RAKNET_DEBUG_PRINTF("getsockname failed:Error code - %d\n%s", dwIOError, messageBuffer);
+        RAKNET_DEBUG_PRINTF("getsockname failed:Error code - %d\n%s", dwIOError, static_cast<char*>(messageBuffer));
 
         // Free the buffer.
         LocalFree(messageBuffer);

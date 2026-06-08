@@ -44,7 +44,7 @@ void WSAStartupSingleton::AddRef(void) {
             NULL
         );
         // something has gone wrong here...
-        RAKNET_DEBUG_PRINTF("WSAStartup failed:Error code - %d\n%s", dwIOError, messageBuffer);
+        RAKNET_DEBUG_PRINTF("WSAStartup failed:Error code - %d\n%s", dwIOError, static_cast<char*>(messageBuffer));
         // Free the buffer.
         LocalFree(messageBuffer);
 #endif

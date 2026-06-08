@@ -552,7 +552,7 @@ void ReliabilityLayer::FreeThreadSafeMemory(void) {
     outgoingPacketBuffer.Clear(true, _FILE_AND_LINE_);
 
 #ifdef _DEBUG
-    for (unsigned i = 0; i < delayList.Size(); i++) RakNet::OP_DELETE(delayList[i], __FILE__, __LINE__);
+    for (unsigned k = 0; k < delayList.Size(); k++) RakNet::OP_DELETE(delayList[k], __FILE__, __LINE__);
     delayList.Clear(__FILE__, __LINE__);
 #endif
 
@@ -2033,7 +2033,7 @@ void ReliabilityLayer::Update(
     bandwidthExceededStatistic = outgoingPacketBuffer.Size() > 0;
 
     const bool hasDataToSendOrResend = IsResendQueueEmpty() == false || bandwidthExceededStatistic;
-    RakAssert(NUMBER_OF_PRIORITIES == 4);
+    RakAssert(static_cast<std::uint8_t>(NUMBER_OF_PRIORITIES) == 4);
     congestionManager.Update(time, hasDataToSendOrResend);
 
     statistics.BPSLimitByOutgoingBandwidthLimit = BITS_TO_BYTES(bitsPerSecondLimit);

@@ -1244,8 +1244,8 @@ uint32_t RakPeer::Send(
 #ifdef _DEBUG
     RakAssert(data && length > 0);
 #endif
-    RakAssert(!(reliability >= NUMBER_OF_RELIABILITIES || reliability < 0));
-    RakAssert(!(priority > NUMBER_OF_PRIORITIES || priority < 0));
+    RakAssert(!(static_cast<std::uint8_t>(reliability) >= static_cast<std::uint8_t>(NUMBER_OF_RELIABILITIES)));
+    RakAssert(!(static_cast<std::uint8_t>(priority) > static_cast<std::uint8_t>(NUMBER_OF_PRIORITIES)));
     RakAssert(!(orderingChannel >= NUMBER_OF_ORDERED_STREAMS));
 
     if (data == 0 || length < 0) return 0;
@@ -1311,8 +1311,8 @@ uint32_t RakPeer::Send(
     RakAssert(bitStream->GetNumberOfBytesUsed() > 0);
 #endif
 
-    RakAssert(!(reliability >= NUMBER_OF_RELIABILITIES || reliability < 0));
-    RakAssert(!(priority > NUMBER_OF_PRIORITIES || priority < 0));
+    RakAssert(!(static_cast<std::uint8_t>(reliability) >= static_cast<std::uint8_t>(NUMBER_OF_RELIABILITIES)));
+    RakAssert(!(static_cast<std::uint8_t>(priority) > static_cast<std::uint8_t>(NUMBER_OF_PRIORITIES)));
     RakAssert(!(orderingChannel >= NUMBER_OF_ORDERED_STREAMS));
 
     if (bitStream->GetNumberOfBytesUsed() == 0) return 0;
@@ -4040,8 +4040,8 @@ void RakPeer::SendBuffered(
         return;
     }
 
-    RakAssert(!(reliability >= NUMBER_OF_RELIABILITIES || reliability < 0));
-    RakAssert(!(priority > NUMBER_OF_PRIORITIES || priority < 0));
+    RakAssert(!(static_cast<std::uint8_t>(reliability) >= static_cast<std::uint8_t>(NUMBER_OF_RELIABILITIES)));
+    RakAssert(!(static_cast<std::uint8_t>(priority) > static_cast<std::uint8_t>(NUMBER_OF_PRIORITIES)));
     RakAssert(!(orderingChannel >= NUMBER_OF_ORDERED_STREAMS));
 
     memcpy(bcs->data, data, (size_t)BITS_TO_BYTES(numberOfBitsToSend));
@@ -4108,8 +4108,8 @@ void RakPeer::SendBufferedList(
         return;
     }
 
-    RakAssert(!(reliability >= NUMBER_OF_RELIABILITIES || reliability < 0));
-    RakAssert(!(priority > NUMBER_OF_PRIORITIES || priority < 0));
+    RakAssert(!(static_cast<std::uint8_t>(reliability) >= static_cast<std::uint8_t>(NUMBER_OF_RELIABILITIES)));
+    RakAssert(!(static_cast<std::uint8_t>(priority) > static_cast<std::uint8_t>(NUMBER_OF_PRIORITIES)));
     RakAssert(!(orderingChannel >= NUMBER_OF_ORDERED_STREAMS));
 
     bcs                     = bufferedCommands.Allocate(_FILE_AND_LINE_);
