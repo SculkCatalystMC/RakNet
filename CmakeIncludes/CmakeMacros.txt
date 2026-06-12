@@ -141,6 +141,7 @@ MACRO(FIXCOMPILEOPTIONS)#Fix added compile options that may cause problems, also
 				SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-use-after-free")
 				SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-stringop-truncation")
 				SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-restrict")
+				SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-alloc-size-larger-than")
 			ENDIF()
 		ENDIF()
 	ENDIF(NOT ${CMAKE_GENERATOR} STREQUAL "MSYS Makefiles")
