@@ -832,7 +832,7 @@ void BitStream::PrintBits(void) const {
 }
 void BitStream::PrintHex(char* out) const {
     static const char hexDigits[] = "0123456789abcdef";
-    BitSize_t i;
+    BitSize_t         i;
     for (i = 0; i < GetNumberOfBytesUsed(); i++) {
         const unsigned char value = data[i];
         out[i * 3]                = hexDigits[(value >> 4) & 0x0F];

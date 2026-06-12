@@ -29,12 +29,12 @@ using namespace RakNet;
 #if !defined(ANDROID)
 #include <ifaddrs.h>
 #endif
+#include "LinuxStrings.h"
 #include <net/if.h>
 #include <netinet/in.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <sys/types.h>
-#include "LinuxStrings.h"
 #endif
 
 #ifdef TEST_NATIVE_CLIENT_ON_WINDOWS

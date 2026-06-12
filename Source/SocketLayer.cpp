@@ -91,7 +91,7 @@ namespace {
 bool FormatIpv4AddressString(const in_addr& address, char output[INET_ADDRSTRLEN]) {
     return inet_ntop(AF_INET, &address, output, INET_ADDRSTRLEN) != 0;
 }
-}
+} // namespace
 
 #ifdef _DEBUG
 #include <stdio.h>
@@ -161,7 +161,11 @@ void SocketLayer::SetSocketOptions(__UDPSOCKET__ listenSocket, bool blockingSock
                 NULL
             );
             // something has gone wrong here...
-            RAKNET_DEBUG_PRINTF("setsockopt__(SO_BROADCAST) failed:Error code - %d\n%s", dwIOError, static_cast<char*>(messageBuffer));
+            RAKNET_DEBUG_PRINTF(
+                "setsockopt__(SO_BROADCAST) failed:Error code - %d\n%s",
+                dwIOError,
+                static_cast<char*>(messageBuffer)
+            );
             // Free the buffer.
             LocalFree(messageBuffer);
 #endif
@@ -200,7 +204,7 @@ RakNet::RakString SocketLayer::GetSubNetForSocketAndIp(__UDPSOCKET__ inSock, Rak
         ipString = ipBuffer;
 
         if (inIpString == ipString) {
-            pAddress      = (sockaddr_in*)&(InterfaceList[i].iiNetmask);
+            pAddress = (sockaddr_in*)&(InterfaceList[i].iiNetmask);
             char netmaskBuffer[INET_ADDRSTRLEN];
             if (FormatIpv4AddressString(pAddress->sin_addr, netmaskBuffer)) {
                 netMaskString = netmaskBuffer;
@@ -454,7 +458,11 @@ void SocketLayer::GetSystemAddress(__UDPSOCKET__ s, SystemAddress* systemAddress
             NULL
         );
         // something has gone wrong here...
-        RAKNET_DEBUG_PRINTF("getsockname failed:Error code - %d\n%s", dwIOError, messageBuffer);
+        RAKNET_DEBUG_PRINTF(
+            "getsockname failed:Error code - %d\n%s",
+            static_cast<int>(dwIOError),
+            static_cast<char*>(messageBuffer)
+        );
 
         // Free the buffer.
         LocalFree(messageBuffer);

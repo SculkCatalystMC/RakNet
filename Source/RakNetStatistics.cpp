@@ -75,8 +75,8 @@ void RAK_DLL_EXPORT RakNet::StatisticsToString(RakNetStatistics* s, char* buffer
             output += RakString(
                 "Send limit                       %" PRINTF_64_BIT_MODIFIER "u (%.0f%%)\n",
                 (long long unsigned int)s->BPSLimitByOutgoingBandwidthLimit,
-                100.0f * s->valueOverLastSecond[RNS_METRIC_INDEX(ACTUAL_BYTES_SENT)] /
-                    s->BPSLimitByOutgoingBandwidthLimit
+                100.0f * s->valueOverLastSecond[RNS_METRIC_INDEX(ACTUAL_BYTES_SENT)]
+                    / s->BPSLimitByOutgoingBandwidthLimit
             );
         }
     } else {
@@ -142,8 +142,8 @@ void RAK_DLL_EXPORT RakNet::StatisticsToString(RakNetStatistics* s, char* buffer
             output += RakString(
                 "Send limit                       %" PRINTF_64_BIT_MODIFIER "u (%.0f%%)\n",
                 (long long unsigned int)s->BPSLimitByOutgoingBandwidthLimit,
-                100.0f * s->valueOverLastSecond[RNS_METRIC_INDEX(ACTUAL_BYTES_SENT)] /
-                    s->BPSLimitByOutgoingBandwidthLimit
+                100.0f * s->valueOverLastSecond[RNS_METRIC_INDEX(ACTUAL_BYTES_SENT)]
+                    / s->BPSLimitByOutgoingBandwidthLimit
             );
         }
     }

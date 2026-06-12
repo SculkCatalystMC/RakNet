@@ -16,8 +16,8 @@
 #include "RakMemoryOverride.h"
 #include "SimpleMutex.h"
 #include "StringCompressor.h"
-#include <stdio.h>
 #include <stdarg.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -121,7 +121,7 @@ void RakString::Realloc(SharedString* sharedStr, size_t bytes) {
     newBytes                     = GetSizeToAllocate(bytes);
     if (oldBytes <= (size_t)smallStringSize && newBytes > (size_t)smallStringSize) {
         sharedStr->bigString = (char*)rakMalloc_Ex(newBytes, _FILE_AND_LINE_);
-        size_t copyLen = strlen(sharedStr->smallString) + 1;
+        size_t copyLen       = strlen(sharedStr->smallString) + 1;
         memcpy(sharedStr->bigString, sharedStr->smallString, copyLen);
         sharedStr->c_str = sharedStr->bigString;
     } else if (oldBytes > smallStringSize) {

@@ -158,7 +158,7 @@ public:
     ///
     /// Defaults to 0, meaning by default, nobody can connect to you
     /// \param[in] numberAllowed Maximum number of incoming connections allowed.
-    void SetMaximumIncomingConnections(unsigned short numberAllowed);
+    void SetMaximumIncomingConnections(unsigned int numberAllowed);
 
     /// \brief Returns the value passed to SetMaximumIncomingConnections().
     /// \return Maximum number of incoming connections, which is always <=

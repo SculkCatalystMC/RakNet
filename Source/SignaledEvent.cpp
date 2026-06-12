@@ -111,7 +111,7 @@ void SignaledEvent::WaitOnEvent(int timeoutMs) {
 
     int            rc;
     struct timeval tp;
-    rc         = gettimeofday(&tp, NULL);
+    rc = gettimeofday(&tp, NULL);
     static_cast<void>(rc);
     ts.tv_sec  = tp.tv_sec;
     ts.tv_nsec = tp.tv_usec * 1000;

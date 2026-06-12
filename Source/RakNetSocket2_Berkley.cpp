@@ -22,10 +22,8 @@
 #include "Itoa.h"
 
 namespace {
-bool ParseIpv4Address(const char* text, in_addr* outAddress) {
-    return inet_pton(AF_INET, text, outAddress) == 1;
-}
-}
+bool ParseIpv4Address(const char* text, in_addr* outAddress) { return inet_pton(AF_INET, text, outAddress) == 1; }
+} // namespace
 
 void RNS2_Berkley::SetSocketOptions(void) {
     int r;
@@ -111,7 +109,11 @@ void RNS2_Berkley::GetSystemAddressIPV4And6(RNS2Socket rns2Socket, SystemAddress
             NULL
         );
         // something has gone wrong here...
-        RAKNET_DEBUG_PRINTF("getsockname failed:Error code - %d\n%s", dwIOError, messageBuffer);
+        RAKNET_DEBUG_PRINTF(
+            "getsockname failed:Error code - %d\n%s",
+            static_cast<int>(dwIOError),
+            static_cast<char*>(messageBuffer)
+        );
 
         // Free the buffer.
         LocalFree(messageBuffer);
@@ -273,7 +275,7 @@ RNS2_Berkley::BindSharedIPV4And6(RNS2_BerkleyBindParameters* bindParameters, con
     memset(&hints, 0, sizeof(hints));
     hints.ai_socktype = SOCK_DGRAM;
     hints.ai_flags    = AI_PASSIVE;
-    hints.ai_family = bindParameters->addressFamily;
+    hints.ai_family   = bindParameters->addressFamily;
     char portStr[32];
     Itoa(bindParameters->port, portStr, 10);
 
@@ -345,7 +347,7 @@ void RNS2_Berkley::RecvFromBlockingIPV4And6(RNS2RecvStruct* recvFromStruct) {
 #if defined(_WIN32) && defined(_DEBUG) && !defined(WINDOWS_PHONE_8)
     if (recvFromStruct->bytesRead == -1) {
         DWORD dwIOError = GetLastError();
-        if (dwIoError != 10035) {
+        if (dwIOError != 10035) {
             LPVOID messageBuffer;
             FormatMessage(
                 FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
@@ -357,7 +359,11 @@ void RNS2_Berkley::RecvFromBlockingIPV4And6(RNS2RecvStruct* recvFromStruct) {
                 NULL
             );
             // I see this hit on XP with IPV6 for some reason
-            RAKNET_DEBUG_PRINTF("Warning: recvfrom failed:Error code - %d\n%s", dwIOError, messageBuffer);
+            RAKNET_DEBUG_PRINTF(
+                "Warning: recvfrom failed:Error code - %d\n%s",
+                static_cast<int>(dwIOError),
+                static_cast<char*>(messageBuffer)
+            );
             LocalFree(messageBuffer);
         }
     }

@@ -269,7 +269,7 @@ void SystemAddress::ToString_Old(bool writePort, char* dest, char portDelineator
         dest[0] = 0;
     }
     if (writePort) {
-        size_t destLen = strlen(dest);
+        size_t destLen  = strlen(dest);
         dest[destLen++] = portStr[0];
         dest[destLen]   = 0;
         Itoa(GetPort(), dest + strlen(dest), 10);
@@ -326,9 +326,9 @@ void SystemAddress::ToString_New(bool writePort, char* dest, char portDelineator
 
     if (writePort) {
         unsigned char ch[2];
-        ch[0] = portDelineator;
-        ch[1] = 0;
-        size_t destLen = strlen(dest);
+        ch[0]           = portDelineator;
+        ch[1]           = 0;
+        size_t destLen  = strlen(dest);
         dest[destLen++] = static_cast<char>(ch[0]);
         dest[destLen]   = 0;
         Itoa(ntohs(address.addr4.sin_port), dest + strlen(dest), 10);

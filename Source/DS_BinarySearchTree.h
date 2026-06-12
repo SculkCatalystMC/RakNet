@@ -134,12 +134,12 @@ protected:
     enum class DirectionTypes : unsigned char { NOT_FOUND, LEFT, RIGHT, ROOT };
     using enum DirectionTypes;
     DirectionTypes direction;
-    unsigned int HeightRecursive(node* current);
-    unsigned int BinarySearchTree_size;
-    node*&       Find(const BinarySearchTreeType& element, node** parent);
-    node*&       FindParent(const BinarySearchTreeType& element);
-    void         DisplayPostorderRecursive(node* current, BinarySearchTreeType* return_array, unsigned int& index);
-    void         FixTree(node* current);
+    unsigned int   HeightRecursive(node* current);
+    unsigned int   BinarySearchTree_size;
+    node*&         Find(const BinarySearchTreeType& element, node** parent);
+    node*&         FindParent(const BinarySearchTreeType& element);
+    void           DisplayPostorderRecursive(node* current, BinarySearchTreeType* return_array, unsigned int& index);
+    void           FixTree(node* current);
 };
 
 /// An AVLBalancedBinarySearchTree is a binary tree that is always balanced

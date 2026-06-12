@@ -495,8 +495,8 @@ private:
     // ];
     DataStructures::Heap<reliabilityHeapWeightType, InternalPacket*, false> outgoingPacketBuffer;
     reliabilityHeapWeightType
-        outgoingPacketBufferNextWeights[static_cast<unsigned int>(PacketPriority::NUMBER_OF_PRIORITIES)];
-    void                      InitHeapWeights(void);
+         outgoingPacketBufferNextWeights[static_cast<unsigned int>(PacketPriority::NUMBER_OF_PRIORITIES)];
+    void InitHeapWeights(void);
     reliabilityHeapWeightType GetNextWeight(int priorityLevel);
     //	unsigned int messageInSendBuffer[NUMBER_OF_PRIORITIES];
     //	double bytesInSendBuffer[NUMBER_OF_PRIORITIES];

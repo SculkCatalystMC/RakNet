@@ -183,7 +183,7 @@ void Table::Cell::Clear(void) {
 Table::ColumnDescriptor::ColumnDescriptor() {}
 Table::ColumnDescriptor::~ColumnDescriptor() {}
 Table::ColumnDescriptor::ColumnDescriptor(const char cn[_TABLE_MAX_COLUMN_NAME_LENGTH], ColumnType ct) {
-    columnType = ct;
+    columnType     = ct;
     size_t copyLen = strlen(cn);
     if (copyLen >= _TABLE_MAX_COLUMN_NAME_LENGTH) copyLen = _TABLE_MAX_COLUMN_NAME_LENGTH - 1;
     memcpy(columnName, cn, copyLen);
@@ -735,8 +735,8 @@ void Table::SortTable(Table::SortQuery* sortQueries, unsigned numSortQueries, Ta
     _sortQueries    = sortQueries;
     _numSortQueries = numSortQueries;
     _columnIndices.Clear(false, _FILE_AND_LINE_);
-    _columns        = &columns;
-    bool anyValid   = false;
+    _columns      = &columns;
+    bool anyValid = false;
 
     for (i = 0; i < numSortQueries; i++) {
         if (sortQueries[i].columnIndex < columns.Size() && columns[sortQueries[i].columnIndex].columnType != BINARY) {
@@ -788,11 +788,10 @@ void Table::PrintColumnHeaders(char* out, int outLength, char columnDelineator) 
             if (len < outLength - 1) {
                 out[len]     = columnDelineator;
                 out[len + 1] = 0;
-            }
-            else return;
+            } else return;
         }
 
-        len = (int)strlen(out);
+        len               = (int)strlen(out);
         size_t colNameLen = strlen(columns[i].columnName);
         if (len < outLength - (int)colNameLen) {
             memcpy(out + len, columns[i].columnName, colNameLen + 1);
@@ -817,7 +816,7 @@ void Table::PrintRow(
         size_t      copyLen      = strlen(errorMessage);
         if (copyLen >= (size_t)outLength) copyLen = (size_t)outLength - 1;
         memcpy(out, errorMessage, copyLen);
-        out[copyLen] = 0;
+        out[copyLen]       = 0;
         out[outLength - 1] = 0;
         return;
     }

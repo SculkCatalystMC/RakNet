@@ -94,7 +94,7 @@ RakWString& RakWString::operator=(const char* const str) {
 #else
     c_strCharLength = mbstowcs(NULL, str, 0);
 #endif
-    c_str           = (wchar_t*)rakMalloc_Ex((c_strCharLength + 1) * MAX_BYTES_PER_UNICODE_CHAR, _FILE_AND_LINE_);
+    c_str = (wchar_t*)rakMalloc_Ex((c_strCharLength + 1) * MAX_BYTES_PER_UNICODE_CHAR, _FILE_AND_LINE_);
     if (!c_str) {
         c_strCharLength = 0;
         notifyOutOfMemory(_FILE_AND_LINE_);

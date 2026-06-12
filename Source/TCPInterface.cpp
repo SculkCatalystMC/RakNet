@@ -53,11 +53,9 @@ RAK_THREAD_DECLARATION(ConnectionAttemptLoop);
 
 namespace {
 #if RAKNET_SUPPORT_IPV6 != 1
-bool ParseIpv4Address(const char* text, in_addr* outAddress) {
-    return inet_pton(AF_INET, text, outAddress) == 1;
-}
+bool ParseIpv4Address(const char* text, in_addr* outAddress) { return inet_pton(AF_INET, text, outAddress) == 1; }
 #endif
-}
+} // namespace
 #ifdef _MSC_VER
 #pragma warning(push)
 #endif
@@ -364,8 +362,7 @@ SystemAddress TCPInterface::Connect(
         s->systemAddress.systemIndex = (SystemIndex)newRemoteClientIndex;
         if (bindAddress) {
             snprintf(s->bindAddress, sizeof(s->bindAddress), "%s", bindAddress);
-        }
-        else s->bindAddress[0] = 0;
+        } else s->bindAddress[0] = 0;
         s->tcpInterface = this;
         s->socketFamily = socketFamily;
 
@@ -676,7 +673,7 @@ __TCPSOCKET__ TCPInterface::SocketConnect(
     (void)socketFamily;
 
 #if RAKNET_SUPPORT_IPV6 != 1
-    sockaddr_in serverAddress;
+    sockaddr_in      serverAddress;
     struct addrinfo  hints;
     struct addrinfo* result = 0;
     memset(&hints, 0, sizeof(hints));
@@ -984,7 +981,7 @@ RAK_THREAD_DECLARATION(RakNet::UpdateTCPInterfaceLoop) {
                         // &errlen);
                         // in_addr in;
                         // in.s_addr = sts->remoteClients[i].systemAddress.binaryAddress;
-						// 							RAKNET_DEBUG_PRINTF("Socket
+                        // 							RAKNET_DEBUG_PRINTF("Socket
                         // error %i on <peer>:%i\n", err,
                         // sts->remoteClients[i].systemAddress.GetPort() );
                         // 						}

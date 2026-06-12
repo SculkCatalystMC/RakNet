@@ -131,7 +131,7 @@ bool RakNetCommandParser::OnCommand(
     } else if (strcmp(command, "IsInSecurityExceptionList") == 0) {
         ReturnResult(peer->IsInSecurityExceptionList(parameterList[1]), command, transport, systemAddress);
     } else if (strcmp(command, "SetMaximumIncomingConnections") == 0) {
-        peer->SetMaximumIncomingConnections((unsigned short)atoi(parameterList[0]));
+        peer->SetMaximumIncomingConnections(atoi(parameterList[0]));
         ReturnResult(command, transport, systemAddress);
     } else if (strcmp(command, "GetMaximumIncomingConnections") == 0) {
         ReturnResult((int)peer->GetMaximumIncomingConnections(), command, transport, systemAddress);

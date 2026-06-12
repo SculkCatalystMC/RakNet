@@ -140,8 +140,7 @@ void LogCommandParser::WriteLog(const char* channelName, const char* format, ...
         text[textLen++] = '\r';
         text[textLen++] = '\n';
         text[textLen]   = 0;
-    }
-    else {
+    } else {
         text[textLen - 3] = '\r';
         text[textLen - 2] = '\n';
         text[textLen - 1] = 0;

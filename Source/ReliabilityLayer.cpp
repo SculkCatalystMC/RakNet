@@ -373,10 +373,10 @@ RakNet::TimeMS ReliabilityLayer::GetTimeoutTime(void) { return timeoutTime; }
 //-------------------------------------------------------------------------------------------------------
 void ReliabilityLayer::InitializeVariables(void) {
     for (unsigned i = 0; i < NUMBER_OF_ORDERED_STREAMS; ++i) {
-        orderedWriteIndex[i]          = 0;
-        sequencedWriteIndex[i]        = 0;
-        orderedReadIndex[i]           = 0;
-        highestSequencedReadIndex[i]  = 0;
+        orderedWriteIndex[i]         = 0;
+        sequencedWriteIndex[i]       = 0;
+        orderedReadIndex[i]          = 0;
+        highestSequencedReadIndex[i] = 0;
     }
     memset(&statistics, 0, sizeof(statistics));
     memset(&heapIndexOffsets, 0, sizeof(heapIndexOffsets));
@@ -1749,8 +1749,12 @@ bool ReliabilityLayer::Send(
     uint32_t          receipt
 ) {
 #ifdef _DEBUG
-    RakAssert(!(static_cast<unsigned int>(reliability) >= static_cast<unsigned int>(PacketReliability::NUMBER_OF_RELIABILITIES)));
-    RakAssert(!(static_cast<unsigned int>(priority) >= static_cast<unsigned int>(PacketPriority::NUMBER_OF_PRIORITIES)));
+    RakAssert(!(
+        static_cast<unsigned int>(reliability) >= static_cast<unsigned int>(PacketReliability::NUMBER_OF_RELIABILITIES)
+    ));
+    RakAssert(
+        !(static_cast<unsigned int>(priority) >= static_cast<unsigned int>(PacketPriority::NUMBER_OF_PRIORITIES))
+    );
     RakAssert(!(orderingChannel >= NUMBER_OF_ORDERED_STREAMS));
     RakAssert(numberOfBitsToSend > 0);
 #endif
@@ -1878,7 +1882,8 @@ bool ReliabilityLayer::Send(
 
     RakAssert(internalPacket->dataBitLength < BYTES_TO_BITS(MAXIMUM_MTU_SIZE));
     RakAssert(internalPacket->messageNumberAssigned == false);
-    outgoingPacketBuffer.Push(GetNextWeight(static_cast<int>(internalPacket->priority)), internalPacket, _FILE_AND_LINE_);
+    outgoingPacketBuffer
+        .Push(GetNextWeight(static_cast<int>(internalPacket->priority)), internalPacket, _FILE_AND_LINE_);
     RakAssert(
         outgoingPacketBuffer.Size() == 0 || outgoingPacketBuffer.Peek()->dataBitLength < BYTES_TO_BITS(MAXIMUM_MTU_SIZE)
     );
@@ -2206,8 +2211,8 @@ void ReliabilityLayer::Update(
 
                 statistics.isLimitedByOutgoingBandwidthLimit =
                     bitsPerSecondLimit != 0
-                          && BITS_TO_BYTES(bitsPerSecondLimit)
-                              < bpsMetrics[RNS_METRIC_INDEX(USER_MESSAGE_BYTES_SENT)].GetBPS1(time);
+                    && BITS_TO_BYTES(bitsPerSecondLimit)
+                           < bpsMetrics[RNS_METRIC_INDEX(USER_MESSAGE_BYTES_SENT)].GetBPS1(time);
 
                 while (outgoingPacketBuffer.Size() && statistics.isLimitedByOutgoingBandwidthLimit == false)
                 // while ( sendPacketSet[ i ].Size() )
@@ -2879,10 +2884,8 @@ BitSize_t ReliabilityLayer::WriteToBitStreamFromInternalPacket(
 
     // (Incoming data may be all zeros due to padding)
     bitStream->AlignWriteToByteBoundary(); // Potentially unaligned
-    if (internalPacket->reliability == UNRELIABLE_WITH_ACK_RECEIPT)
-        tempChar = static_cast<unsigned char>(UNRELIABLE);
-    else if (internalPacket->reliability == RELIABLE_WITH_ACK_RECEIPT)
-        tempChar = static_cast<unsigned char>(RELIABLE);
+    if (internalPacket->reliability == UNRELIABLE_WITH_ACK_RECEIPT) tempChar = static_cast<unsigned char>(UNRELIABLE);
+    else if (internalPacket->reliability == RELIABLE_WITH_ACK_RECEIPT) tempChar = static_cast<unsigned char>(RELIABLE);
     else if (internalPacket->reliability == RELIABLE_ORDERED_WITH_ACK_RECEIPT)
         tempChar = static_cast<unsigned char>(RELIABLE_ORDERED);
     else tempChar = (unsigned char)internalPacket->reliability;
@@ -3297,12 +3300,11 @@ void ReliabilityLayer::SplitPacket(InternalPacket* internalPacket) {
         // internalPacketArray[ i ], _FILE_AND_LINE_  );
         RakAssert(internalPacketArray[i]->dataBitLength < BYTES_TO_BITS(MAXIMUM_MTU_SIZE));
         RakAssert(internalPacketArray[i]->messageNumberAssigned == false);
-        outgoingPacketBuffer
-            .PushSeries(
-                GetNextWeight(static_cast<int>(internalPacketArray[i]->priority)),
-                internalPacketArray[i],
-                _FILE_AND_LINE_
-            );
+        outgoingPacketBuffer.PushSeries(
+            GetNextWeight(static_cast<int>(internalPacketArray[i]->priority)),
+            internalPacketArray[i],
+            _FILE_AND_LINE_
+        );
         RakAssert(
             outgoingPacketBuffer.Size() == 0
             || outgoingPacketBuffer.Peek()->dataBitLength < BYTES_TO_BITS(MAXIMUM_MTU_SIZE)
@@ -3715,7 +3717,8 @@ RakNetStatistics* ReliabilityLayer::GetStatistics(RakNetStatistics* rns) {
     memcpy(rns, &statistics, sizeof(statistics));
 
     if (rns->valueOverLastSecond[RNS_METRIC_INDEX(USER_MESSAGE_BYTES_SENT)]
-        + rns->valueOverLastSecond[RNS_METRIC_INDEX(USER_MESSAGE_BYTES_RESENT)] > 0)
+            + rns->valueOverLastSecond[RNS_METRIC_INDEX(USER_MESSAGE_BYTES_RESENT)]
+        > 0)
         rns->packetlossLastSecond =
             (float)((double)rns->valueOverLastSecond[RNS_METRIC_INDEX(USER_MESSAGE_BYTES_RESENT)]
                     / ((double)rns->valueOverLastSecond[RNS_METRIC_INDEX(USER_MESSAGE_BYTES_SENT)]

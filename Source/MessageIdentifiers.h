@@ -37,10 +37,6 @@ enum class OutOfBandIdentifiers : unsigned char {
 
 using enum OutOfBandIdentifiers;
 
-constexpr unsigned char ToMessageID(OutOfBandIdentifiers id) { return static_cast<unsigned char>(id); }
-
-
-
 /// You should not edit the file MessageIdentifiers.h as it is a part of RakNet
 /// static library To define your own message id, define an enum following the
 /// code example that follows.
@@ -529,17 +525,16 @@ enum class DefaultMessageIDTypes : unsigned char {
 
 using enum DefaultMessageIDTypes;
 
-constexpr unsigned char ToMessageID(DefaultMessageIDTypes id) { return static_cast<unsigned char>(id); }
-
-constexpr bool operator==(unsigned char lhs, DefaultMessageIDTypes rhs) { return lhs == ToMessageID(rhs); }
-constexpr bool operator==(DefaultMessageIDTypes lhs, unsigned char rhs) { return ToMessageID(lhs) == rhs; }
+constexpr bool operator==(unsigned char lhs, DefaultMessageIDTypes rhs) {
+    return lhs == static_cast<unsigned char>(rhs);
+}
+constexpr bool operator==(DefaultMessageIDTypes lhs, unsigned char rhs) {
+    return static_cast<unsigned char>(lhs) == rhs;
+}
 constexpr bool operator!=(unsigned char lhs, DefaultMessageIDTypes rhs) { return !(lhs == rhs); }
 constexpr bool operator!=(DefaultMessageIDTypes lhs, unsigned char rhs) { return !(lhs == rhs); }
-
 
 
 #endif // RAKNET_USE_CUSTOM_PACKET_IDS
 
 #endif
-
-

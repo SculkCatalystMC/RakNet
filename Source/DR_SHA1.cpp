@@ -273,9 +273,9 @@ bool CSHA1::ReportHash(TCHAR* tszReport, ReportType rtReportType) const {
     if (tszReport == NULL) return false;
 
     static const size_t REPORT_BUFFER_CAPACITY = 84;
-    TCHAR tszTemp[16];
-    size_t outLen = 0;
-    tszReport[0]  = 0;
+    TCHAR               tszTemp[16];
+    size_t              outLen = 0;
+    tszReport[0]               = 0;
 
     if ((rtReportType == ReportType::Hex) || (rtReportType == ReportType::HexShort)) {
         _sntprintf(tszTemp, 15, _T("%02X"), m_digest[0]);
