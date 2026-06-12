@@ -18,6 +18,7 @@
 
 #include "Export.h"
 #include "RakNetDefines.h"
+#include <limits>
 #include <new>
 
 #include "RakAlloca.h"
@@ -137,9 +138,10 @@ OP_NEW_4(const char* file, unsigned int line, const P1& p1, const P2& p2, const 
 
 template <class Type>
 RAK_DLL_EXPORT Type* OP_NEW_ARRAY(const int count, const char* file, unsigned int line) {
-    if (count == 0) return 0;
+    if (count <= 0) return 0;
 
 #if _USE_RAK_MEMORY_OVERRIDE == 1
+    if (static_cast<size_t>(count) > (std::numeric_limits<size_t>::max() - sizeof(int)) / sizeof(Type)) return 0;
     //		Type *t;
     char* buffer      = (char*)(GetMalloc_Ex())(sizeof(int) + sizeof(Type) * count, file, line);
     ((int*)buffer)[0] = count;
@@ -151,7 +153,7 @@ RAK_DLL_EXPORT Type* OP_NEW_ARRAY(const int count, const char* file, unsigned in
 #else
     (void)file;
     (void)line;
-    return new Type[count];
+    return new Type[static_cast<size_t>(count)];
 #endif
 }
 
