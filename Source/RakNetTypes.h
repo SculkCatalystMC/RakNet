@@ -22,6 +22,7 @@
 #include "SocketIncludes.h"
 #include "WindowsIncludes.h"
 #include "XBox360Includes.h"
+#include <functional>
 
 namespace RakNet {
 /// Forward declarations
@@ -571,10 +572,9 @@ struct RAK_DLL_EXPORT uint24_t {
 
 } // namespace RakNet
 
-#endif
-
-
 template <>
 struct std::hash<RakNet::RakNetGUID> {
     size_t operator()(const RakNet::RakNetGUID& v) const { return static_cast<size_t>(v.g); }
 };
+
+#endif
