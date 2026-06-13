@@ -9,8 +9,6 @@ x64/
 *.suo
 
 # Xcode and OS X 
-build/
-build-gcc/
 *.pbxuser
 !default.pbxuser
 *.mode1v3
@@ -33,3 +31,5 @@ Release/
 
 # IDE
 /scripts/
+/build/
+/build-*/

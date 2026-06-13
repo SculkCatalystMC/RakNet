@@ -1971,6 +1971,7 @@ bool BitStream::ReadBitsFromIntegerRange(
     bool               allowOutsideRange
 ) {
     RakAssert(maximum >= minimum);
+    (void)maximum;
     if (allowOutsideRange) {
         bool isOutsideRange;
         Read(isOutsideRange);
