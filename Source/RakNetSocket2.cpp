@@ -265,7 +265,13 @@ bool IRNS2_Berkley::IsPortInUse(unsigned short port, const char* hostAddress, un
 void SocketReadCallback(CFSocketRef s, CFSocketCallBackType type, CFDataRef address, const void* data, void* info)
 // This C routine is called by CFSocket when there's data waiting on our
 // UDP socket.  It just redirects the call to Objective-C code.
-{}
+{
+    (void)s;
+    (void)type;
+    (void)address;
+    (void)data;
+    (void)info;
+}
 #endif
 
 RNS2BindResult
